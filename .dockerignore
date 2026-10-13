@@ -1,0 +1,32 @@
+# Allow only production build inputs. Never upload the checkout, env files,
+# reference repository, recordings, local virtualenvs or credentials.
+**
+!Dockerfile
+!go.mod
+!go.sum
+!cmd/**
+!internal/**
+!migrations/**
+!data/demo-store.json
+!web/**
+!agent/**
+!intent/**
+!deploy/verify_model.py
+**/.env
+**/.env.*
+**/*credentials*
+**/*.pem
+**/*.key
+**/node_modules/**
+**/.svelte-kit/**
+**/build/**
+**/.venv/**
+**/__pycache__/**
+**/.pytest_cache/**
+**/tests/**
+**/*.test.*
+**/*_test.go
+**/recordings/**
+**/*.wav
+**/*.mp3
+**/*.pcm
