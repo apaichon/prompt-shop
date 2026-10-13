@@ -1,0 +1,20 @@
+    if (!spotlightToken || !card) return;
+    const token = spotlightToken;
+    requestAnimationFrame(() => {
+      if (token !== spotlightToken) return;
+      if (focusSpotlight) card.querySelector<HTMLAnchorElement>('a')?.focus({ preventScroll: true });
+      const box = card.getBoundingClientRect();
+      if (box.top < 0 || box.bottom > window.innerHeight) {
+        card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      }
+    });
+  });
+
+  <a class="market-product-card__image" href={`/stores/${storeSlug}/products/${product.id}`}>
+    {#if product.image_url}<img src={product.image_url} alt={product.name} referrerpolicy="no-referrer" />{:else}<span aria-hidden="true">🛍️</span>{/if}
+  </a>
+  <div class="market-product-card__body">
+    {#if featured}<p class="market-featured-label">{recommended ? lang.text('TOP MATCH', 'ตรงใจที่สุด') : lang.text('FEATURED', 'สินค้าเด่น')}</p>{/if}
+    <p class="market-eyebrow">{product.category}</p>
+    <h3><a href={`/stores/${storeSlug}/products/${product.id}`}>{product.name}</a></h3>
+    <p class="market-product-description">{product.description}</p>

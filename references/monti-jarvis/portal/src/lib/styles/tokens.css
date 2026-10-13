@@ -1,0 +1,26 @@
+:root {
+  color-scheme: light;
+  --market-ivory: #fff9f0;
+  --market-ivory-deep: #f7eee1;
+  --market-surface: #ffffff;
+  --market-ink: #20241f;
+  --market-muted: #667066;
+  --market-leaf: #235c3b;
+  --market-leaf-strong: #17462c;
+  --market-leaf-soft: #e8f1eb;
+  --market-orange: #d94c17;
+  --market-orange-strong: #b8390e;
+  --market-line: #ded9cf;
+  --market-danger: #a52c27;
+  --market-focus: #1769aa;
+  --market-radius: 0.75rem;
+  --market-radius-pill: 999px;
+  --market-space-1: 0.25rem;
+  --market-space-2: 0.5rem;
+  --market-space-3: 0.75rem;
+  --market-space-4: 1rem;
+  --market-space-5: 1.5rem;
+  --market-space-6: 2rem;
+  --market-shadow: 0 12px 32px rgb(61 50 35 / 10%);
+  --market-content: 90rem;
+}

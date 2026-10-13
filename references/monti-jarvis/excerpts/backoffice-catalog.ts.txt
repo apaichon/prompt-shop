@@ -1,0 +1,25 @@
+  const PAGE_SIZES = [10, 20, 50];
+  let tab = $state<Tab>('overview'); let profile = $state<BusinessProfile|null>(null); let products = $state<ShoppingProduct[]>([]); let inventory = $state<ShoppingInventory[]>([]); let orders = $state<ShoppingOrder[]>([]); let loading = $state(true); let saving = $state(false);
+  let editing = $state<ShoppingProduct|null>(null); let name=$state(''); let description=$state(''); let category=$state(''); let imageURL=$state('');
+
+  let catalogQ=$state(''); let catalogState=$state(''); let catalogLimit=$state(10); let catalogCursor=$state(''); let catalogNext=$state<string|null>(null); let catalogPrev=$state<string[]>([]); let catalogPage=$state(1); let catalogTotal=$state(0);
+
+  const catalogRange = $derived(rangeText(catalogPage, catalogLimit, products.length, catalogTotal));
+
+  const message=(error:unknown,fallback:string)=>error instanceof ApiError ? String(error.message) : fallback;
+  function rangeText(page:number, limit:number, count:number, total:number){
+    if(!count) return total ? `0 of ${total}` : '0';
+    const from = (page-1)*limit+1;
+    return `${from}–${from+count-1} of ${total}`;
+  }
+  async function loadCatalog(cursor='', reset=false){
+    const res = await listShoppingProducts({q:catalogQ.trim(), state:catalogState, limit:Number(catalogLimit), cursor});
+    products = res.items; catalogNext = res.next_cursor; catalogTotal = res.total ?? res.items.length; catalogCursor = cursor;
+    if(reset){ catalogPrev=[]; catalogPage=1; }
+  }
+
+  async function searchCatalog(){ try{ await loadCatalog('',true);}catch(error){feedback.error(message(error,'Product search failed'));} }
+
+  function edit(product?:ShoppingProduct){editing=product??null;name=product?.name??'';description=product?.description??'';category=product?.category??'';imageURL=product?.image_url??'';}
+  async function saveProduct(){if(!name.trim()||!category.trim()){feedback.error('Name and category are required');return;}saving=true;const wasEditing=!!editing;try{if(editing)await updateShoppingProduct(editing,{name,description,category,image_url:imageURL});else await createShoppingProduct({name,description,category,image_url:imageURL,state:'draft'});feedback.success(wasEditing?'Product updated':'Draft product created');edit();await loadCatalog(wasEditing?catalogCursor:'', !wasEditing);}catch(error){feedback.error(message(error,'Product save failed'));}finally{saving=false;}}
+  async function setProductState(product:ShoppingProduct,next:ShoppingProduct['state']){try{await updateShoppingProduct(product,{state:next});await loadCatalog(catalogCursor);feedback.success(`Product ${next}`);}catch(error){feedback.error(message(error,'State change failed'));}}

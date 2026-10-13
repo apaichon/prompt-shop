@@ -1,0 +1,75 @@
+func (r *Relay) setupMessage(agent workforce.Agent, prompt string, tools []ToolDeclaration) map[string]any {
+	voice := strings.TrimSpace(agent.Voice)
+	if voice == "" {
+		voice = "Aoede"
+	}
+	setup := map[string]any{
+		"model": "models/" + normalizeModel(r.cfg.Model),
+		"generationConfig": map[string]any{
+			"responseModalities": []string{"AUDIO"},
+			"speechConfig": map[string]any{
+				"voiceConfig": map[string]any{
+					"prebuiltVoiceConfig": map[string]any{"voiceName": voice},
+				},
+			},
+		},
+		"systemInstruction": map[string]any{
+			"parts": []map[string]any{{"text": prompt}},
+		},
+		"inputAudioTranscription":  map[string]any{},
+		"outputAudioTranscription": map[string]any{},
+		"realtimeInputConfig": map[string]any{
+			"automaticActivityDetection": map[string]any{
+				"disabled":          false,
+				"prefixPaddingMs":   100,
+				"silenceDurationMs": 500,
+			},
+		},
+	}
+	if len(tools) > 0 {
+		setup["tools"] = []map[string]any{{"functionDeclarations": tools}}
+	}
+	return map[string]any{"setup": setup}
+}
+
+func executeGeminiToolCalls(ctx context.Context, frame geminiFrame, executor ToolExecutor, tenantID, agentID, callID string) []map[string]any {
+	if frame.ToolCall == nil || executor == nil {
+		return nil
+	}
+	responses := make([]map[string]any, 0, len(frame.ToolCall.FunctionCalls))
+	for _, call := range frame.ToolCall.FunctionCalls {
+		result := executor(ctx, tenantID, agentID, callID, call.Name, call.Args)
+		responses = append(responses, map[string]any{"name": call.Name, "id": call.ID, "response": result})
+	}
+	return responses
+}
+
+type geminiFrame struct {
+	ToolCall *struct {
+		FunctionCalls []struct {
+			Name string         `json:"name"`
+			Args map[string]any `json:"args"`
+			ID   string         `json:"id"`
+		} `json:"functionCalls,omitempty"`
+	} `json:"toolCall,omitempty"`
+	ServerContent *struct {
+		ModelTurn *struct {
+			Parts []struct {
+				Text       string `json:"text,omitempty"`
+				InlineData *struct {
+					MimeType string `json:"mimeType"`
+					Data     string `json:"data"`
+				} `json:"inlineData,omitempty"`
+			} `json:"parts,omitempty"`
+		} `json:"modelTurn,omitempty"`
+		InputTranscription *struct {
+			Text string `json:"text"`
+		} `json:"inputTranscription,omitempty"`
+		OutputTranscription *struct {
+			Text string `json:"text"`
+		} `json:"outputTranscription,omitempty"`
+		TurnComplete       bool `json:"turnComplete,omitempty"`
+		GenerationComplete bool `json:"generationComplete,omitempty"`
+		Interrupted        bool `json:"interrupted,omitempty"`
+	} `json:"serverContent,omitempty"`
+}

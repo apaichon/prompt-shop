@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.log
+
+# Per-task git worktrees (see GIT_WORKFLOW.md)
+.worktrees/
+
+# Derived SDLC graph exports
+docs/sdlc/_graph.json
+docs/sdlc/_graph.mmd

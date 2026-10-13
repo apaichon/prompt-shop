@@ -1,0 +1,70 @@
+  async function search() {
+    const request = ++catalogRequest;
+    searching = true;
+    try {
+      const result = await marketAPI.products(slug, query, category);
+      if (request !== catalogRequest) return;
+      products = result.items;
+      currentPage = 1;
+      error = '';
+      dismissRecommendation();
+    }
+    catch (cause) { if (request === catalogRequest) error = cause instanceof Error ? cause.message : 'Search failed'; }
+    finally { if (request === catalogRequest) searching = false; }
+  }
+
+  async function presentProducts(matches: { productID: string; variantID: string }[]): Promise<boolean> {
+    const request = ++catalogRequest;
+    searching = true;
+    try {
+      const ids = [...new Set(matches.map((item) => item.productID))];
+      const resolved = await Promise.all(ids.map((id) => marketAPI.product(slug, id)));
+      if (request !== catalogRequest) return false;
+      for (const match of matches) {
+        const item = resolved.find((product) => product.id === match.productID);
+        if (!item || item.tenant_id !== store?.tenant_id || item.state !== 'published' ||
+          !item.variants.some((variant) => variant.id === match.variantID && variant.active)) {
+          throw new Error(lang.text('Could not verify the recommended product. Please search again.', 'ตรวจสอบสินค้าที่แนะนำไม่สำเร็จ โปรดลองค้นหาอีกครั้ง'));
+        }
+      }
+      // Commit the complete, exact-ID result atomically. Do not reinterpret the
+      // tool's natural-language query with the public literal-search endpoint.
+      products = resolved;
+      query = '';
+      category = '';
+      currentPage = 1;
+      error = '';
+      dismissRecommendation();
+      return true;
+    } catch (cause) {
+      if (request !== catalogRequest) return false;
+      error = cause instanceof Error ? cause.message : 'Could not load recommended products';
+      throw cause;
+    } finally { if (request === catalogRequest) searching = false; }
+  }
+
+  async function recommend(productID: string, variantID: string, focus = false) {
+    const request = ++catalogRequest;
+    searching = false;
+    if (!products.some((item) => item.id === productID)) {
+      const product = await marketAPI.product(slug, productID);
+      if (request !== catalogRequest) return;
+      products = [product, ...products];
+    }
+    recommendedProductID = productID;
+    recommendedVariantID = variantID;
+    focusSpotlight = focus;
+    const productIndex = products.findIndex((item) => item.id === productID);
+    if (productIndex >= 0) currentPage = Math.floor(productIndex / productsPerPage) + 1;
+    spotlightProductID = productID;
+    spotlightToken += 1;
+    clearTimeout(spotlightTimer);
+    spotlightTimer = setTimeout(() => { spotlightProductID = ''; }, 6000);
+  }
+
+  function dismissRecommendation() {
+    recommendedProductID = '';
+    recommendedVariantID = '';
+    spotlightProductID = '';
+    clearTimeout(spotlightTimer);
+  }
