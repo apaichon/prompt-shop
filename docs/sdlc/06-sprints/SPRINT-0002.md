@@ -46,7 +46,7 @@ Record actual evidence from linked tests before reporting completion. Unfinished
 |---|---|---|
 | [TASK-0002](../05-tasks/TASK-0002.md) | Grok | GPT |
 | [TASK-0003](../05-tasks/TASK-0003.md) | GPT | Grok |
-| [TASK-0004](../05-tasks/TASK-0004.md) | Grok | GPT |
+| [TASK-0004](../05-tasks/TASK-0004.md) | GPT | Grok |
 | [TASK-0005](../05-tasks/TASK-0005.md) | GPT | Grok |
 | [TASK-0010](../05-tasks/TASK-0010.md) | Grok | GPT |
 
@@ -69,3 +69,8 @@ Deployment plan: [DEP-0001](../08-deployments/DEP-0001.md).
 ## Synchronization checkpoints
 
 After accepted TASK-0001, TASK-0002/0003/0004/0005/0010 may start on disjoint surfaces. Fixture-based feature work can proceed independently; TASK-0005 cannot finish until actual catalog, ADK voice, customer UI and Laya integrate and TEST-0010 passes. TASK-0009 waits for accepted TASK-0004, and final TASK-0006 waits for staging plus all features. See [the execution matrix](../../MODEL-ALLOCATION.md#synchronization-and-parallel-work) for start gates, completion gates and the default two-session schedule.
+
+
+## TASK-0004 handoff — 14 October 2026
+
+User reassigned customer UI to GPT; Grok remains the reviewer. The GPT frontend implementation is isolated in `feature/TASK-0004-customer-portal`, with 22 unit tests, 9 Chromium tests, typecheck and static build passing. Review/manual screen-reader gates keep TASK-0004 blocked. Shared web client/layout handoff and deployment commands are in `web/README.md`; TASK-0009 keeps its exclusive backoffice route. TASK-0005 owns adding these checks/static assets to integrated CI/images. No other task allocation changed and no real provider/cloud acceptance is claimed.

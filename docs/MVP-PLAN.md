@@ -73,7 +73,7 @@ Deployment work starts early on 14 October. A local app or a cloud hello-world p
 | [TASK-0002](sdlc/05-tasks/TASK-0002.md) | backend-dev-1 | **Grok** | Product lookup and walkable routes | 4–6 h |
 | [TASK-0003](sdlc/05-tasks/TASK-0003.md) | backend-dev-2 | **GPT** | ADK native Live runtime and Go gateway | 8–14 h |
 | [TASK-0010](sdlc/05-tasks/TASK-0010.md) | backend-dev-2 | **Grok** | Laya classifier and ADK intent tool | 4–7 h |
-| [TASK-0004](sdlc/05-tasks/TASK-0004.md) | frontend-dev | **Grok** | Shared portal and Live audio customer flow | 6–9 h |
+| [TASK-0004](sdlc/05-tasks/TASK-0004.md) | frontend-dev | **GPT** | Shared portal and Live audio customer flow | 6–9 h |
 | [TASK-0005](sdlc/05-tasks/TASK-0005.md) | devops-agent | **GPT** | Three-container GCP staging and model startup | 5–8 h |
 | [TASK-0009](sdlc/05-tasks/TASK-0009.md) | backend-dev-1 + frontend-dev | **GPT** | Minimal protected backoffice | 4–6 h |
 | [TASK-0006](sdlc/05-tasks/TASK-0006.md) | qa-agent | **Grok** | Integrated ADK/Laya/UI acceptance and hardening | 5–8 h |
@@ -84,7 +84,7 @@ Total estimate: **43–69 engineering hours**, including rehearsal work, not a d
 
 ## GPT and Grok allocation
 
-[MODEL-ALLOCATION.md](MODEL-ALLOCATION.md) assigns a builder and opposite-model reviewer to every task, with exclusive file surfaces and ready-to-use handoffs. GPT leads TASK-0001/0003/0005/0008/0009; Grok leads TASK-0002/0004/0006/0007/0010. GPT owns shared integration and release; Grok does not independently change shared contracts or deploy. These are development tools, while Gemini Live 3.8, ADK and Laya remain the required runtime.
+[MODEL-ALLOCATION.md](MODEL-ALLOCATION.md) assigns a builder and opposite-model reviewer to every task, with exclusive file surfaces and ready-to-use handoffs. GPT leads TASK-0001/0003/0004/0005/0008/0009; Grok leads TASK-0002/0006/0007/0010. GPT owns shared integration and release; Grok does not independently change shared contracts or deploy. These are development tools, while Gemini Live 3.8, ADK and Laya remain the required runtime.
 
 ## Reuse already prepared
 
