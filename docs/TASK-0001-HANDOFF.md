@@ -1,6 +1,7 @@
 # TASK-0001: foundation handoff
 
 Implementation: GPT / backend-dev-1. Required peer reviewer: Grok (pending).
+Draft review: [PR #1](https://github.com/apaichon/prompt-shop/pull/1).
 Worktree: `.worktrees/TASK-0001`; branch: `feature/TASK-0001-foundation`.
 
 ## Implemented
@@ -40,7 +41,7 @@ rtk proxy env -u GOROOT /opt/homebrew/bin/go run golang.org/x/vuln/cmd/govulnche
 rtk proxy python3 data/validate_contracts.py
 ```
 
-Without `TEST_DATABASE_URL`, database integration tests explicitly skip. To reproduce TEST-0006, use a disposable database whose name ends in `_task1` (the integration test **drops its public schema**). Never point that variable at acceptance or user data. The recorded test used a task-owned container `prompt-shop-task1-db`, DB `prompt_shop_task1`, local port 55439 and named volume `prompt-shop-task1-data`. Start it with the pinned Compose image and local test password `task1-disposable-only`, then:
+Without `TEST_DATABASE_URL`, database integration tests explicitly skip. To reproduce TEST-0006, use a disposable database whose name ends in `_task1` (the integration test **drops its public schema**). Never point that variable at acceptance or user data. The recorded test used a task-owned container `prompt-shop-task1-db`, DB `prompt_shop_task1`, local port 55439 and named volume `prompt-shop-task1-data`. The task-owned test DB was left stopped after verification; if its container already exists, use `rtk proxy docker start prompt-shop-task1-db` instead of creating it again. Start a new container with the pinned Compose image and local test password `task1-disposable-only`, then:
 
 ```sh
 rtk proxy docker run -d --name prompt-shop-task1-db -e POSTGRES_PASSWORD=task1-disposable-only -e POSTGRES_DB=prompt_shop_task1 -p 127.0.0.1:55439:5432 --mount type=volume,source=prompt-shop-task1-data,target=/var/lib/postgresql/data postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
