@@ -8,3 +8,11 @@ node_modules/
 # Derived SDLC graph exports
 docs/sdlc/_graph.json
 docs/sdlc/_graph.mmd
+
+.env
+.env.*
+!.env.example
+/bin/
+/tmp/
+*.test
+coverage.out

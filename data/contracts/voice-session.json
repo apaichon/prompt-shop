@@ -1,0 +1,5 @@
+{
+  "session_id": "fixture-session",
+  "ticket_expires_at": "2026-10-13T12:00:30Z",
+  "ws_path": "/ws/voice"
+}

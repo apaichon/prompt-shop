@@ -1,0 +1,30 @@
+{
+  "task": "TASK-0001",
+  "test": "TEST-0006",
+  "date": "2026-10-13",
+  "go": "go1.26.9",
+  "postgres": "16.15",
+  "postgres_image": "postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+  "migration_version": 1,
+  "seed_import_version": "demo-v1",
+  "seed_counts": {
+    "published": 60,
+    "draft": 1,
+    "archived": 1,
+    "aisles": 8,
+    "shelves": 32,
+    "nodes": 41,
+    "edges": 40
+  },
+  "sha256": {
+    "go.mod": "31c74a65825b1ee7880b118850e96f8de4d90c8c28674ddfb25c9b37a093c8d1",
+    "go.sum": "028f943ea14cf5f6aa8b91afdec231cdabe43ffeb6694217f8c6f2948a116e74",
+    "migrations/001_foundation.sql": "e0babc3ad2d01953ed2be8ce3dbbdbcd59d0a14791aa73b23c6bcc570b028f91",
+    "migrations/roles.sql": "b67e9655a330892086a155cef2bbd396229b12e53c491c70f78e0bb44403cc5c",
+    "data/demo-store.json": "822b40b6464f933e1b605042f364611f97cf1192ed465842eca180fe8be3dbc7",
+    "data/import.schema.json": "dc5494904371343033314612eaf96e3f87cb513045d6538a59348c2c33ca49d9",
+    "api/openapi.yaml": "cfcd4eeb55b045338b684168e00dcf962ae761ba8220384e53229f45bef6ef02",
+    "data/contracts/live.schema.json": "7bc0f19571d7c6d197b53e6db0fd04773773ccc572140482cf4b37c30c477109",
+    "data/contracts/private.schema.json": "a46b174c65e5a3412f826584a42bcd2cd36c7975e5ca23e66b1141d6e42f324b"
+  }
+}
