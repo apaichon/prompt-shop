@@ -2,7 +2,7 @@
 
 Proposed allocation for the 16 October 2026 GCP release and 18 October submission. GPT and Grok are **development assistants**; the deployed solution still uses Gemini Live 3.8, Google ADK and Laya. No Grok client has been connected, no task has been dispatched to it, and no model version or account availability is assumed by this document.
 
-GPT is the integration lead. Grok owns bounded feature packages, customer UI and evidence preparation. This split follows dependencies and exclusive file surfaces; it is not a benchmark claim that either model is better at a language or domain. Preserve existing task IDs, requirement scope, estimates and role accountability.
+GPT is the integration lead. GPT also owns the customer portal after the user’s 14 October reassignment. Grok owns bounded backend packages and evidence preparation. This split follows dependencies and exclusive file surfaces; it is not a benchmark claim that either model is better at a language or domain. Preserve existing task IDs, requirement scope, estimates and role accountability.
 
 ## Task assignment
 
@@ -11,7 +11,7 @@ GPT is the integration lead. Grok owns bounded feature packages, customer UI and
 | [TASK-0001](sdlc/05-tasks/TASK-0001.md) | Foundation, schema, import and shared contracts | **GPT** | Grok |
 | [TASK-0002](sdlc/05-tasks/TASK-0002.md) | Catalog lookup and walkable route API | **Grok** | GPT |
 | [TASK-0003](sdlc/05-tasks/TASK-0003.md) | ADK + Gemini Live runtime and gateway | **GPT** | Grok |
-| [TASK-0004](sdlc/05-tasks/TASK-0004.md) | Interactive customer portal and map | **Grok** | GPT |
+| [TASK-0004](sdlc/05-tasks/TASK-0004.md) | Interactive customer portal and map | **GPT** | Grok |
 | [TASK-0005](sdlc/05-tasks/TASK-0005.md) | Three-container GCP staging | **GPT** | Grok |
 | [TASK-0006](sdlc/05-tasks/TASK-0006.md) | Integrated QA and hardening | **Grok** | GPT |
 | [TASK-0007](sdlc/05-tasks/TASK-0007.md) | Demo rehearsal and submission package | **Grok** | GPT |
@@ -19,7 +19,7 @@ GPT is the integration lead. Grok owns bounded feature packages, customer UI and
 | [TASK-0009](sdlc/05-tasks/TASK-0009.md) | Protected backoffice backend and UI | **GPT** | Grok |
 | [TASK-0010](sdlc/05-tasks/TASK-0010.md) | Laya classifier and ADK intent adapter | **Grok** | GPT |
 
-TASK-0009 includes both backoffice API and its UI under GPT. Grok hands over the shared portal shell from TASK-0004 first; do not have both builders modify the same route. The opposite-model reviewer reviews the diff and verification evidence, not merely the author's summary.
+TASK-0009 includes both backoffice API and its UI under GPT. The GPT frontend owner hands over the TASK-0004 shared portal shell first; do not have both builders modify the same route. The opposite-model reviewer reviews the diff and verification evidence, not merely the author's summary.
 
 ## File ownership and integration
 
@@ -29,8 +29,8 @@ TASK-0009 includes both backoffice API and its UI under GPT. Grok hands over the
 | `internal/catalog/`, `internal/routing/` | Grok / TASK-0002 | Return constructors/handler registration and TEST-0007 evidence; GPT wires shared server |
 | `internal/voice/`, `agent/` except classifier adapter and Dockerfile | GPT / TASK-0003 | Freeze gateway/ADK tool interfaces before Grok integration |
 | `intent/` except Dockerfile; `agent/tools/intent.py` | Grok / TASK-0010 | Own classifier lock/model manifest; request ADK registry/lock changes from GPT |
-| `web/` except backoffice route | Grok / TASK-0004 | Own customer components, shared layout/client/types and web lockfile; respond to GPT backoffice interface requests |
-| `internal/backoffice/`, `web/src/routes/backoffice/` | GPT / TASK-0009 | Start after TASK-0004 shell handoff; shared web/layout changes go through Grok |
+| `web/` except backoffice route | GPT / TASK-0004 | Own customer components, shared layout/client/types and web lockfile; respond to GPT backoffice interface requests |
+| `internal/backoffice/`, `web/src/routes/backoffice/` | GPT / TASK-0009 | Start after TASK-0004 shell handoff; shared web/layout changes go through the GPT frontend owner |
 | Root, ADK and Laya Dockerfiles; `.dockerignore`, `deploy/`, `.github/workflows/` | GPT / TASK-0005 then TASK-0008 | Feature owners supply build inputs; GPT serializes image/manifest/release changes |
 | `tests/` and acceptance evidence | Grok / TASK-0006 | Product fixes return to the assigned feature builder; GPT reviews results and acceptance coverage |
 | `docs/demo/` | Grok / TASK-0007 | Use measured release evidence; GPT checks reproducibility and unsupported claims |
@@ -44,7 +44,7 @@ Tests inside a feature's exclusive directory follow its builder. Central integra
 
 1. **Foundation — GPT TASK-0001.** Freeze schema, API examples, private bridge/tool interfaces and fixture expectations. Grok reviews contracts and the existing frozen QA corpora. Preparatory source reading does not claim an implementation gate has passed.
 2. **Highest-risk pair — GPT TASK-0003 + Grok TASK-0010.** Prove actual ADK/Gemini audio and real Laya CPU inference separately, then connect the narrow adapter. Mocked module fixtures help isolated development but cannot satisfy integrated acceptance.
-3. **Customer vertical slice — Grok TASK-0002, then TASK-0004.** GPT prepares TASK-0005 staging after its own voice work, or in a separate GPT session restricted to deployment files. Customer UI may start with agreed fixtures if a separate Grok session is available; do not assume extra concurrent sessions exist. Staging completion requires all real services.
+3. **Customer vertical slice — Grok TASK-0002 and GPT TASK-0004.** GPT prepares TASK-0005 staging after its own voice work, or in a separate GPT session restricted to deployment files. Customer UI may start with agreed fixtures in the claimed GPT frontend session; do not assume extra concurrent sessions exist. Staging completion requires all real services.
 4. **Backoffice and acceptance — GPT TASK-0009, then Grok TASK-0006.** Grok may prepare QA harnesses earlier, but final acceptance waits for all dependencies. GPT reviews the frozen cases and reruns selected catalog/UI/Laya checks independently, especially for Grok-authored features.
 5. **Release — GPT TASK-0008 on 16 October.** Grok reviews candidate evidence and rollback results. Deployment uses the already-required cloud/access decisions; assigning a model does not supply credentials or approve publication.
 6. **Submission pack — Grok TASK-0007 on 17 October.** GPT verifies the walkthrough against the deployed release; submission remains 18 October through the requested channel.
@@ -60,9 +60,9 @@ A start prerequisite and an integration prerequisite are different. `blocked_by`
 | TASK-0001 | GPT | Reviewed requirements/design and normal project execution gates | First shared foundation. Grok may review contracts and source; dependent feature implementation waits for accepted foundation output |
 | TASK-0002 | Grok | TASK-0001 | Catalog/routes can run alongside 0003/0004/0005/0010; hand service constructors and TEST-0007 evidence to GPT for wiring |
 | TASK-0003 | GPT | TASK-0001 and frozen private tool/intent interfaces | Voice runtime can use catalog/classifier fixtures for TEST-0008; real integration must synchronize with 0002 and 0010 |
-| TASK-0004 | Grok | TASK-0001 and frozen API/event fixtures | Customer UI can run alongside backend work; TEST-0009 uses fixtures. Actual voice/card/map acceptance waits for 0002/0003/0010 |
+| TASK-0004 | GPT | TASK-0001 and frozen API/event fixtures | Customer UI can run alongside backend work; TEST-0009 uses fixtures. Actual voice/card/map acceptance waits for 0002/0003/0010 |
 | TASK-0005 | GPT | TASK-0001; actual cloud actions also need existing project/access prerequisites | Build/manifests/infra preparation can run alongside features. Complete staging only after 0002/0003/0004/0010 are integrated and TEST-0010 passes |
-| TASK-0009 | GPT | TASK-0001 and accepted TASK-0004 customer-shell/fixture gate | Backoffice then uses its exclusive route/API paths; may run alongside remaining staging work. Shared web changes still go through Grok |
+| TASK-0009 | GPT | TASK-0001 and accepted TASK-0004 customer-shell/fixture gate | Backoffice then uses its exclusive route/API paths; may run alongside remaining staging work. Shared web changes still go through the GPT frontend owner |
 | TASK-0006 | Grok | TASK-0002/0003/0004/0005/0009/0010 | Final integrated acceptance waits for all six. Reading specs and preparing the frozen test plan can happen earlier; fixtures do not count as executed acceptance |
 | TASK-0008 | GPT | TASK-0005 and TASK-0006 accepted | Release is sequential after the acceptance checkpoint; preserve TEST-0004 candidate checks, promotion, post-promotion smoke and rollback evidence |
 | TASK-0007 | Grok | TASK-0008 accepted | Final demo recording/package uses the real release. Outline drafting may happen earlier, but cannot satisfy the task gate |
@@ -80,7 +80,7 @@ A start prerequisite and an integration prerequisite are different. `blocked_by`
 flowchart TD
     F["GPT 0001: accepted foundation"] --> C["Grok 0002: catalog/routes"]
     F --> V["GPT 0003: ADK voice"]
-    F --> U["Grok 0004: UI with fixtures"]
+    F --> U["GPT 0004: UI with fixtures"]
     F --> L["Grok 0010: Laya"]
     F --> P["GPT 0005: staging preparation"]
     C --> I["Sync: real customer integration"]
@@ -100,7 +100,7 @@ The two TASK-0005 boxes show preparation and completion of the same task, not tw
 
 ### With one GPT session and one Grok session
 
-Start GPT 0001 with Grok reviewing its contracts. Then pair GPT 0003 with Grok 0010. Grok continues 0002 then 0004; GPT can prepare 0005 after its voice work, synchronizing shared integrations as they become ready. After 0004, GPT builds 0009 while Grok reviews delivered modules and prepares acceptance. Grok executes 0006 after all prerequisites, then GPT 0008, then Grok 0007. Additional sessions can shorten independent work only where the file ownership table permits it; they do not eliminate these checkpoints.
+Start GPT 0001 with Grok reviewing its contracts. Then pair GPT 0003 with Grok 0010. Grok continues 0002; GPT builds 0004 and prepares 0005 after its voice work, synchronizing shared integrations as they become ready. After 0004, GPT builds 0009 while Grok reviews delivered modules and prepares acceptance. Grok executes 0006 after all prerequisites, then GPT 0008, then Grok 0007. Additional sessions can shorten independent work only where the file ownership table permits it; they do not eliminate these checkpoints.
 
 Any change to schema, API/event payload, private tool signature, model setup or shared lockfile triggers **resync of affected tasks**. The integration owner updates the contract, publishes the new baseline, and affected builders update/retest before continuing. Unrelated disjoint work need not stop. Reviewers pause their own builder work if using the same single session for a review handoff.
 
@@ -122,7 +122,7 @@ Read AGENTS.md, CONVENTIONS.md, GIT_WORKFLOW.md, docs/MODEL-ALLOCATION.md,
 the task, its requirements, DES-0001 and ADR-0001. Follow current approvals
 and task prerequisites; this prompt does not silently change artifact status.
 Own only the TASK-0001 surfaces. Publish schema/API/private-tool fixtures and
-registration interfaces for Grok TASK-0002/0004/0010. Preserve Gemini Live 3.8,
+registration interfaces for Grok TASK-0002/0010 and GPT TASK-0004. Preserve Gemini Live 3.8,
 Google ADK, Laya, one portal and the 16 October GCP deadline.
 Return the diff, TEST-0006 evidence and a concrete Grok review/handoff packet.
 ```
@@ -144,3 +144,8 @@ measured CPU/memory/latency and any shared-file requests for GPT review.
 ```
 
 After each handoff, take the next assigned task only when its dependencies are satisfied. If Grok is available only through chat, return a reviewable patch and evidence instructions; do not label repository edits, local tests or deployment as executed without an actual tool run.
+
+
+## Reassignment — 14 October 2026
+
+At the user’s request, TASK-0004 changes from Grok builder/GPT reviewer to GPT builder/Grok reviewer. No other task is reassigned. Its frontend-dev owner, scope, estimate, dependency and acceptance gates remain unchanged. GPT owns the customer shell/shared web client through the TASK-0009 handoff. This update does not dispatch a Grok review or count as review evidence.
