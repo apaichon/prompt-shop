@@ -1,0 +1,453 @@
+{
+  "schema_version": "qa-release-v1",
+  "generated_at": "2026-10-14T01:06:51.174868+00:00",
+  "frozen_inputs": {
+    "catalog.json": "822b40b6464f933e1b605042f364611f97cf1192ed465842eca180fe8be3dbc7",
+    "catalog-queries.json": "4ccc026241416dd9d227ad360ff437a108ee86e129fab5cca4c77e281f030b89",
+    "intent-queries.json": "e2891650d9bb05cb8e6ae722397d0699bcff9831e90a1928faf098c1ad6663c1"
+  },
+  "fixture": {
+    "status": "fail",
+    "published_products": 60,
+    "aisles": 8,
+    "checked_edges": 40,
+    "destinations": [
+      {
+        "product_id": "red-apples",
+        "destination_node": "a01-n01",
+        "valid": true
+      },
+      {
+        "product_id": "bananas",
+        "destination_node": "a01-n02",
+        "valid": true
+      },
+      {
+        "product_id": "oranges",
+        "destination_node": "a01-n03",
+        "valid": true
+      },
+      {
+        "product_id": "carrots",
+        "destination_node": "a01-n04",
+        "valid": true
+      },
+      {
+        "product_id": "potatoes",
+        "destination_node": "a01-n01",
+        "valid": true
+      },
+      {
+        "product_id": "tomatoes",
+        "destination_node": "a01-n02",
+        "valid": true
+      },
+      {
+        "product_id": "onions",
+        "destination_node": "a01-n03",
+        "valid": true
+      },
+      {
+        "product_id": "lettuce",
+        "destination_node": "a01-n04",
+        "valid": true
+      },
+      {
+        "product_id": "milk-low-fat-1l",
+        "destination_node": "a02-n01",
+        "valid": true
+      },
+      {
+        "product_id": "milk-oat-1l",
+        "destination_node": "a02-n02",
+        "valid": true
+      },
+      {
+        "product_id": "milk-whole-1l",
+        "destination_node": "a02-n03",
+        "valid": true
+      },
+      {
+        "product_id": "greek-yogurt",
+        "destination_node": "a02-n04",
+        "valid": true
+      },
+      {
+        "product_id": "cheddar-cheese",
+        "destination_node": "a02-n01",
+        "valid": true
+      },
+      {
+        "product_id": "butter",
+        "destination_node": "a02-n02",
+        "valid": true
+      },
+      {
+        "product_id": "eggs-12-pack",
+        "destination_node": "a02-n03",
+        "valid": true
+      },
+      {
+        "product_id": "milk-soy-1l",
+        "destination_node": "a02-n04",
+        "valid": true
+      },
+      {
+        "product_id": "white-bread",
+        "destination_node": "a03-n01",
+        "valid": true
+      },
+      {
+        "product_id": "whole-wheat-bread",
+        "destination_node": "a03-n02",
+        "valid": true
+      },
+      {
+        "product_id": "baguette",
+        "destination_node": "a03-n03",
+        "valid": true
+      },
+      {
+        "product_id": "croissants",
+        "destination_node": "a03-n04",
+        "valid": true
+      },
+      {
+        "product_id": "bagels",
+        "destination_node": "a03-n01",
+        "valid": true
+      },
+      {
+        "product_id": "burger-buns",
+        "destination_node": "a03-n02",
+        "valid": true
+      },
+      {
+        "product_id": "tortillas",
+        "destination_node": "a03-n03",
+        "valid": true
+      },
+      {
+        "product_id": "blueberry-muffins",
+        "destination_node": "a03-n04",
+        "valid": true
+      },
+      {
+        "product_id": "chicken-breast",
+        "destination_node": "a04-n01",
+        "valid": true
+      },
+      {
+        "product_id": "ground-beef",
+        "destination_node": "a04-n02",
+        "valid": true
+      },
+      {
+        "product_id": "pork-chops",
+        "destination_node": "a04-n03",
+        "valid": true
+      },
+      {
+        "product_id": "salmon-fillet",
+        "destination_node": "a04-n04",
+        "valid": true
+      },
+      {
+        "product_id": "shrimp",
+        "destination_node": "a04-n01",
+        "valid": true
+      },
+      {
+        "product_id": "bacon",
+        "destination_node": "a04-n02",
+        "valid": true
+      },
+      {
+        "product_id": "tofu",
+        "destination_node": "a04-n03",
+        "valid": true
+      },
+      {
+        "product_id": "fish-fingers",
+        "destination_node": "a04-n04",
+        "valid": true
+      },
+      {
+        "product_id": "jasmine-rice",
+        "destination_node": "a05-n01",
+        "valid": true
+      },
+      {
+        "product_id": "brown-rice",
+        "destination_node": "a05-n02",
+        "valid": true
+      },
+      {
+        "product_id": "spaghetti",
+        "destination_node": "a05-n03",
+        "valid": true
+      },
+      {
+        "product_id": "flour",
+        "destination_node": "a05-n04",
+        "valid": true
+      },
+      {
+        "product_id": "sugar",
+        "destination_node": "a05-n01",
+        "valid": true
+      },
+      {
+        "product_id": "salt",
+        "destination_node": "a05-n02",
+        "valid": true
+      },
+      {
+        "product_id": "olive-oil",
+        "destination_node": "a05-n03",
+        "valid": true
+      },
+      {
+        "product_id": "canned-tuna",
+        "destination_node": "a06-n01",
+        "valid": true
+      },
+      {
+        "product_id": "baked-beans",
+        "destination_node": "a06-n02",
+        "valid": true
+      },
+      {
+        "product_id": "tomato-sauce",
+        "destination_node": "a06-n03",
+        "valid": true
+      },
+      {
+        "product_id": "soy-sauce",
+        "destination_node": "a06-n04",
+        "valid": true
+      },
+      {
+        "product_id": "ketchup",
+        "destination_node": "a06-n01",
+        "valid": true
+      },
+      {
+        "product_id": "peanut-butter",
+        "destination_node": "a06-n02",
+        "valid": true
+      },
+      {
+        "product_id": "strawberry-jam",
+        "destination_node": "a06-n03",
+        "valid": true
+      },
+      {
+        "product_id": "drinking-water",
+        "destination_node": "a07-n01",
+        "valid": true
+      },
+      {
+        "product_id": "orange-juice",
+        "destination_node": "a07-n02",
+        "valid": true
+      },
+      {
+        "product_id": "cola",
+        "destination_node": "a07-n03",
+        "valid": true
+      },
+      {
+        "product_id": "green-tea",
+        "destination_node": "a07-n04",
+        "valid": true
+      },
+      {
+        "product_id": "ground-coffee",
+        "destination_node": "a07-n01",
+        "valid": true
+      },
+      {
+        "product_id": "potato-chips",
+        "destination_node": "a07-n02",
+        "valid": true
+      },
+      {
+        "product_id": "chocolate-bar",
+        "destination_node": "a07-n03",
+        "valid": true
+      },
+      {
+        "product_id": "dish-soap",
+        "destination_node": "a08-n01",
+        "valid": true
+      },
+      {
+        "product_id": "laundry-detergent",
+        "destination_node": "a08-n02",
+        "valid": true
+      },
+      {
+        "product_id": "toilet-paper",
+        "destination_node": "a08-n03",
+        "valid": true
+      },
+      {
+        "product_id": "paper-towels",
+        "destination_node": "a08-n04",
+        "valid": true
+      },
+      {
+        "product_id": "trash-bags",
+        "destination_node": "a08-n01",
+        "valid": true
+      },
+      {
+        "product_id": "toothpaste",
+        "destination_node": "a08-n02",
+        "valid": true
+      },
+      {
+        "product_id": "shampoo",
+        "destination_node": "a08-n03",
+        "valid": true
+      }
+    ],
+    "unbound_cases": [
+      {
+        "case_id": "catalog-02",
+        "expected_label": "Skimmed milk"
+      },
+      {
+        "case_id": "catalog-05",
+        "expected_label": "Plain yogurt"
+      },
+      {
+        "case_id": "catalog-15",
+        "expected_label": "Canned chickpeas"
+      }
+    ],
+    "errors": [
+      "required canonical products are missing from the seed"
+    ]
+  },
+  "measurements": {
+    "voice": {
+      "status": "blocked",
+      "error": "missing_or_invalid_observations"
+    },
+    "intent": {
+      "status": "blocked",
+      "error": "missing_or_invalid_observations"
+    },
+    "typed_render": {
+      "status": "blocked",
+      "error": "missing_or_invalid_observations"
+    },
+    "route_render": {
+      "status": "blocked",
+      "error": "missing_or_invalid_observations"
+    },
+    "classification_warm": {
+      "status": "blocked",
+      "error": "missing_or_invalid_observations"
+    }
+  },
+  "blockers": [
+    "deployed candidate/model/checkpoint/device/network provenance missing",
+    "frozen catalog fixture does not cover all acceptance expectations",
+    "voice acceptance incomplete or failed",
+    "intent acceptance incomplete or failed",
+    "typed_render acceptance incomplete or failed",
+    "route_render acceptance incomplete or failed",
+    "classification_warm acceptance incomplete or failed",
+    "HTTP probes do not belong to the same deployed candidate and frozen inputs",
+    "catalog deployed HTTP acceptance incomplete or failed",
+    "routes deployed HTTP acceptance incomplete or failed",
+    "import_atomicity reviewed evidence missing or invalid",
+    "voice_native_adk reviewed evidence missing or invalid",
+    "voice_classification_order reviewed evidence missing or invalid",
+    "voice_grounding reviewed evidence missing or invalid",
+    "voice_interruption reviewed evidence missing or invalid",
+    "voice_permissions reviewed evidence missing or invalid",
+    "voice_failures reviewed evidence missing or invalid",
+    "voice_bounds_privacy reviewed evidence missing or invalid",
+    "map_fallbacks reviewed evidence missing or invalid",
+    "map_accessibility reviewed evidence missing or invalid",
+    "auth_sessions reviewed evidence missing or invalid",
+    "auth_origin_csrf reviewed evidence missing or invalid",
+    "backoffice_integrity reviewed evidence missing or invalid",
+    "backoffice_persistence reviewed evidence missing or invalid",
+    "classifier_identity reviewed evidence missing or invalid",
+    "classifier_safety reviewed evidence missing or invalid",
+    "classifier_failures reviewed evidence missing or invalid",
+    "cold_and_faults reviewed evidence missing or invalid",
+    "deployed_integration reviewed evidence missing or invalid",
+    "release_review reviewed evidence missing or invalid",
+    "separate cold/fault observations missing"
+  ],
+  "manual_checks": {
+    "import_atomicity": {
+      "status": "blocked"
+    },
+    "voice_native_adk": {
+      "status": "blocked"
+    },
+    "voice_classification_order": {
+      "status": "blocked"
+    },
+    "voice_grounding": {
+      "status": "blocked"
+    },
+    "voice_interruption": {
+      "status": "blocked"
+    },
+    "voice_permissions": {
+      "status": "blocked"
+    },
+    "voice_failures": {
+      "status": "blocked"
+    },
+    "voice_bounds_privacy": {
+      "status": "blocked"
+    },
+    "map_fallbacks": {
+      "status": "blocked"
+    },
+    "map_accessibility": {
+      "status": "blocked"
+    },
+    "auth_sessions": {
+      "status": "blocked"
+    },
+    "auth_origin_csrf": {
+      "status": "blocked"
+    },
+    "backoffice_integrity": {
+      "status": "blocked"
+    },
+    "backoffice_persistence": {
+      "status": "blocked"
+    },
+    "classifier_identity": {
+      "status": "blocked"
+    },
+    "classifier_safety": {
+      "status": "blocked"
+    },
+    "classifier_failures": {
+      "status": "blocked"
+    },
+    "cold_and_faults": {
+      "status": "blocked"
+    },
+    "deployed_integration": {
+      "status": "blocked"
+    },
+    "release_review": {
+      "status": "blocked"
+    }
+  },
+  "recommendation": "BLOCK_RELEASE",
+  "scope": "Evidence qualification only; artifact assertions require owner review. No deployment or approval is performed."
+}
