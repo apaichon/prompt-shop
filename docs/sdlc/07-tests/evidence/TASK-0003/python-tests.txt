@@ -1,0 +1,12 @@
+.........                                                                [100%]
+=============================== warnings summary ===============================
+agent/.venv/lib/python3.11/site-packages/opentelemetry/util/_importlib_metadata.py:32
+  /Users/apaichon/Projects/libra/prompt-shop/prompt-shop/.worktrees/TASK-0003/agent/.venv/lib/python3.11/site-packages/opentelemetry/util/_importlib_metadata.py:32: DeprecationWarning: SelectableGroups dict interface is deprecated. Use select.
+    return EntryPoints(ep for group_eps in eps.values() for ep in group_eps)
+
+tests/test_runtime.py::test_private_auth_and_health
+  /Users/apaichon/Projects/libra/prompt-shop/prompt-shop/.worktrees/TASK-0003/agent/tests/test_runtime.py:233: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+9 passed, 2 warnings in 1.44s
