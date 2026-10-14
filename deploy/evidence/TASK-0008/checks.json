@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-10-14T02:54:30.975156+00:00",
+  "checks": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "deploy/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "artifact": "deploy-tests.txt"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-m",
+        "compileall",
+        "-q",
+        "deploy"
+      ],
+      "exit_code": 0,
+      "artifact": "compile.txt"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/unit",
+        "-v"
+      ],
+      "exit_code": 0,
+      "artifact": "qa-tests.txt"
+    }
+  ],
+  "scope": "Offline controller and unchanged QA unit checks. No real SDK/provider/deployed acceptance execution.",
+  "negative_cli": {
+    "audit_exit_code": 1,
+    "unconfigured_plan_exit_code": 2,
+    "plan_file_written": false,
+    "cloud_commands_executed": false
+  },
+  "qa_run_note": "Unchanged QA suite result retained from 2026-10-14T02:41:17Z; focused continuation changes only release finalization.",
+  "regression": "Final-snapshot chronology regression failed in all three pre-smoke cases before the fix; the deployment suite passes after the fix."
+}

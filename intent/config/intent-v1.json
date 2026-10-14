@@ -1,0 +1,20 @@
+{
+  "schema_version": "intent-v1",
+  "confidence_min": 0.7,
+  "margin_min": 0.15,
+  "confidence_definition": "Maximum returned choice probability; uncalibrated decision score.",
+  "cpu_threads": 2,
+  "max_len": 512,
+  "questions": {
+    "intent": {
+      "type": "choice",
+      "instructions": "Identify what the shopper wants to do in this store-assistance conversation.",
+      "criteria": {
+        "find_item": "Ask to locate or search for a product in the store.",
+        "select_item": "Choose one product or option from results already shown.",
+        "repeat_directions": "Ask to repeat walking directions for an already selected item.",
+        "out_of_scope": "Request something other than finding store products, choosing a shown result, or repeating walking directions."
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": "release-v1",
+  "git_tag": "v0.1.0",
+  "source_commit": "50054b23cfe3336d019fee8da0db474da27940e0",
+  "candidate_revision": null,
+  "approved_by": null,
+  "known_good": {
+    "revision": null,
+    "source_commit": null,
+    "images": {
+      "go": null,
+      "adk": null,
+      "laya": null
+    },
+    "secrets": null,
+    "model_revision": null
+  },
+  "qa_observations": "qa-observations.json",
+  "qa_http_run": "qa-http.json",
+  "qa_artifacts": "qa-artifacts",
+  "checks": {
+    "build_provenance": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "baseline_qualification": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "schema_compatibility": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "same_origin_access": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "secret_versions_available": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "candidate_native_smoke": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "persistence": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "privacy": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "five_user_load": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "monitoring_owner": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    },
+    "optional_languages": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null
+    }
+  }
+}

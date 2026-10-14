@@ -1,0 +1,40 @@
+test_bool_version_rejected (test_acceptance.ContractTests.test_bool_version_rejected) ... ok
+test_duplicate_and_missing_ambiguity_rejected (test_acceptance.ContractTests.test_duplicate_and_missing_ambiguity_rejected) ... ok
+test_exact_stored_product_passes (test_acceptance.ContractTests.test_exact_stored_product_passes) ... ok
+test_invented_obstacle_edge_extra_fields_rejected (test_acceptance.ContractTests.test_invented_obstacle_edge_extra_fields_rejected) ... ok
+test_low_confidence_and_unknown_revision_rejected (test_acceptance.ContractTests.test_low_confidence_and_unknown_revision_rejected) ... ok
+test_stored_map_and_route_pass (test_acceptance.ContractTests.test_stored_map_and_route_pass) ... ok
+test_unknown_or_draft_product_rejected (test_acceptance.ContractTests.test_unknown_or_draft_product_rejected) ... ok
+test_wrong_endpoint_nonedge_distance_and_map_version_rejected (test_acceptance.ContractTests.test_wrong_endpoint_nonedge_distance_and_map_version_rejected) ... ok
+test_wrong_location_and_route_flag_rejected (test_acceptance.ContractTests.test_wrong_location_and_route_flag_rejected) ... ok
+test_disconnected_destination_detected (test_acceptance.FrozenTests.test_disconnected_destination_detected) ... ok
+test_frozen_source_inventory (test_acceptance.FrozenTests.test_frozen_source_inventory) ... ok
+test_mutation_requires_refreeze (test_acceptance.FrozenTests.test_mutation_requires_refreeze) ... ok
+test_reverse_duplicate_edge_detected (test_acceptance.FrozenTests.test_reverse_duplicate_edge_detected) ... ok
+test_seed_gaps_are_not_substituted (test_acceptance.FrozenTests.test_seed_gaps_are_not_substituted) ... ok
+test_boundary_allowed_interior_rejected (test_acceptance.GeometryTests.test_boundary_allowed_interior_rejected) ... ok
+test_concave_and_vertex_touch (test_acceptance.GeometryTests.test_concave_and_vertex_touch) ... ok
+test_narrow_obstacle_not_missed_by_midpoint (test_acceptance.GeometryTests.test_narrow_obstacle_not_missed_by_midpoint) ... ok
+test_denial_collector_never_uses_valid_credentials (test_acceptance.HTTPTests.test_denial_collector_never_uses_valid_credentials) ... ok
+test_fixed_origin_rejects_protocol_relative_target (test_acceptance.HTTPTests.test_fixed_origin_rejects_protocol_relative_target) ... ok
+test_insecure_remote_or_credentials_rejected (test_acceptance.HTTPTests.test_insecure_remote_or_credentials_rejected) ... ok
+test_redirect_and_cookie_values_are_not_returned (test_acceptance.HTTPTests.test_redirect_and_cookie_values_are_not_returned) ... ok
+test_unavailable_endpoints_retain_all_thirty_misses (test_acceptance.HTTPTests.test_unavailable_endpoints_retain_all_thirty_misses) ... ok
+test_duplicate_missing_cold_nonfinite_rejected (test_acceptance.MeasurementTests.test_duplicate_missing_cold_nonfinite_rejected) ... ok
+test_failed_trial_cannot_be_dropped (test_acceptance.MeasurementTests.test_failed_trial_cannot_be_dropped) ... ok
+test_filler_or_server_speech_end_is_not_audio_acceptance (test_acceptance.MeasurementTests.test_filler_or_server_speech_end_is_not_audio_acceptance) ... ok
+test_intent_confusion_and_abstention_denominator (test_acceptance.MeasurementTests.test_intent_confusion_and_abstention_denominator) ... ok
+test_invented_voice_candidate_rejected (test_acceptance.MeasurementTests.test_invented_voice_candidate_rejected) ... ok
+test_mock_audio_and_fixture_gaps_fail_voice (test_acceptance.MeasurementTests.test_mock_audio_and_fixture_gaps_fail_voice) ... ok
+test_mock_classifier_and_deadline_fail (test_acceptance.MeasurementTests.test_mock_classifier_and_deadline_fail) ... ok
+test_nearest_rank_p95 (test_acceptance.MeasurementTests.test_nearest_rank_p95) ... ok
+test_empty_template_blocks_all_measurements (test_acceptance.ReleaseTests.test_empty_template_blocks_all_measurements) ... ok
+test_hash_or_candidate_drift_blocks_release (test_acceptance.ReleaseTests.test_hash_or_candidate_drift_blocks_release) ... ok
+test_local_fixture_cannot_qualify_release (test_acceptance.ReleaseTests.test_local_fixture_cannot_qualify_release) ... ok
+test_manual_check_requires_hash_artifact_and_owner (test_acceptance.ReleaseTests.test_manual_check_requires_hash_artifact_and_owner) ... ok
+test_nonobject_and_mixed_cold_evidence_rejected (test_acceptance.ReleaseTests.test_nonobject_and_mixed_cold_evidence_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.617s
+
+OK
