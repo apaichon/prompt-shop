@@ -1,0 +1,41 @@
+{
+  "schema_version": "laya-container-probe-v1",
+  "started_at": "2026-10-14T05:08:25.931509+00:00",
+  "scope": "Actual Task 5 Dockerfile, verified English weights and CPU-only Linux wheel; 2 CPU/4 GiB local Docker quota. AMD64 image on ARM host is emulated. Three probes at most; no 30-sample or GCP acceptance claim.",
+  "host_architecture": "arm64",
+  "image_id": "sha256:37c024c33b89423168686039e65f1997b250609a315a6443483b3fefc4b2cd4e",
+  "image_architecture": "amd64",
+  "limits": {
+    "cpus": 2,
+    "memory_bytes": 4294967296,
+    "pids": 128
+  },
+  "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+  "probes": [],
+  "deployed_acceptance": false,
+  "ready": false,
+  "cold_ready_ms": 180078.2072909642,
+  "model_load": null,
+  "runtime": {
+    "machine": "x86_64",
+    "torch": "2.14.1+cpu",
+    "cgroup": {
+      "cpu.max": "200000 100000",
+      "memory.max": "4294967296",
+      "pids.max": "128"
+    }
+  },
+  "container_state": {
+    "Running": true,
+    "OOMKilled": false,
+    "ExitCode": 0
+  },
+  "configured_limits": {
+    "NanoCpus": 2000000000,
+    "Memory": 4294967296,
+    "PidsLimit": 128
+  },
+  "limited_probe_result": "fail",
+  "owned_container_cleanup": true,
+  "completed_at": "2026-10-14T05:11:31.767481+00:00"
+}

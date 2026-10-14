@@ -1,0 +1,1094 @@
+{
+  "schema_version": "laya-evaluation-v1",
+  "started_at": "2026-10-14T05:13:01.139381+00:00",
+  "completed_at": "2026-10-14T05:13:28.508261+00:00",
+  "scope": "Actual pinned CPU English Laya through private HTTP and real ADK BlockingTool. Only the Go ACK/catalog bridge is an isolated fixture. No native Gemini/deployed voice claim.",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "cpu_count": 8,
+    "deployment_cpu_ram_qualified": false
+  },
+  "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+  "frozen": {
+    "frozen_at": "2026-10-14",
+    "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+    "corpus_sha256": "e2891650d9bb05cb8e6ae722397d0699bcff9831e90a1928faf098c1ad6663c1",
+    "config_sha256": "23e146458928d6cf72965fae0a22e351d82a39a307231e7c110d841f1058351b",
+    "confidence_min": 0.7,
+    "margin_min": 0.15,
+    "policy": "Frozen before held-out evaluation. No tuning or silent replacement of misses after evaluation. Scores are uncalibrated. Host CPU threads are not a deployment CPU quota."
+  },
+  "manifest_sha256": "14936fc5cf121b11c360a0d170dad8525926bb61a08dc9f23346840972e0b48d",
+  "package_lock_sha256": "b2f92dda34c0a2de97b2d727104cb5ec79ea2689ee297118b6724d4c4d815764",
+  "adk_lock_sha256": "347578308d3637bac2ac5cb8505d63633f220b8a0448c64d1a0afe46ab89846c",
+  "adk_version": "2.11.0",
+  "tool_behavior": "BLOCKING",
+  "cold_service_ready_ms": 10649.587209103629,
+  "model_load": {
+    "startup_ms": 10314.555374905467,
+    "peak_rss_bytes": 2407743488,
+    "runtime": {
+      "device": "cpu",
+      "backend": "eager",
+      "torch_threads": 2,
+      "packages": {
+        "laya": "0.4.6",
+        "torch": "2.14.1",
+        "transformers": "4.57.3",
+        "huggingface-hub": "0.36.2",
+        "safetensors": "0.6.2",
+        "numpy": "2.3.5"
+      }
+    }
+  },
+  "correct": 19,
+  "total": 40,
+  "coverage": 0.475,
+  "per_class_accuracy": {
+    "find_item": 0.5,
+    "select_item": 0.4,
+    "repeat_directions": 0.7,
+    "out_of_scope": 0.3
+  },
+  "confusion": {
+    "find_item": {
+      "find_item": 5,
+      "select_item": 0,
+      "repeat_directions": 0,
+      "out_of_scope": 0,
+      "abstained_or_error": 5
+    },
+    "select_item": {
+      "find_item": 0,
+      "select_item": 4,
+      "repeat_directions": 0,
+      "out_of_scope": 0,
+      "abstained_or_error": 6
+    },
+    "repeat_directions": {
+      "find_item": 0,
+      "select_item": 0,
+      "repeat_directions": 7,
+      "out_of_scope": 0,
+      "abstained_or_error": 3
+    },
+    "out_of_scope": {
+      "find_item": 0,
+      "select_item": 0,
+      "repeat_directions": 0,
+      "out_of_scope": 3,
+      "abstained_or_error": 7
+    }
+  },
+  "observations": [
+    {
+      "id": "intent-find_item-01",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.7957,
+        "margin": 0.7237,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 319.28141694515944,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-01",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.5216,
+        "margin": 0.19939999999999997,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 291.67137504555285,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-01",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.8121,
+        "margin": 0.6878000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 193.9370420295745,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-01",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.3605,
+        "margin": 0.043899999999999995,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 190.02270908094943,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-02",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.9056,
+        "margin": 0.8576999999999999,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 183.26712516136467,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-02",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4561,
+        "margin": 0.2247,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 233.34587505087256,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-02",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.6968,
+        "margin": 0.5473,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 277.4516250938177,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-02",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.5759,
+        "margin": 0.36879999999999996,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 239.82874979265034,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-03",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4444,
+        "margin": 0.04580000000000001,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 201.4911249279976,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-03",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "select_item",
+        "confidence": 0.9795,
+        "margin": 0.9675,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 229.8697920050472,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-03",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.9011,
+        "margin": 0.8487,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 243.43274999409914,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-03",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "out_of_scope",
+        "confidence": 0.8751,
+        "margin": 0.8180999999999999,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 303.8153329398483,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-04",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.6407,
+        "margin": 0.5185000000000001,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 183.93041705712676,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-04",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.5814,
+        "margin": 0.326,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 196.30199996754527,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-04",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.9166,
+        "margin": 0.8777999999999999,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 226.22987488284707,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-04",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "out_of_scope",
+        "confidence": 0.7217,
+        "margin": 0.6014,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 299.50683400966227,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-05",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8348,
+        "margin": 0.7494999999999999,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 235.63195811584592,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-05",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "select_item",
+        "confidence": 0.938,
+        "margin": 0.9005,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 296.1264580953866,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-05",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.9533,
+        "margin": 0.931,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 196.814666967839,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-05",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4271,
+        "margin": 0.1649,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 190.43904193677008,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-06",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.6969,
+        "margin": 0.5039,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 212.09729183465242,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-06",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.6281,
+        "margin": 0.4109,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 243.38745791465044,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-06",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4679,
+        "margin": 0.22979999999999998,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 326.14283286966383,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-06",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.5604,
+        "margin": 0.3467,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 227.58570779114962,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-07",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4446,
+        "margin": 0.1694,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 275.41300002485514,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-07",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "select_item",
+        "confidence": 0.9007,
+        "margin": 0.8332999999999999,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 271.68508409522474,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-07",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.396,
+        "margin": 0.012400000000000022,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 335.26841597631574,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-07",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4448,
+        "margin": 0.12369999999999998,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 283.9628749061376,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-08",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.81,
+        "margin": 0.6974,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 285.8310420997441,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-08",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.5363,
+        "margin": 0.2965,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 260.22312487475574,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-08",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.7226,
+        "margin": 0.5634,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 230.0170420203358,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-08",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.3584,
+        "margin": 0.06269999999999998,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 204.8598751425743,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-09",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.5449,
+        "margin": 0.3693000000000001,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 262.73408299311996,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-09",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "select_item",
+        "confidence": 0.9387,
+        "margin": 0.9003,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 346.72412485815585,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-09",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.9374,
+        "margin": 0.8962,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 339.30720784701407,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-09",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.3711,
+        "margin": 0.0821,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 286.83250001631677,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-find_item-10",
+      "expected": "find_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.7318,
+        "margin": 0.5978,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 199.7617499437183,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-select_item-10",
+      "expected": "select_item",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": null,
+        "confidence": 0.4961,
+        "margin": 0.14699999999999996,
+        "abstained": true,
+        "reason": "low_confidence",
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 201.14016602747142,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-repeat_directions-10",
+      "expected": "repeat_directions",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "repeat_directions",
+        "confidence": 0.7546,
+        "margin": 0.6352,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 221.22499998658895,
+      "classification_acknowledged": true
+    },
+    {
+      "id": "intent-out_of_scope-10",
+      "expected": "out_of_scope",
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "out_of_scope",
+        "confidence": 0.7575,
+        "margin": 0.6710999999999999,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      },
+      "elapsed_ms": 229.05299998819828,
+      "classification_acknowledged": true
+    }
+  ],
+  "warm_samples": [
+    {
+      "id": 1,
+      "elapsed_ms": 242.94875003397465,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 2,
+      "elapsed_ms": 197.38704105839133,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 3,
+      "elapsed_ms": 219.11683306097984,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 4,
+      "elapsed_ms": 211.82062500156462,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 5,
+      "elapsed_ms": 191.5109590627253,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 6,
+      "elapsed_ms": 177.11254209280014,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 7,
+      "elapsed_ms": 185.88458304293454,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 8,
+      "elapsed_ms": 171.154250157997,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 9,
+      "elapsed_ms": 178.02933393977582,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 10,
+      "elapsed_ms": 189.12554206326604,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 11,
+      "elapsed_ms": 191.96420814841986,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 12,
+      "elapsed_ms": 225.52583389915526,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 13,
+      "elapsed_ms": 225.7781659718603,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 14,
+      "elapsed_ms": 247.2457499243319,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 15,
+      "elapsed_ms": 215.69020813331008,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 16,
+      "elapsed_ms": 250.2385419793427,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 17,
+      "elapsed_ms": 225.47550010494888,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 18,
+      "elapsed_ms": 273.24266685172915,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 19,
+      "elapsed_ms": 272.89812499657273,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 20,
+      "elapsed_ms": 258.51508416235447,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 21,
+      "elapsed_ms": 248.85887512937188,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 22,
+      "elapsed_ms": 254.72087506204844,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 23,
+      "elapsed_ms": 294.4339578971267,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 24,
+      "elapsed_ms": 283.81975018419325,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 25,
+      "elapsed_ms": 229.01858389377594,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 26,
+      "elapsed_ms": 231.2243750784546,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 27,
+      "elapsed_ms": 195.5242920666933,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 28,
+      "elapsed_ms": 183.04799986071885,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 29,
+      "elapsed_ms": 213.94300018437207,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    },
+    {
+      "id": 30,
+      "elapsed_ms": 239.3810839857906,
+      "result": {
+        "schema_version": "intent-v1",
+        "intent": "find_item",
+        "confidence": 0.8988,
+        "margin": 0.8499000000000001,
+        "abstained": false,
+        "reason": null,
+        "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148"
+      }
+    }
+  ],
+  "warm_summary": {
+    "samples": 30,
+    "p50_ms": 225.47550010494888,
+    "p95_ms": 283.81975018419325,
+    "max_ms": 294.4339578971267
+  },
+  "heartbeat_max_gap_ms": 105.40183400735259,
+  "normal_inference_gate": "fail",
+  "full_test0012_status": "pending fault/private/advisory/resource evidence review; host measurements cannot establish GCP qualification",
+  "implementation_hashes": {
+    "intent/intent_service/model.py": "70394a58a48472c2e879d832427368b1750a8550bcbfe5ad0a33b7bf7f83eebd",
+    "intent/intent_service/protocol.py": "7be2864eef3bccac1248008e05380f04678e1932a033ffe46d5f312c207914f6",
+    "intent/intent_service/app.py": "f21da86c8bfd07d8ce0f8b7bc88cdb17e76eaa83f77f82e0667bbaf8b5deae01",
+    "intent/intent_service/worker.py": "c2610e5a5bbbdd512cdeb972eb2ba70efedc05f89311fa5968e8609673124191",
+    "agent/tools/intent.py": "08aac0a998f2072792f02a465b14e812efbc92e9cee2f9d7c4fd8a34df89869b"
+  }
+}
