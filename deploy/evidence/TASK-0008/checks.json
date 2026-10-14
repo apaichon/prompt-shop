@@ -1,0 +1,55 @@
+{
+  "recorded_at": "2026-10-14T02:41:17.156069+00:00",
+  "checks": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "deploy/tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "artifact": "deploy-tests.txt"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/unit",
+        "-v"
+      ],
+      "exit_code": 0,
+      "artifact": "qa-tests.txt"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-m",
+        "compileall",
+        "-q",
+        "deploy"
+      ],
+      "exit_code": 0,
+      "artifact": "compile.txt"
+    }
+  ],
+  "scope": "Offline controller and unchanged QA unit checks. No real SDK/provider/deployed acceptance execution.",
+  "negative_cli": {
+    "audit_exit_code": 1,
+    "unconfigured_plan_exit_code": 2,
+    "plan_file_written": false,
+    "cloud_commands_executed": false
+  }
+}

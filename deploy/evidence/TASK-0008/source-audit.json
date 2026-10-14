@@ -1,0 +1,24 @@
+{
+  "schema_version": "release-audit-v1",
+  "source": {
+    "tag": "v0.1.0",
+    "source_commit": "50054b23cfe3336d019fee8da0db474da27940e0",
+    "status": "blocked",
+    "missing_build_inputs": [
+      "agent/tools/intent.py",
+      "intent/intent_service/app.py",
+      "intent/model/manifest.json",
+      "intent/pyproject.toml",
+      "intent/uv.lock",
+      "internal/routing/*.go"
+    ]
+  },
+  "status": "blocked",
+  "blockers": [
+    "required integrated build inputs missing",
+    "gcloud unavailable",
+    "cloud deployment configuration incomplete",
+    "actual candidate/baseline/QA/release evidence required by plan"
+  ],
+  "scope": "Source/tooling inventory; no cloud commands, provider smoke or deployment performed."
+}

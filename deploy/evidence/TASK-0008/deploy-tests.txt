@@ -1,0 +1,46 @@
+test_empty_release_template_never_qualifies (test_release.Evidence.test_empty_release_template_never_qualifies) ... ok
+test_never_reverts_database_writes (test_release.Evidence.test_never_reverts_database_writes) ... ok
+test_review_hash_identity_and_same_origin (test_release.Evidence.test_review_hash_identity_and_same_origin) ... ok
+test_rollback_needs_baseline_and_schema_not_failed_candidate_qa (test_release.Evidence.test_rollback_needs_baseline_and_schema_not_failed_candidate_qa) ... ok
+test_wrong_environment_artifact_symlink_and_traversal (test_release.Evidence.test_wrong_environment_artifact_symlink_and_traversal) ... ok
+test_changed_plan_context_causes_zero_mutations (test_release.Execution.test_changed_plan_context_causes_zero_mutations) ... ok
+test_effective_traffic_is_smoke_pending_not_release_success (test_release.Execution.test_effective_traffic_is_smoke_pending_not_release_success) ... ok
+test_existing_operation_file_and_missing_execute_rejected (test_release.Execution.test_existing_operation_file_and_missing_execute_rejected) ... ok
+test_live_drift_causes_zero_mutations (test_release.Execution.test_live_drift_causes_zero_mutations) ... ok
+test_timeout_or_wrong_effective_traffic_never_retries_or_passes (test_release.Execution.test_timeout_or_wrong_effective_traffic_never_retries_or_passes) ... ok
+test_complete_rehearsal_qualifies_owner_record_only (test_release.Finalization.test_complete_rehearsal_qualifies_owner_record_only) ... ok
+test_final_traffic_or_bundle_drift_blocks_completion (test_release.Finalization.test_final_traffic_or_bundle_drift_blocks_completion) ... ok
+test_missing_isolated_fault_rehearsal_blocks_completion (test_release.Finalization.test_missing_isolated_fault_rehearsal_blocks_completion) ... ok
+test_missing_native_smoke_or_final_promotion_cannot_pass (test_release.Finalization.test_missing_native_smoke_or_final_promotion_cannot_pass) ... ok
+test_old_smoke_cannot_bind_to_changed_operation_or_model (test_release.Finalization.test_old_smoke_cannot_bind_to_changed_operation_or_model) ... ok
+test_recovery_beyond_fifteen_minutes_fails_including_native_smoke (test_release.Finalization.test_recovery_beyond_fifteen_minutes_fails_including_native_smoke) ... ok
+test_credential_urls_and_revision_injection_rejected (test_release.Identities.test_credential_urls_and_revision_injection_rejected) ... ok
+test_exact_revision_and_secret_bundle (test_release.Identities.test_exact_revision_and_secret_bundle) ... ok
+test_failed_candidate_does_not_block_qualified_rollback (test_release.Identities.test_failed_candidate_does_not_block_qualified_rollback) ... ok
+test_mixed_images_literal_secret_and_bad_pin (test_release.Identities.test_mixed_images_literal_secret_and_bad_pin) ... ok
+test_namespace_foreign_revision_and_floating_traffic (test_release.Identities.test_namespace_foreign_revision_and_floating_traffic) ... ok
+test_private_public_iam_and_disabled_invoker (test_release.Identities.test_private_public_iam_and_disabled_invoker) ... ok
+test_sidecar_ingress_http2_and_runtime_limits (test_release.Identities.test_sidecar_ingress_http2_and_runtime_limits) ... ok
+test_snapshot_redacts_principals_and_arbitrary_metadata (test_release.Identities.test_snapshot_redacts_principals_and_arbitrary_metadata) ... ok
+test_named_commands_have_no_iam_sql_or_latest (test_release.Planning.test_named_commands_have_no_iam_sql_or_latest) ... ok
+test_promotion_denies_missing_qa_despite_healthy_cloud (test_release.Planning.test_promotion_denies_missing_qa_despite_healthy_cloud) ... ok
+test_snapshot_stale_and_traffic_drift_block_plan (test_release.Planning.test_snapshot_stale_and_traffic_drift_block_plan) ... ok
+test_source_tag_identity_versions_and_missing_inputs (test_release.Planning.test_source_tag_identity_versions_and_missing_inputs) ... ok
+test_candidate_preserves_known_good_traffic (test_staging.Manifests.test_candidate_preserves_known_good_traffic) ... ok
+test_limits_health_startup_and_initial_traffic (test_staging.Manifests.test_limits_health_startup_and_initial_traffic) ... ok
+test_no_implicit_public_access_even_when_selected (test_staging.Manifests.test_no_implicit_public_access_even_when_selected) ... ok
+test_provision_plan_scopes_iam_and_durable_database (test_staging.Manifests.test_provision_plan_scopes_iam_and_durable_database) ... ok
+test_reject_incomplete_approval_and_invalid_configuration (test_staging.Manifests.test_reject_incomplete_approval_and_invalid_configuration) ... ok
+test_reject_mutable_images_and_secret_versions (test_staging.Manifests.test_reject_mutable_images_and_secret_versions) ... ok
+test_reject_secret_values_or_shared_secret_roles (test_staging.Manifests.test_reject_secret_values_or_shared_secret_roles) ... ok
+test_secret_isolation_and_migration_identity (test_staging.Manifests.test_secret_isolation_and_migration_identity) ... ok
+test_build_commands_same_commit_digest_bases_and_platform (test_staging.ModelAndBuild.test_build_commands_same_commit_digest_bases_and_platform) ... ok
+test_build_context_excludes_private_and_generated_inputs (test_staging.ModelAndBuild.test_build_context_excludes_private_and_generated_inputs) ... ok
+test_model_checksum_tampering_and_unlisted_assets (test_staging.ModelAndBuild.test_model_checksum_tampering_and_unlisted_assets) ... ok
+test_model_symlink_rejected (test_staging.ModelAndBuild.test_model_symlink_rejected) ... ok
+test_package_only_committed_allowed_files_and_missing_gate (test_staging.ModelAndBuild.test_package_only_committed_allowed_files_and_missing_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.558s
+
+OK
