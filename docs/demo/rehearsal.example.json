@@ -1,0 +1,82 @@
+{
+  "schema_version": "demo-rehearsal-v1",
+  "status": "not_run",
+  "observed_at": null,
+  "reviewer": null,
+  "release": {
+    "origin": null,
+    "git_tag": null,
+    "source_commit": null,
+    "cloud_run_revision": null,
+    "images": {
+      "go": null,
+      "adk": null,
+      "laya": null
+    },
+    "adk_version": null,
+    "genai_version": null,
+    "gemini_model": "gemini-3.8-live",
+    "laya_revision": null,
+    "schema_version": null,
+    "catalog_version": null,
+    "map_version": null,
+    "seed_sha256": null,
+    "published_product_count": null,
+    "accepted_test4_artifact": null,
+    "accepted_test4_sha256": null
+  },
+  "environment": {
+    "browser": null,
+    "device": null,
+    "network": null,
+    "enabled_locales": null,
+    "access_mechanism": null
+  },
+  "rehearsal_item": {
+    "id": null,
+    "shelf_id": null,
+    "catalog_version_before": null,
+    "catalog_version_after": null,
+    "cleanup_state": null
+  },
+  "observations": {
+    "native_adk_gemini_laya": "not_run",
+    "spoken_clarification_selection_route": "not_run",
+    "interruption_flush": "not_run",
+    "unknown_item_truthfulness": "not_run",
+    "backoffice_draft_publish_shopper": "not_run",
+    "logout_direct_write_denial": "not_run",
+    "fresh_reviewer_access": "not_run",
+    "setup_runbook_links": "not_run",
+    "video_sound_labels_playback": "not_run",
+    "backup_playback": "not_run",
+    "privacy_review": "not_run"
+  },
+  "assets": {
+    "walkthrough": {
+      "path": null,
+      "sha256": null,
+      "duration_seconds": null,
+      "shared_url": null
+    },
+    "backup": {
+      "path": null,
+      "sha256": null
+    },
+    "screenshots": []
+  },
+  "submission": {
+    "team_name": null,
+    "team_leader": null,
+    "destination": null,
+    "format": "PowerPoint (.PPTX) requested by supplied template",
+    "exact_cutoff": null,
+    "timezone": "Asia/Bangkok",
+    "submitter": null,
+    "public_repository_url": null,
+    "demo_video_url": null,
+    "final_product_url": null,
+    "user_reviewed_at": null,
+    "external_submission_status": "not_sent"
+  }
+}
