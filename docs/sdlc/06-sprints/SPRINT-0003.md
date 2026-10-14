@@ -59,3 +59,8 @@ These links identify the inputs and verification for this sprint; proposed assig
 ## TASK-0009 local build — 14 October 2026
 
 GPT built the protected Go/PostgreSQL backoffice and Svelte editor in feature/TASK-0009-backoffice with local foundation/customer-shell dependency inputs. Automated backoffice, responsive/accessibility and customer regression checks pass. TEST-0005/TASK-0009 remain blocked for actual public catalog integration, manual/deployed persistence evidence and approval gates. Read internal/backoffice/README.md for serialized config/static and TASK-0002/0005/0006 handoffs. No task completion or deployed acceptance is inferred.
+
+
+## Requested source consolidation — 2026-10-14
+
+User instructed merging TASK-0001/0002/0003/0004/0005/0009/0006 into main. Integration coordinator runs sync/resync in INTEGRATION-20261014, preserves feature history and execution evidence, and resolves shared allocation/docs/portal conflicts. [Integration ledger](../../INTEGRATION-2026-10-14.md) records snapshots, narrow preparation fixes and actual checks. This source merge does not change incomplete task/test/release states or constitute a deployment.

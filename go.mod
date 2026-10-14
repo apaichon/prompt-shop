@@ -12,7 +12,13 @@ require (
 )
 
 require (
+	github.com/savsgio/gotils v0.0.0-20240704082632-aef3928b8a38 // indirect
+	golang.org/x/net v0.60.0 // indirect
+)
+
+require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/fasthttp/websocket v1.5.12
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
@@ -23,7 +29,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/molecule-man/go-brrr v1.3.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.75.0 // indirect
+	github.com/valyala/fasthttp v1.75.0
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 )

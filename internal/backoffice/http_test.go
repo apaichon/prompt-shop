@@ -78,7 +78,13 @@ func TestAuthorizationRotationExpiry(t *testing.T) {
 		if cookie != "" {
 			r.Header.Set("Cookie", cookie)
 		}
-		response, e := app.Test(r, 4000)
+		timeout := 4000
+		if method == "POST" && path == "/api/backoffice/session" {
+			// Cost-12 bcrypt under race instrumentation needs bounded extra time.
+			// This test verifies authorization/lifecycle, not login latency.
+			timeout = 15000
+		}
+		response, e := app.Test(r, timeout)
 		if e != nil {
 			t.Fatal(e)
 		}
