@@ -1,0 +1,24 @@
+name: Deployment configuration
+on:
+  pull_request:
+    paths: ['Dockerfile', '.dockerignore', 'agent/Dockerfile', 'intent/Dockerfile', 'deploy/**', '.github/workflows/deployment-config.yml']
+  push:
+    branches: [develop]
+    paths: ['Dockerfile', '.dockerignore', 'agent/Dockerfile', 'intent/Dockerfile', 'deploy/**', '.github/workflows/deployment-config.yml']
+permissions:
+  contents: read
+jobs:
+  offline-contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Validate deployment contracts and negative cases
+        run: python3 -m unittest discover -s deploy/tests -v
+      - name: Verify Docker context excludes local secrets and generated files
+        run: python3 deploy/check_docker_context.py
+      - name: Reject missing deployment inputs
+        run: |
+          if python3 deploy/staging.py render --config deploy/staging.example.json --images deploy/images.example.json; then
+            echo 'Unconfigured examples unexpectedly rendered a deployment'
+            exit 1
+          fi
