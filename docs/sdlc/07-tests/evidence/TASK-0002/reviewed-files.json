@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-14",
+  "head": "a564571",
+  "scope": "uncommitted catalog helpers",
+  "files": {
+    "internal/catalog/reach.go": "4e696e834d157b247f11234483754055a4546df8035bd17af597ef9acece2ec8",
+    "internal/catalog/limit.go": "e30937e409794630ca0c186c060d0dc418927f2acd72d907af42ec25142a4ddd",
+    "internal/catalog/normalize.go": "9f19f794f9d5651eaa0e2e8e88fcace13c8bdbe01596533490c217bb4d804704",
+    "internal/catalog/product.go": "5c4726194b31aaa7501d62c306e046604d66785efa27544577590fd5f16a7ef1",
+    "internal/catalog/http.go": "a8fddc2783384b6b7cd4d3bd03585690c1dfb3433f208a29479c27f651e953e2",
+    "internal/catalog/retry.go": "9f29b7f4261b1203ab7d7cbda3dcb075baa29b6764896c9c8adffa738f85fa79",
+    "internal/catalog/rank.go": "df24d2fae02ceda394aa4911e5c9861fd516c595c89c40bed2dde6ed5739cf19",
+    "internal/catalog/decode.go": "298464119ae3840b2b4fabe9e2a27d74485c565a37925a053efd5f61b285937b"
+  }
+}
