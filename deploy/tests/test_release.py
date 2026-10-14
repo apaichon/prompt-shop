@@ -382,6 +382,23 @@ class Finalization(unittest.TestCase):
             with patch.object(release,'qa',return_value={'model_revision':'a'*40}):
                 with self.assertRaises(ValueError): release.finalize(c,lock,r,path,operations,proofs,captures)
 
+    def test_final_capture_must_follow_final_native_smoke(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)
+            c, lock, r, captures, operations, proofs = self.case(path)
+            completed = evidence.utc(evidence.read_json(path / 'final_promotion.json')['observed_at'])
+            with patch.object(release, 'qa', return_value={'model_revision': 'a'*40}):
+                # Each is recent and shows the candidate, but predates completion.
+                for stamp in (operations[0]['verified_at'], operations[2]['verified_at'],
+                              (completed - timedelta(microseconds=1)).isoformat()):
+                    with self.subTest(captured_at=stamp):
+                        captures['captured_at'] = stamp
+                        with self.assertRaisesRegex(ValueError, 'final cloud snapshot predates final smoke'):
+                            release.finalize(c, lock, r, path, operations, proofs, captures)
+                captures['captured_at'] = completed.isoformat()
+                result = release.finalize(c, lock, r, path, operations, proofs, captures)
+                self.assertEqual(result['state'], 'ELIGIBLE_FOR_OWNER_DEPLOYMENT_RECORD')
+
     def test_missing_isolated_fault_rehearsal_blocks_completion(self):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder); c,lock,r,captures,operations,proofs=self.case(path)

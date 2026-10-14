@@ -9,6 +9,7 @@ test_existing_operation_file_and_missing_execute_rejected (test_release.Executio
 test_live_drift_causes_zero_mutations (test_release.Execution.test_live_drift_causes_zero_mutations) ... ok
 test_timeout_or_wrong_effective_traffic_never_retries_or_passes (test_release.Execution.test_timeout_or_wrong_effective_traffic_never_retries_or_passes) ... ok
 test_complete_rehearsal_qualifies_owner_record_only (test_release.Finalization.test_complete_rehearsal_qualifies_owner_record_only) ... ok
+test_final_capture_must_follow_final_native_smoke (test_release.Finalization.test_final_capture_must_follow_final_native_smoke) ... ok
 test_final_traffic_or_bundle_drift_blocks_completion (test_release.Finalization.test_final_traffic_or_bundle_drift_blocks_completion) ... ok
 test_missing_isolated_fault_rehearsal_blocks_completion (test_release.Finalization.test_missing_isolated_fault_rehearsal_blocks_completion) ... ok
 test_missing_native_smoke_or_final_promotion_cannot_pass (test_release.Finalization.test_missing_native_smoke_or_final_promotion_cannot_pass) ... ok
@@ -41,6 +42,6 @@ test_model_symlink_rejected (test_staging.ModelAndBuild.test_model_symlink_rejec
 test_package_only_committed_allowed_files_and_missing_gate (test_staging.ModelAndBuild.test_package_only_committed_allowed_files_and_missing_gate) ... ok
 
 ----------------------------------------------------------------------
-Ran 41 tests in 0.558s
+Ran 42 tests in 0.664s
 
 OK
