@@ -1,0 +1,6 @@
+local/
+__pycache__/
+media/*
+!media/README.md
+output/pptx/*.pptx
+output/pdf/*.pdf

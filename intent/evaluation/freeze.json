@@ -1,0 +1,9 @@
+{
+  "frozen_at": "2026-10-14",
+  "model_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+  "corpus_sha256": "e2891650d9bb05cb8e6ae722397d0699bcff9831e90a1928faf098c1ad6663c1",
+  "config_sha256": "23e146458928d6cf72965fae0a22e351d82a39a307231e7c110d841f1058351b",
+  "confidence_min": 0.70,
+  "margin_min": 0.15,
+  "policy": "Frozen before held-out evaluation. No tuning or silent replacement of misses after evaluation. Scores are uncalibrated. Host CPU threads are not a deployment CPU quota."
+}
