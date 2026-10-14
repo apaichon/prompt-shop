@@ -30,3 +30,5 @@ TEST-0005 remains blocked; passing local automated commands do not mark full rel
 
 
 Final hardening follow-up: rollback cleanup has a 250ms bound. The real SQL store-lock stall test verifies request failure within 1.5s and eventual pool release within 750ms (pgx destroys cancelled connections asynchronously). A first immediate-release assertion was too early; the bounded eventual check was used and the real PostgreSQL test passed three consecutive runs. The real HTTPS CRUD/cookie/CSRF/logout browser case was rerun after this cleanup change and passed (17.8s command total). No fixture-password or CSRF-test literal appears in web/build.
+
+The task-owned temporary PostgreSQL container was stopped after verification; it can be started again for a fresh local fixture. Source tree content was unchanged by final branch sync.

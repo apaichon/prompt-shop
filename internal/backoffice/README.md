@@ -51,6 +51,8 @@ rtk proxy docker run -d --name prompt-shop-task9-db-memory --tmpfs /var/lib/post
 rtk proxy env -u GOROOT BACKOFFICE_TEST_DATABASE_URL=postgres://postgres:task9-disposable-only@127.0.0.1:55449/prompt_shop_task9?sslmode=disable /opt/homebrew/bin/go test -race -count=1 -v ./internal/backoffice
 ```
 
+If the named task container already exists, use `rtk proxy docker start prompt-shop-task9-db-memory` instead of creating it again. It was stopped after this run; tmpfs data resets on stop and the test commands reinitialize the disposable schema.
+
 From web/:
 
 ```sh
