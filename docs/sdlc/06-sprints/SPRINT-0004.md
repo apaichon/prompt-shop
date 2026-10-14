@@ -36,11 +36,11 @@ There is no local velocity history or retrospective. Config lists five delivery-
 ## Exit and carry-over
 Record actual evidence from linked tests before reporting completion. Unfinished core work carries forward visibly and triggers scope cuts; do not mark tasks done because their planned date has passed. Protect 16 October deployment by cutting extra languages, recipes, vector work and visual polish first. If core ADK/Gemini Live 3.8/Laya/cloud/auth is still blocked at 15 October 18:00, report deadline risk immediately rather than relabeling a local or typed-only demo as complete.
 
-## GPT / Grok execution
+## GPT execution
 
 | Task | Builder | Reviewer |
 |---|---|---|
-| [TASK-0008](../05-tasks/TASK-0008.md) | GPT | Grok |
+| [TASK-0008](../05-tasks/TASK-0008.md) | GPT | GPT |
 
 Follow [MODEL-ALLOCATION.md](../../MODEL-ALLOCATION.md) for exclusive file ownership and handoff order. One active builder per task; additional parallel sessions must have disjoint paths. All assignments remain proposed.
 

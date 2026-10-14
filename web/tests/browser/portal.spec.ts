@@ -32,6 +32,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
   }, { denied: options.denied ?? false });
   await page.route('**/api/**', async (request) => {
     const path = new URL(request.request().url()).pathname;
+    if(path.startsWith('/api/backoffice/')){await request.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Log in',retryable:false},request_id:'fixture'}});return}
     let body: unknown;
     if (path === '/api/store-map') body = map;
     else if (path === '/api/search') { searches++; body = search; }

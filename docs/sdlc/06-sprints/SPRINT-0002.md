@@ -35,20 +35,20 @@ There is no local velocity history or retrospective. Config lists five delivery-
 - Goal: ROADMAP-0001.
 - Mode: **parallel**.
 - Resync trigger: any approved contract/schema change, shared frontend layout conflict or failing integration; return to sync until resolved.
-- Parallel only on DES-0001 disjoint module surfaces. Shared router, schema and dependency files serialize through backend-dev-1. UI can use approved fixtures while backend is built; staging exit requires real APIs and actual gemini-3.8-live native audio with catalog/route tools. ADK TASK-0003 is 8–14 hours, Laya TASK-0010 is 4–7 hours (Grok, alongside GPT TASK-0003 after contract freeze), and portal TASK-0004 is 6–9 hours; verify capacity after the 13 October spike.
+- Parallel only on DES-0001 disjoint module surfaces. Shared router, schema and dependency files serialize through backend-dev-1. UI can use approved fixtures while backend is built; staging exit requires real APIs and actual gemini-3.8-live native audio with catalog/route tools. ADK TASK-0003 is 8–14 hours, Laya TASK-0010 is 4–7 hours (GPT, alongside GPT TASK-0003 after contract freeze), and portal TASK-0004 is 6–9 hours; verify capacity after the 13 October spike.
 
 ## Exit and carry-over
 Record actual evidence from linked tests before reporting completion. Unfinished core work carries forward visibly and triggers scope cuts; do not mark tasks done because their planned date has passed. Protect 16 October deployment by cutting extra languages, recipes, vector work and visual polish first. If core ADK/Gemini Live 3.8/Laya/cloud/auth is still blocked at 15 October 18:00, report deadline risk immediately rather than relabeling a local or typed-only demo as complete.
 
-## GPT / Grok execution
+## GPT execution
 
 | Task | Builder | Reviewer |
 |---|---|---|
-| [TASK-0002](../05-tasks/TASK-0002.md) | Grok | GPT |
-| [TASK-0003](../05-tasks/TASK-0003.md) | GPT | Grok |
-| [TASK-0004](../05-tasks/TASK-0004.md) | GPT | Grok |
-| [TASK-0005](../05-tasks/TASK-0005.md) | GPT | Grok |
-| [TASK-0010](../05-tasks/TASK-0010.md) | Grok | GPT |
+| [TASK-0002](../05-tasks/TASK-0002.md) | GPT | GPT |
+| [TASK-0003](../05-tasks/TASK-0003.md) | GPT | GPT |
+| [TASK-0004](../05-tasks/TASK-0004.md) | GPT | GPT |
+| [TASK-0005](../05-tasks/TASK-0005.md) | GPT | GPT |
+| [TASK-0010](../05-tasks/TASK-0010.md) | GPT | GPT |
 
 Follow [MODEL-ALLOCATION.md](../../MODEL-ALLOCATION.md) for exclusive file ownership and handoff order. One active builder per task; additional parallel sessions must have disjoint paths. All assignments remain proposed.
 

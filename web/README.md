@@ -1,6 +1,6 @@
 # Prompt Shop customer portal
 
-TASK-0004 supplies the static SvelteKit customer shell, typed search, authoritative candidate cards, entrance-to-shelf map and native PCM voice client. Backoffice is a shell placeholder; TASK-0009 owns its protected route. The frontend has no provider keys or environment variables.
+TASK-0004 supplies the static SvelteKit customer shell, typed search, authoritative candidate cards, entrance-to-shelf map and native PCM voice client. TASK-0009 adds the protected backoffice route and Go API; see ../internal/backoffice/README.md for its configuration and tests. The frontend has no provider keys or environment variables.
 
 From `web/`, with Node 22.17 or newer:
 
