@@ -1,0 +1,212 @@
+[
+  {
+    "id": "catalog-01",
+    "prompt": "Where is the whole milk?",
+    "expected_label": "Whole milk",
+    "expected_product_id": "milk-whole-1l",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-02",
+    "prompt": "I need skimmed milk.",
+    "expected_label": "Skimmed milk",
+    "expected_product_id": null,
+    "binding_status": "missing_from_seed"
+  },
+  {
+    "id": "catalog-03",
+    "prompt": "Find oat milk.",
+    "expected_label": "Oat milk",
+    "expected_product_id": "milk-oat-1l",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-04",
+    "prompt": "Where can I find cheddar cheese?",
+    "expected_label": "Cheddar cheese",
+    "expected_product_id": "cheddar-cheese",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-05",
+    "prompt": "Show me plain yogurt.",
+    "expected_label": "Plain yogurt",
+    "expected_product_id": null,
+    "binding_status": "missing_from_seed"
+  },
+  {
+    "id": "catalog-06",
+    "prompt": "I am looking for butter.",
+    "expected_label": "Butter",
+    "expected_product_id": "butter",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-07",
+    "prompt": "Where are the eggs?",
+    "expected_label": "Eggs",
+    "expected_product_id": "eggs-12-pack",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-08",
+    "prompt": "Find white bread.",
+    "expected_label": "White bread",
+    "expected_product_id": "white-bread",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-09",
+    "prompt": "I need whole wheat bread.",
+    "expected_label": "Whole wheat bread",
+    "expected_product_id": "whole-wheat-bread",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-10",
+    "prompt": "Where is jasmine rice?",
+    "expected_label": "Jasmine rice",
+    "expected_product_id": "jasmine-rice",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-11",
+    "prompt": "Find brown rice.",
+    "expected_label": "Brown rice",
+    "expected_product_id": "brown-rice",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-12",
+    "prompt": "Where is spaghetti?",
+    "expected_label": "Spaghetti",
+    "expected_product_id": "spaghetti",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-13",
+    "prompt": "I need tomato pasta sauce.",
+    "expected_label": "Tomato pasta sauce",
+    "expected_product_id": "tomato-sauce",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-14",
+    "prompt": "Show me canned tuna.",
+    "expected_label": "Canned tuna",
+    "expected_product_id": "canned-tuna",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-15",
+    "prompt": "Where are canned chickpeas?",
+    "expected_label": "Canned chickpeas",
+    "expected_product_id": null,
+    "binding_status": "missing_from_seed"
+  },
+  {
+    "id": "catalog-16",
+    "prompt": "Find olive oil.",
+    "expected_label": "Olive oil",
+    "expected_product_id": "olive-oil",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-17",
+    "prompt": "I need soy sauce.",
+    "expected_label": "Soy sauce",
+    "expected_product_id": "soy-sauce",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-18",
+    "prompt": "Where is table salt?",
+    "expected_label": "Table salt",
+    "expected_product_id": "salt",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-19",
+    "prompt": "Find white sugar.",
+    "expected_label": "White sugar",
+    "expected_product_id": "sugar",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-20",
+    "prompt": "Where is ground coffee?",
+    "expected_label": "Ground coffee",
+    "expected_product_id": "ground-coffee",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-21",
+    "prompt": "I need green tea.",
+    "expected_label": "Green tea",
+    "expected_product_id": "green-tea",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-22",
+    "prompt": "Find bottled water.",
+    "expected_label": "Bottled water",
+    "expected_product_id": "drinking-water",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-23",
+    "prompt": "Where is orange juice?",
+    "expected_label": "Orange juice",
+    "expected_product_id": "orange-juice",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-24",
+    "prompt": "Show me bananas.",
+    "expected_label": "Bananas",
+    "expected_product_id": "bananas",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-25",
+    "prompt": "Where are apples?",
+    "expected_label": "Apples",
+    "expected_product_id": "red-apples",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-26",
+    "prompt": "I need carrots.",
+    "expected_label": "Carrots",
+    "expected_product_id": "carrots",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-27",
+    "prompt": "Find chicken breast.",
+    "expected_label": "Chicken breast",
+    "expected_product_id": "chicken-breast",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-28",
+    "prompt": "Where is laundry detergent?",
+    "expected_label": "Laundry detergent",
+    "expected_product_id": "laundry-detergent",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-29",
+    "prompt": "I need washing up liquid.",
+    "expected_label": "Dishwashing liquid",
+    "expected_product_id": "dish-soap",
+    "binding_status": "bound"
+  },
+  {
+    "id": "catalog-30",
+    "prompt": "Where can I find toilet roll?",
+    "expected_label": "Toilet paper",
+    "expected_product_id": "toilet-paper",
+    "binding_status": "bound"
+  }
+]

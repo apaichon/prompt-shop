@@ -1,0 +1,58 @@
+{
+  "product": {
+    "id": "milk-whole-1l",
+    "name": "Whole milk 1 L",
+    "category": "Dairy",
+    "aisle": {
+      "id": "a02",
+      "label": "Aisle 2"
+    },
+    "shelf": {
+      "id": "a02-s03",
+      "label": "Shelf 3"
+    },
+    "route_available": true
+  },
+  "catalog_version": 1,
+  "map_version": 1,
+  "origin_node_id": "entrance",
+  "node_ids": [
+    "entrance",
+    "a01-junction",
+    "a02-junction",
+    "a02-n01",
+    "a02-n02",
+    "a02-n03"
+  ],
+  "points": [
+    {
+      "x": 5,
+      "y": 10
+    },
+    {
+      "x": 15,
+      "y": 10
+    },
+    {
+      "x": 35,
+      "y": 10
+    },
+    {
+      "x": 35,
+      "y": 30
+    },
+    {
+      "x": 35,
+      "y": 40
+    },
+    {
+      "x": 35,
+      "y": 50
+    }
+  ],
+  "steps": [
+    "From the entrance, follow the main walkway to Aisle 2.",
+    "Follow the walkway to Shelf 3."
+  ],
+  "distance_units": 70
+}

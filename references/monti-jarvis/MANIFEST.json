@@ -1,0 +1,296 @@
+{
+  "source_root": "/Users/apaichon/Projects/libra/monti/monti-jarvis",
+  "snapshot_at": "2026-10-13T10:57:29.430708+00:00",
+  "source_version": "2.38.0-rc.10",
+  "scope": "Selective source snapshot for proposed integration; not a standalone runnable portal. No source mutation. No source secrets/env/runtime data copied.",
+  "files": [
+    {
+      "source_path": "LICENSE",
+      "source_sha256": "897e12e86679e4957601c603495ae8345c48a45f633116ad84e9c35b9c84ac60",
+      "copied_path": "LICENSE",
+      "copied_sha256": "897e12e86679e4957601c603495ae8345c48a45f633116ad84e9c35b9c84ac60",
+      "source_line_spans": null,
+      "reason": "Preserve source MIT notice",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/svelte.config.js",
+      "source_sha256": "bfceac6a6e2ae9c7e33b27dfc40471509c222856de96cf0c014c57ffa962db55",
+      "copied_path": "portal/svelte.config.js",
+      "copied_sha256": "bfceac6a6e2ae9c7e33b27dfc40471509c222856de96cf0c014c57ffa962db55",
+      "source_line_spans": null,
+      "reason": "Reuse static SvelteKit adapter configuration",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/package.json",
+      "source_sha256": "a23538515af65def55e1ece679d48b44b841ac95fc7a7e7670d532498e6ef099",
+      "copied_path": "portal/package.json",
+      "copied_sha256": "a23538515af65def55e1ece679d48b44b841ac95fc7a7e7670d532498e6ef099",
+      "source_line_spans": null,
+      "reason": "Version reference only; trim dependencies during integration",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/tsconfig.json",
+      "source_sha256": "0374d911148fdc6cd5eaf484a277ef6d685e71f1aec6d2812c412c97cf960e94",
+      "copied_path": "portal/tsconfig.json",
+      "copied_sha256": "0374d911148fdc6cd5eaf484a277ef6d685e71f1aec6d2812c412c97cf960e94",
+      "source_line_spans": null,
+      "reason": "SvelteKit TypeScript configuration",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/app.html",
+      "source_sha256": "78b8740fc85c70a4ac45b0fd8c1a6b53940eb89d6765757af8ccb739f3e1167f",
+      "copied_path": "portal/src/app.html",
+      "copied_sha256": "78b8740fc85c70a4ac45b0fd8c1a6b53940eb89d6765757af8ccb739f3e1167f",
+      "source_line_spans": null,
+      "reason": "Portal document shell; replace branding if present",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/tenant-web/src/lib/voice/mic.ts",
+      "source_sha256": "087e8e17d3e9a8a6dae4d95393a95f249281f7e5d5b5d66ed1e42a7f4175d369",
+      "copied_path": "portal/src/lib/voice/mic.ts",
+      "copied_sha256": "087e8e17d3e9a8a6dae4d95393a95f249281f7e5d5b5d66ed1e42a7f4175d369",
+      "source_line_spans": null,
+      "reason": "Reuse permission and secure-context checks; adapt Monti URLs/copy",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/lib/transcript.ts",
+      "source_sha256": "60db04eafb1d2b65ba522579aa6aadf1d5fb7114322ea05eb6a0964b04e7f2fb",
+      "copied_path": "portal/src/lib/voice/transcript.ts",
+      "copied_sha256": "60db04eafb1d2b65ba522579aa6aadf1d5fb7114322ea05eb6a0964b04e7f2fb",
+      "source_line_spans": null,
+      "reason": "Merge native Live input/output transcript display chunks; adapt to turn identifiers and cancellation.",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "internal/shoppingweb/serve.go",
+      "source_sha256": "ec4193279b85ac6b05b8110cafa69d95a5e5ebdb45a65e9233a002dd75a6003d",
+      "copied_path": "go/shoppingweb/serve.go",
+      "copied_sha256": "ec4193279b85ac6b05b8110cafa69d95a5e5ebdb45a65e9233a002dd75a6003d",
+      "source_line_spans": null,
+      "reason": "Static SPA fallback; adapt with Fiber adapter and brand copy",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "internal/shoppingweb/serve_test.go",
+      "source_sha256": "8c25fc73aec5ed0bbfb8d3776672ac267c818587885a6e8cb58fde17c8c61497",
+      "copied_path": "go/shoppingweb/serve_test.go",
+      "copied_sha256": "8c25fc73aec5ed0bbfb8d3776672ac267c818587885a6e8cb58fde17c8c61497",
+      "source_line_spans": null,
+      "reason": "Existing SPA serving regression checks",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "internal/security/redact.go",
+      "source_sha256": "f352f39ce61a332bc99864a82586c09e3d8b9d236f2a9562da4d3c1d769b7284",
+      "copied_path": "go/security/redact.go",
+      "copied_sha256": "f352f39ce61a332bc99864a82586c09e3d8b9d236f2a9562da4d3c1d769b7284",
+      "source_line_spans": null,
+      "reason": "Defense-in-depth credential redaction; prefer structured allowlisted logs",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "internal/security/redact_test.go",
+      "source_sha256": "1f1d4787ed2bfbb41efcbc7ec8b02009939e0d52e926df21f29d514f89a9dec8",
+      "copied_path": "go/security/redact_test.go",
+      "copied_sha256": "1f1d4787ed2bfbb41efcbc7ec8b02009939e0d52e926df21f29d514f89a9dec8",
+      "source_line_spans": null,
+      "reason": "Existing redaction regression checks",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/tenant-web/src/routes/businesses/shopping/+page.svelte",
+      "source_sha256": "3dbe339d19bff2cebd3923c53da9551f62f028ad1d4b85afc542f82552e9f227",
+      "copied_path": "excerpts/backoffice-catalog.ts.txt",
+      "copied_sha256": "0b5b475dc64edfe2ec1528f66eea393e2183554f4857dee9a0e257020a9794b6",
+      "source_line_spans": [
+        [
+          12,
+          14
+        ],
+        [
+          20,
+          20
+        ],
+        [
+          26,
+          26
+        ],
+        [
+          31,
+          41
+        ],
+        [
+          53,
+          53
+        ],
+        [
+          97,
+          99
+        ]
+      ],
+      "reason": "Product list/edit/draft/save/publish pattern; adapt DTOs, aliases, shelf and server auth",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/tenant-web/src/lib/api/businessShopping.ts",
+      "source_sha256": "c4831dcd4ae524fa853bb4d7408ce900ae850d3ebcd92a8107cea5851d2b446f",
+      "copied_path": "excerpts/catalog-api.ts.txt",
+      "copied_sha256": "575299531c3e475d087a35ba58e3f81d2c2d0ef24a2c02cbc40234102a9c7676",
+      "source_line_spans": [
+        [
+          6,
+          19
+        ],
+        [
+          30,
+          30
+        ],
+        [
+          31,
+          31
+        ],
+        [
+          32,
+          32
+        ]
+      ],
+      "reason": "Catalog request/version-conflict patterns only; replace endpoints and model fields",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/lib/components/ProductCard.svelte",
+      "source_sha256": "c341038b08d244fe87d26edec4702acc88d2c245296a000bbe654f27348d11ac",
+      "copied_path": "excerpts/product-card.svelte.txt",
+      "copied_sha256": "2604196d5224d7d886038b7868cb19b1bac2aa611012778b3462bf7057fff25d",
+      "source_line_spans": [
+        [
+          16,
+          26
+        ],
+        [
+          31,
+          38
+        ]
+      ],
+      "reason": "Product name/category/image and focus spotlight UI; discard all cart/price/variant controls",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "internal/shopping/catalog.go",
+      "source_sha256": "6d3e04fa727bc8659d94bf689ef8b8469948e0dc5bd726faa4aa0a5a29ac7a0a",
+      "copied_path": "excerpts/catalog-validation.go.txt",
+      "copied_sha256": "10aac9917d8d2842f0eccd0e8bce60d360de64073e024a11bf5f948e41d2cbd1",
+      "source_line_spans": [
+        [
+          30,
+          63
+        ]
+      ],
+      "reason": "Name/category/state and safe image validation reference; add shelf FK checks and remove commerce types",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/lib/montiVoice.ts",
+      "source_sha256": "4837f365502a038929815e524cd2ba328ff13efeaa90798444af2ca31e630c9f",
+      "copied_path": "portal/src/lib/voice/montiVoice.ts",
+      "copied_sha256": "4837f365502a038929815e524cd2ba328ff13efeaa90798444af2ca31e630c9f",
+      "source_line_spans": null,
+      "reason": "PCM capture/resampling, playback queue, interruption and transcript event reference; replace URL ticket, endpoint, JSON audio transport and commerce methods per DES-0001.",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "internal/live/relay.go",
+      "source_sha256": "a235002a05716b0040bd01be455fa67313e1d701f828779b3c8bd7597de76d7a",
+      "copied_path": "excerpts/gemini-live-protocol.go.txt",
+      "copied_sha256": "d9d203fb2e6310404592a284e0596d59eaa970b46b8f0b3642cbd98c3493d09d",
+      "source_line_spans": [
+        [
+          655,
+          699
+        ],
+        [
+          797,
+          825
+        ]
+      ],
+      "reason": "Gemini AUDIO setup, tool response and server event parsing fragments only; remove workforce/tenant types, add 3.8 BLOCKING tools, cancellation and bounds. Not a standalone Go package.",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/lib/components/MontiPanel.svelte",
+      "source_sha256": "9f94af789389d4c8efba45f3b85bc7ead70534d12028e96f83ab4406bb8cede0",
+      "copied_path": "excerpts/interactive-voice-panel.svelte.txt",
+      "copied_sha256": "aeacfc1439ecde03a393c72d9368d135d9dc27f52e8fd5e2df44e2984672501b",
+      "source_line_spans": [
+        [
+          59,
+          75
+        ],
+        [
+          173,
+          177
+        ],
+        [
+          179,
+          186
+        ],
+        [
+          392,
+          400
+        ],
+        [
+          470,
+          470
+        ],
+        [
+          509,
+          524
+        ],
+        [
+          527,
+          563
+        ],
+        [
+          569,
+          569
+        ]
+      ],
+      "reason": "Voice state/timer, tool-driven presentation, stale update guard, responsive panel/focus and typed composer references; remove auto-start, cart, identity and source branding.",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/routes/stores/[slug]/+page.svelte",
+      "source_sha256": "5a067fb833f94040c1bd88e37c41a7476dc5c7dda0d0af158e1784785e5e9cb9",
+      "copied_path": "excerpts/product-presentation.ts.txt",
+      "copied_sha256": "d1cbb91aea73c704d38a5e0d1a051e2b7ebf464b59fd2e18904ca28ff3e3bfa1",
+      "source_line_spans": [
+        [
+          91,
+          134
+        ],
+        [
+          165,
+          189
+        ]
+      ],
+      "reason": "Atomic validated product presentation, request sequencing and spotlight state; adapt to authoritative candidate/route events, no source variants/cart/tenant runtime.",
+      "integration_status": "reference_only_not_wired"
+    },
+    {
+      "source_path": "apps/shopping-web/src/lib/styles/tokens.css",
+      "source_sha256": "1b16dc1457022245cd27080a1886319f94d50b95a0e717d42c5d6e305d41dcc5",
+      "copied_path": "portal/src/lib/styles/tokens.css",
+      "copied_sha256": "1b16dc1457022245cd27080a1886319f94d50b95a0e717d42c5d6e305d41dcc5",
+      "source_line_spans": null,
+      "reason": "Small reusable color/spacing/focus token palette; adapt branding and verify contrast rather than importing the full commerce stylesheet.",
+      "integration_status": "reference_only_not_wired"
+    }
+  ],
+  "extended_at": "2026-10-13T14:31:16.650717+00:00"
+}

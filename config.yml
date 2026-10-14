@@ -1,0 +1,12 @@
+project_name: prompt-shop
+description: A single hypermarket portal with an English-first Gemini Live 3.8 voice-to-voice item finder using Google ADK and Laya intent classification, shelf directions, and a protected catalog backoffice; recipes and additional languages follow the core prototype.
+tech_stack: [Svelte, Gemini Live 3.8, Google ADK (Python), Laya, Go Fiber, PostgreSQL,pg-vector, Docker, Google Cloud Platform]
+team_roles:
+  - {role: backend, count: 2}
+  - {role: frontend, count: 1, seniority: senior}
+  - {role: qa, count: 1}
+  - {role: devops, count: 1}
+sprint_length_days: 1
+target_platform: both
+output_dir: ./
+sdlc_stages: [requirements, design, code, testing, deployment, operations]

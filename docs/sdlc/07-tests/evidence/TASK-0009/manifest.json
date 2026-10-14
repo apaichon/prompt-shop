@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-14",
+  "dependency_commits": {
+    "TASK-0001": "a564571",
+    "TASK-0004": "edc8da9"
+  },
+  "postgres_image": "postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+  "environment": "local_tmpfs_not_deployed",
+  "sha256": {
+    "references/monti-jarvis/excerpts/backoffice-catalog.ts.txt": "0b5b475dc64edfe2ec1528f66eea393e2183554f4857dee9a0e257020a9794b6",
+    "references/monti-jarvis/excerpts/catalog-validation.go.txt": "10aac9917d8d2842f0eccd0e8bce60d360de64073e024a11bf5f948e41d2cbd1",
+    "web/static/MONTI-LICENSE.txt": "897e12e86679e4957601c603495ae8345c48a45f633116ad84e9c35b9c84ac60",
+    "data/demo-store.json": "822b40b6464f933e1b605042f364611f97cf1192ed465842eca180fe8be3dbc7"
+  }
+}

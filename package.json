@@ -1,0 +1,12 @@
+{
+  "name": "prompt-shop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Single hypermarket portal with ADK-managed Gemini Live 3.8 voice, Laya intent classification, shelf routes and protected catalog backoffice.",
+  "scripts": {
+    "sdlc:graph": "node scripts/sdlc-graph.js",
+    "sdlc:propagate": "node scripts/sdlc-propagate.js",
+    "sdlc:next-id": "node scripts/next-id.js"
+  }
+}

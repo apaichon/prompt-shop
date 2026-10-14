@@ -1,0 +1,99 @@
+# TASK-0003 private Live runtime
+
+This package runs `gemini-3.8-live` through Google ADK `Runner.run_live`. Go owns
+public admission, ticket consumption, turn epochs, candidate sets and factual UI
+events. Python owns native provider audio and three explicit BLOCKING tools.
+
+## Configuration and launch
+
+Use `.worktrees/TASK-0003/agent`. `uv.lock` pins ADK 2.11.0 and GenAI 2.30.1 plus
+transitive dependencies. Python 3.11–3.13 is supported.
+
+```sh
+rtk proxy uv sync --locked
+# agent/.env already exists locally, is gitignored, and has owner-only permissions.
+# Set GOOGLE_API_KEY there. ADK_BRIDGE_SECRET must match the Go gateway secret.
+rtk proxy uv run --env-file .env uvicorn prompt_shop_live.app:app --host 0.0.0.0 --port 8001 --no-access-log --ws-max-size 65536 --ws-max-queue 1
+```
+
+Only Go is public ingress. The private runtime requires a Bearer bridge secret,
+rejects query parameters and validates its setup message. `/healthz` returns 503
+until the API key, a bridge secret of at least 32 characters, and TASK-0010's
+`tools.intent.classify_intent` adapter are available. It makes no provider, Go or
+Laya calls. A key being configured is not proof of provider entitlement.
+
+The adapter contract is `async def classify_intent(text: str) -> dict`, returning
+DES-0001's exact `intent-v1` response. TASK-0010 owns `agent/tools/intent.py` and its
+Laya HTTP authentication/worker integration. No production mock, automatic model
+substitution or disabled-classifier path exists here. The wrapper checks output,
+applies the 1.2-second deadline, registers the attempt over the bridge and waits
+for the matching Go ACK before allowing a catalog callback.
+
+The Gemini key stays in this process. Go receives only `ADK_BRIDGE_SECRET` and a
+separate least-privileged ticket DB connection. Do not copy the whole agent env
+file into the ingress container. Production secret injection/images remain TASK-0005.
+
+## Tests
+
+From the TASK-0003 worktree root:
+
+```sh
+rtk proxy uv run --project agent pytest -q agent/tests
+rtk proxy env -u GOROOT PROMPT_SHOP_GO=/opt/homebrew/bin/go python3 internal/voice/check.py
+```
+
+On other machines, omit `PROMPT_SHOP_GO` and use a working Go installation. The
+Go harness copies only the voice package into a temporary module, validates its
+locked dependency files, runs vet and race tests, and removes the temporary
+module. It does not modify TASK-0001's root go.mod or another worktree.
+`VOICE_TEST_DATABASE_URL` enables the PostgreSQL test; it creates/drops only a
+random `voice_test_*` schema. The WebSocket test reserves loopback port 8001.
+
+Python tests exercise the **real ADK Runner and GenAI serialization** with a
+simulated provider socket. They check concurrent-session isolation, multipart
+input/output, BLOCKING wire declarations, tool ACK order, stale cancellation,
+input byte accounting, schema alignment, and error/stop/overflow cleanup. Go tests
+cover origin/cookies, ticket hashes/atomic consumption, callback authorization,
+candidate membership, ambiguous selection, expiry, budgets, late replies and a
+real local public WebSocket/private-bridge relay. Simulated provider evidence is
+not actual Gemini acceptance.
+
+## Opt-in real-model smoke
+
+Prepare a **synthetic**, mono PCM16LE 16 kHz WAV (at most 30 seconds) saying
+“Where is whole milk?”. Once GOOGLE_API_KEY is set, run from `agent/`:
+
+```sh
+rtk proxy uv run --env-file .env python -m prompt_shop_live.smoke --input-wav /absolute/path/whole-milk.wav --output-wav /absolute/path/reply.wav
+```
+
+This uses the actual native ADK/Gemini connection, with explicitly labelled
+classifier/catalog contract fixtures allowed by isolated TEST-0008. The normal
+application does not use those fixtures. The smoke prints only configuration,
+byte counts, tool names and lifecycle counters; raw transcripts/keys are not
+printed. Output audio is written only when `--output-wav` is explicitly supplied.
+Listen to verify “Aisle 2, Shelf 3” and absence of fabricated facts. A transport
+smoke pass does not establish spoken selection, interruption, browser microphone,
+real Laya, integrated routing, or the 30-turn latency acceptance.
+
+## Lifecycle and limits
+
+- Four runtime sessions; fresh in-memory session, queue, model client and tool host
+  per connection. Close/cancel/await runner, pending tools, provider/client and
+  queue; delete the ADK session on every exit. No resumption/artifact service.
+- Pending ADK input is counted at enqueue/dequeue and capped at 32,000 PCM bytes
+  plus 64 total queue entries. The pinned SDK socket uses one queued message and
+  a 65,536-byte message cap; application output rejects >48,000-byte PCM parts and
+  splits frames at 16,384 bytes. Slow writes time out after one second.
+- Setup 30 seconds, session 300 seconds from provider-ready, idle 60 seconds and
+  eight-second required-tool deadline. Go supplies explicit VAD boundaries from
+  a fixed RMS threshold; silence and pings do not refresh activity. Demo-device
+  qualification of this threshold remains required.
+- Audio is suppressed until required tool state is satisfied; transcripts never
+  become catalog facts. This is not proof that native model speech cannot invent
+  facts. Actual listening/output-transcript acceptance remains mandatory.
+
+The transport queue controls use a version-qualified private GenAI attribute;
+upgrade ADK/GenAI only after rerunning the actual SDK wire tests. SDK/body logging
+is silenced and Uvicorn access logs should remain disabled. Original implementation;
+no Monti source was copied. Reference snapshots retain their original license.

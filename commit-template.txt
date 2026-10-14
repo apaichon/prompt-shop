@@ -1,0 +1,9 @@
+<type>(<scope>): <subject>
+
+# Body — what changed and why.
+
+# SDLC refs (optional):
+# Requirement: REQ-XXXX
+# Design: DES-XXXX
+# Task: TASK-XXXX
+# Test: TEST-XXXX

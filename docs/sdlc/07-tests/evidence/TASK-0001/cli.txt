@@ -1,0 +1,5 @@
+PASS: two unchanged CLI imports, then invalid CLI import exits nonzero with row errors
+{"status":"unchanged","product_count":62,"catalog_version":3,"map_version":1}
+{"status":"unchanged","product_count":62,"catalog_version":3,"map_version":1}
+{"errors":[{"collection":"products","index":61,"field":"shelf_id","code":"INVALID_REFERENCE","message":"shelf does not exist"}]}
+exit status 1

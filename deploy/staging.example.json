@@ -1,0 +1,55 @@
+{
+  "project_id": null,
+  "project_number": null,
+  "region": "asia-southeast1",
+  "service": "prompt-shop-staging",
+  "repository": "prompt-shop",
+  "sql_instance": "prompt-shop-staging",
+  "sql_database": "prompt_shop",
+  "sql_tier": null,
+  "sql_storage_gb": null,
+  "sql_version": "POSTGRES_16",
+  "billing_account": null,
+  "budget_amount": null,
+  "budget_notification_channel": null,
+  "cleanup_date": null,
+  "approved_by": null,
+  "reviewer_access": null,
+  "public_origin": null,
+  "revision_suffix": null,
+  "previous_revision": null,
+  "secrets": {
+    "database": {
+      "name": "prompt-shop-database",
+      "version": null
+    },
+    "backoffice-database": {
+      "name": "prompt-shop-backoffice-database",
+      "version": null
+    },
+    "ticket-database": {
+      "name": "prompt-shop-ticket-database",
+      "version": null
+    },
+    "operator-database": {
+      "name": "prompt-shop-operator-database",
+      "version": null
+    },
+    "admin-password-hash": {
+      "name": "prompt-shop-admin-password-hash",
+      "version": null
+    },
+    "adk-bridge": {
+      "name": "prompt-shop-adk-bridge",
+      "version": null
+    },
+    "laya-token": {
+      "name": "prompt-shop-laya-token",
+      "version": null
+    },
+    "gemini-api-key": {
+      "name": "prompt-shop-gemini-api-key",
+      "version": null
+    }
+  }
+}

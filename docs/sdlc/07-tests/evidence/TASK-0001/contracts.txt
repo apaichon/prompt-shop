@@ -1,0 +1,3 @@
+Command: python3 data/validate_contracts.py
+Exit: 0
+PASS: import schema/seed, 21 API schemas, public examples, live events and private examples

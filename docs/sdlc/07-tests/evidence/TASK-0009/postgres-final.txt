@@ -1,0 +1,8 @@
+=== RUN   TestPostgresBackofficeLifecycle
+--- PASS: TestPostgresBackofficeLifecycle (4.53s)
+=== RUN   TestPostgresBackofficeLifecycle
+--- PASS: TestPostgresBackofficeLifecycle (1.70s)
+=== RUN   TestPostgresBackofficeLifecycle
+--- PASS: TestPostgresBackofficeLifecycle (1.66s)
+PASS
+ok  	github.com/apaichon/prompt-shop/internal/backoffice	9.731s

@@ -1,0 +1,20 @@
+export type ShoppingPage<T> = { items:T[]; next_cursor:string|null; total:number };
+export type ShoppingListQuery = { q?:string; category?:string; state?:string; product_id?:string; limit?:number; cursor?:string };
+
+const qs = (query:ShoppingListQuery = {}) => {
+  const params = new URLSearchParams();
+  if (query.q) params.set('q', query.q);
+  if (query.category) params.set('category', query.category);
+  if (query.state) params.set('state', query.state);
+  if (query.product_id) params.set('product_id', query.product_id);
+  if (query.limit) params.set('limit', String(query.limit));
+  if (query.cursor) params.set('cursor', query.cursor);
+  const encoded = params.toString();
+  return encoded ? `?${encoded}` : '';
+};
+
+export const listShoppingProducts = (query:ShoppingListQuery = {}) => apiFetch<ShoppingPage<ShoppingProduct>>(`/api/business/v1/tenant/shopping/products${qs(query)}`);
+
+export const createShoppingProduct = (body:{name:string;description:string;category:string;image_url:string;state:'draft'}) => apiFetch<ShoppingProduct>('/api/business/v1/tenant/shopping/products',{method:'POST',headers:{'Idempotency-Key':key('product')},body:JSON.stringify(body)});
+
+export const updateShoppingProduct = (product:ShoppingProduct, body:Partial<ShoppingProduct>) => apiFetch<ShoppingProduct>(`/api/business/v1/tenant/shopping/products/${product.id}`,{method:'PUT',body:JSON.stringify({name:body.name??product.name,description:body.description??product.description,category:body.category??product.category,image_url:body.image_url??product.image_url,state:body.state??product.state,expected_version:product.version})});

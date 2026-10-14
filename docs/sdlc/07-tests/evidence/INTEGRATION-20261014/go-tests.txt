@@ -1,0 +1,14 @@
+?   	github.com/apaichon/prompt-shop/cmd/import	[no test files]
+?   	github.com/apaichon/prompt-shop/cmd/server	[no test files]
+ok  	github.com/apaichon/prompt-shop/internal/backoffice	18.373s
+?   	github.com/apaichon/prompt-shop/internal/backoffice/cmd/fixture-server	[no test files]
+?   	github.com/apaichon/prompt-shop/internal/backoffice/cmd/password-hash	[no test files]
+ok  	github.com/apaichon/prompt-shop/internal/catalog	1.610s
+ok  	github.com/apaichon/prompt-shop/internal/config	1.568s
+?   	github.com/apaichon/prompt-shop/internal/platform/database	[no test files]
+ok  	github.com/apaichon/prompt-shop/internal/platform/httpserver	2.142s
+ok  	github.com/apaichon/prompt-shop/internal/platform/importer	3.855s
+ok  	github.com/apaichon/prompt-shop/internal/voice	1.887s
+?   	github.com/apaichon/prompt-shop/migrations	[no test files]
+ok  	github.com/apaichon/prompt-shop/references/monti-jarvis/go/security	1.563s
+ok  	github.com/apaichon/prompt-shop/references/monti-jarvis/go/shoppingweb	1.643s

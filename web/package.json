@@ -1,0 +1,37 @@
+{
+  "name": "prompt-shop-portal",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.17"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "test:backoffice": "playwright test --config playwright.backoffice.config.ts"
+  },
+  "dependencies": {
+    "svelte": "5.57.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.64.0",
+    "@sveltejs/adapter-static": "4.0.0",
+    "@sveltejs/kit": "3.0.1",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "@types/node": "26.6.5",
+    "svelte-check": "4.7.6",
+    "typescript": "6.0.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.4"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  }
+}

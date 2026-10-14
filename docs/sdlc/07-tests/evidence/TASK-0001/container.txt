@@ -1,0 +1,9 @@
+Command: python3 data/check_container.py
+Exit: 0
+PASS: public/backoffice/voice role privilege boundaries
+PASS: actual reader UPDATE rejected
+PASS: local foundation ready; missing ADK/Laya keeps full readiness 503; private routes absent
+PASS: legitimate catalog archive does not incorrectly fail readiness
+PASS: app container restart preserves complete DB snapshot 3bdaf90d516aa7d01960bf5a1c1e3767df6c094543543aff857244639e95cd97
+PASS: DB outage gives readyz 503 / healthz 200; named-volume restart preserves all rows
+DB counts: 60|8|67

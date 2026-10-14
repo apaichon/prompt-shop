@@ -1,0 +1,7 @@
+{
+  "source": "TASK-0001 data/contracts local handoff, 2026-10-13; review pending",
+  "sha256": {
+    "live.schema.json": "7bc0f19571d7c6d197b53e6db0fd04773773ccc572140482cf4b37c30c477109",
+    "private.schema.json": "a46b174c65e5a3412f826584a42bcd2cd36c7975e5ca23e66b1141d6e42f324b"
+  }
+}

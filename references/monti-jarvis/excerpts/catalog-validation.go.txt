@@ -1,0 +1,34 @@
+func NormalizeProductInput(in ProductInput, creating bool) (ProductInput, error) {
+	in.Name = strings.TrimSpace(in.Name)
+	in.Description = strings.TrimSpace(in.Description)
+	in.Category = strings.TrimSpace(in.Category)
+	in.ImageURL = strings.TrimSpace(in.ImageURL)
+	in.State = strings.ToLower(strings.TrimSpace(in.State))
+	if byteLen(in.Name) < 1 || byteLen(in.Name) > 120 {
+		return ProductInput{}, fmt.Errorf("%w: name must be 1-120 UTF-8 bytes", business.ErrInvalidRequest)
+	}
+	if byteLen(in.Description) > 4000 {
+		return ProductInput{}, fmt.Errorf("%w: description exceeds 4000 UTF-8 bytes", business.ErrInvalidRequest)
+	}
+	if byteLen(in.Category) < 1 || byteLen(in.Category) > 64 {
+		return ProductInput{}, fmt.Errorf("%w: category must be 1-64 UTF-8 bytes", business.ErrInvalidRequest)
+	}
+	if byteLen(in.ImageURL) > 2048 {
+		return ProductInput{}, fmt.Errorf("%w: image_url exceeds 2048 UTF-8 bytes", business.ErrInvalidRequest)
+	}
+	if in.ImageURL != "" {
+		parsed, err := url.Parse(in.ImageURL)
+		localAsset := localProductImage.MatchString(in.ImageURL)
+		if err != nil || (!localAsset && (parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil)) {
+			return ProductInput{}, fmt.Errorf("%w: image_url must be an absolute HTTPS URL or a safe /images/ asset path", business.ErrInvalidRequest)
+		}
+	}
+	if creating && in.State != string(ProductDraft) {
+		return ProductInput{}, fmt.Errorf("%w: new products must start in draft", ErrInvalidState)
+	}
+	if in.State != string(ProductDraft) && in.State != string(ProductPublished) && in.State != string(ProductArchived) {
+		return ProductInput{}, fmt.Errorf("%w: unsupported product state", ErrInvalidState)
+	}
+	return in, nil
+}
+

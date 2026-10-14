@@ -1,0 +1,101 @@
+  const voiceState = $derived(voiceSpeaking
+    ? lang.text('Speaking…', 'กำลังพูด…')
+    : voiceLive
+      ? voicePaused
+        ? lang.text('Paused — tap Continue when ready', 'พักอยู่ — แตะต่อเมื่อพร้อม')
+        : lang.text('Listening…', 'กำลังฟัง…')
+      : lang.text('Ready to help', 'พร้อมช่วยเลือกสินค้า'));
+  const voiceTimerLabel = $derived(formatVoiceTimer(voiceElapsed));
+  const talkButtonLabel = $derived(!voiceLive
+    ? lang.text('Push to talk', 'กดเพื่อพูด')
+    : voicePaused
+      ? lang.text('Continue', 'ต่อ')
+      : lang.text('Pause', 'พัก'));
+  const talkButtonIcon = $derived(!voiceLive ? '🎙' : voicePaused ? '▶' : 'Ⅱ');
+
+  onMount(() => {
+    if (identity.authenticated) {
+
+    }
+    // Voice product discovery is driven solely by assistant_action from the
+    // catalog tool. Re-searching the final transcript races with that result
+    // and treats an entire spoken sentence as a literal product name.
+  }
+
+  async function presentRecommendations(items: MontiRecommendation[]) {
+    const request = ++presentationRequest;
+    groundingBusy = true;
+    try {
+      const presented = await onPresentProducts(items.map((item) => ({ productID: item.facts.product_id, variantID: item.facts.variant_id })));
+      if (!presented || request !== presentationRequest) return;
+      error = '';
+      recommendations = items;
+
+        onAction: (action) => { void presentVoiceAction(action).catch((cause) => {
+          error = cause instanceof Error ? cause.message : lang.text('Could not load products. Please try again.', 'โหลดสินค้าไม่สำเร็จ โปรดลองอีกครั้ง');
+        }); },
+        onTranscript: (role, text, meta) => {
+          const previous = messages.at(-1);
+          if (previous?.role === role) messages = [...messages.slice(0, -1), { role, content: text }];
+          else messages = [...messages, { role, content: text }];
+          if (role === 'user' && meta?.final) void groundFinalVoiceTurn(text);
+        }
+
+  function openMobile() { mobileOpen = true; queueMicrotask(() => panel?.focus()); }
+
+  function formatVoiceTimer(totalSeconds: number) {
+    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+    const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  }
+
+  function closeMobile() { mobileOpen = false; queueMicrotask(() => launcher?.focus()); }
+  function trap(event: KeyboardEvent) {
+    if (event.key === 'Escape') { closeMobile(); return; }
+    if (event.key !== 'Tab' || !panel) return;
+    const focusable = [...panel.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),summary')];
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+
+<button bind:this={launcher} class="monti-launcher" onclick={openMobile} aria-expanded={mobileOpen}>
+  <span aria-hidden="true">🌱</span> {lang.text('Talk to Monti', 'คุยกับ Monti')}
+</button>
+<aside class:open={mobileOpen} class="monti-shell" aria-label="Monti shopping assistant">
+  <button class="monti-backdrop" aria-label="Close Monti" onclick={closeMobile}></button>
+  <section bind:this={panel} class="market-assistant market-card monti-panel" role="dialog" tabindex="-1" aria-modal={mobileOpen ? 'true' : undefined} onkeydown={trap}>
+    <header class="market-assistant__title">
+      <span class="monti-brand-sprout" aria-hidden="true">⌁</span>
+      <div><p class="market-eyebrow">{activeAgent?.name || 'MONTI'} · {lang.text('VOICE SHOPPING', 'ผู้ช่วยช้อปด้วยเสียง')}</p><h2>{lang.text('Talk, browse and decide', 'พูดคุย เลือกดู และตัดสินใจ')}</h2></div>
+      <button class="monti-mobile-close" onclick={closeMobile} aria-label="Close">×</button>
+    </header>
+
+    <div class:speaking={voiceSpeaking} class:listening={voiceLive && !voiceSpeaking && !voicePaused} class:paused={voicePaused} class="monti-voice-stage">
+      <div class="monti-avatar-orbit" aria-hidden="true">
+        <span class="monti-orbit monti-orbit--one"></span>
+        <span class="monti-orbit monti-orbit--two"></span>
+        <span class="monti-orbit monti-orbit--three"></span>
+        <span class="market-monti-avatar"><img src={avatarSrc(activeAgent)} alt="" referrerpolicy="no-referrer" onerror={avatarError} /></span>
+      </div>
+      <p class="monti-voice-state" aria-live="polite">{voiceState}</p>
+      <time class:active={voiceLive} class="monti-voice-timer" datetime={`PT${voiceElapsed}S`}>{voiceLive ? voiceTimerLabel : '00:00'}</time>
+      <div class="monti-waveform" aria-hidden="true">{#each Array(15) as _}<span></span>{/each}</div>
+      <div class="monti-transcript" aria-live="polite">
+        {#if messages.length === 0}<div class="market-chat-bubble">{proactiveGreeting}</div>{/if}
+        {#each messages as message}<div class:customer={message.role === 'user'} class="monti-message">{message.content}</div>{/each}
+      </div>
+      <div class="monti-voice-controls">
+        <button class:live={voiceLive} class:paused={voicePaused} class="monti-voice-control" disabled={busy} onclick={toggleVoice} aria-label={talkButtonLabel}>
+          <span aria-hidden="true">{talkButtonIcon}</span>
+          <strong>{talkButtonLabel}</strong>
+        </button>
+        {#if voiceLive}
+          <button class="monti-voice-stop" type="button" onclick={stopVoiceSession}>{lang.text('Stop', 'หยุด')}</button>
+        {/if}
+      </div>
+      <small>{voiceLive ? status : lang.text('Tap Push to talk to start a voice conversation', 'แตะกดเพื่อพูดเพื่อเริ่มสนทนาด้วยเสียง')}</small>
+    </div>
+
+    <div class="monti-composer"><input bind:value={input} aria-busy={busy} placeholder={lang.text('Find products or message Monti', 'ค้นหาสินค้าหรือส่งข้อความถึง Monti')} onkeydown={(event) => event.key === 'Enter' && send()} /><button disabled={busy || !(input ?? '').trim()} onclick={send} aria-label="Send">{busy ? '…' : '→'}</button></div>
