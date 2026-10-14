@@ -1,0 +1,396 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "search-callback": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "classification_attempt_id": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "session_id",
+        "turn_id",
+        "call_id",
+        "classification_attempt_id",
+        "args"
+      ],
+      "additionalProperties": false
+    },
+    "route-callback": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "classification_attempt_id": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "product_id": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,64}$"
+            },
+            "search_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "product_id",
+            "search_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "session_id",
+        "turn_id",
+        "call_id",
+        "classification_attempt_id",
+        "args"
+      ],
+      "additionalProperties": false
+    },
+    "laya-request": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "laya-response": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "intent-v1"
+        },
+        "intent": {
+          "enum": [
+            "find_item",
+            "select_item",
+            "repeat_directions",
+            "out_of_scope",
+            null
+          ]
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "margin": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "abstained": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_revision": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "intent",
+        "confidence",
+        "margin",
+        "abstained",
+        "reason",
+        "model_revision"
+      ],
+      "additionalProperties": false
+    },
+    "bridge-setup": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "setup"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "language": {
+          "const": "en-US"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "tool_capability": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "language",
+        "turn_id",
+        "tool_capability"
+      ],
+      "additionalProperties": false
+    },
+    "classification-completed": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "classification_completed"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "classification_attempt_id": {
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/laya-response"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "classification_attempt_id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "classification-registered": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "classification_registered"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "classification_attempt_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "classification_attempt_id"
+      ],
+      "additionalProperties": false
+    },
+    "search-tool-response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "search_id",
+        "catalog_version",
+        "candidates",
+        "ambiguous"
+      ],
+      "properties": {
+        "search_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "candidates": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/Product"
+          }
+        },
+        "ambiguous": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "aisle": {
+          "$ref": "#/$defs/LabelledID"
+        },
+        "shelf": {
+          "$ref": "#/$defs/LabelledID"
+        },
+        "route_available": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "aisle",
+        "shelf",
+        "route_available"
+      ],
+      "additionalProperties": false
+    },
+    "LabelledID": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "Point": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "RouteResponse": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/$defs/Product"
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "map_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "origin_node_id": {
+          "const": "entrance"
+        },
+        "node_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{1,64}$"
+          },
+          "minItems": 1
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Point"
+          },
+          "minItems": 1
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "distance_units": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "product",
+        "catalog_version",
+        "map_version",
+        "origin_node_id",
+        "node_ids",
+        "points",
+        "steps",
+        "distance_units"
+      ],
+      "additionalProperties": false
+    },
+    "route-tool-response": {
+      "$ref": "#/$defs/RouteResponse"
+    }
+  }
+}

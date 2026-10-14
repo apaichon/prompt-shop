@@ -71,4 +71,4 @@ The [reference study](../REFERENCE-STUDY.md) records source findings and the int
 
 ## Development assistant allocation
 
-[MODEL-ALLOCATION.md](../MODEL-ALLOCATION.md) assigns all ten tasks: GPT builds 0001/0003/0005/0008/0009 and Grok builds 0002/0004/0006/0007/0010. Each uses the opposite model as reviewer. Task/sprint/design file ownership is aligned; estimates and proposed artifact statuses are unchanged. Grok access and exact execution versions will be recorded when the user starts the assigned sessions; no automatic external dispatch has occurred.
+[MODEL-ALLOCATION.md](../MODEL-ALLOCATION.md) assigns TASK-0001 through TASK-0010 to GPT for implementation and a separate review pass. Task/sprint/design ownership is aligned. Reassignment preserves actual artifact statuses, dependencies and executed evidence; it does not mark a review or acceptance gate passed.

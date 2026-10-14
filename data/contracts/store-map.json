@@ -1,0 +1,599 @@
+{
+  "store_id": "demo-store",
+  "name": "Demo Hypermarket",
+  "map_version": 1,
+  "width": 190,
+  "height": 80,
+  "origin_node_id": "entrance",
+  "aisles": [
+    {
+      "id": "a01",
+      "label": "Aisle 1",
+      "polygon": [
+        {
+          "x": 20,
+          "y": 25
+        },
+        {
+          "x": 30,
+          "y": 25
+        },
+        {
+          "x": 30,
+          "y": 65
+        },
+        {
+          "x": 20,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a02",
+      "label": "Aisle 2",
+      "polygon": [
+        {
+          "x": 40,
+          "y": 25
+        },
+        {
+          "x": 50,
+          "y": 25
+        },
+        {
+          "x": 50,
+          "y": 65
+        },
+        {
+          "x": 40,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a03",
+      "label": "Aisle 3",
+      "polygon": [
+        {
+          "x": 60,
+          "y": 25
+        },
+        {
+          "x": 70,
+          "y": 25
+        },
+        {
+          "x": 70,
+          "y": 65
+        },
+        {
+          "x": 60,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a04",
+      "label": "Aisle 4",
+      "polygon": [
+        {
+          "x": 80,
+          "y": 25
+        },
+        {
+          "x": 90,
+          "y": 25
+        },
+        {
+          "x": 90,
+          "y": 65
+        },
+        {
+          "x": 80,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a05",
+      "label": "Aisle 5",
+      "polygon": [
+        {
+          "x": 100,
+          "y": 25
+        },
+        {
+          "x": 110,
+          "y": 25
+        },
+        {
+          "x": 110,
+          "y": 65
+        },
+        {
+          "x": 100,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a06",
+      "label": "Aisle 6",
+      "polygon": [
+        {
+          "x": 120,
+          "y": 25
+        },
+        {
+          "x": 130,
+          "y": 25
+        },
+        {
+          "x": 130,
+          "y": 65
+        },
+        {
+          "x": 120,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a07",
+      "label": "Aisle 7",
+      "polygon": [
+        {
+          "x": 140,
+          "y": 25
+        },
+        {
+          "x": 150,
+          "y": 25
+        },
+        {
+          "x": 150,
+          "y": 65
+        },
+        {
+          "x": 140,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a08",
+      "label": "Aisle 8",
+      "polygon": [
+        {
+          "x": 160,
+          "y": 25
+        },
+        {
+          "x": 170,
+          "y": 25
+        },
+        {
+          "x": 170,
+          "y": 65
+        },
+        {
+          "x": 160,
+          "y": 65
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "entrance",
+      "x": 5,
+      "y": 10,
+      "label": "Entrance"
+    },
+    {
+      "id": "a01-junction",
+      "x": 15,
+      "y": 10,
+      "label": "Aisle 1 walkway"
+    },
+    {
+      "id": "a01-n01",
+      "x": 15,
+      "y": 30,
+      "label": "Aisle 1 shelf 1 approach"
+    },
+    {
+      "id": "a01-n02",
+      "x": 15,
+      "y": 40,
+      "label": "Aisle 1 shelf 2 approach"
+    },
+    {
+      "id": "a01-n03",
+      "x": 15,
+      "y": 50,
+      "label": "Aisle 1 shelf 3 approach"
+    },
+    {
+      "id": "a01-n04",
+      "x": 15,
+      "y": 60,
+      "label": "Aisle 1 shelf 4 approach"
+    },
+    {
+      "id": "a02-junction",
+      "x": 35,
+      "y": 10,
+      "label": "Aisle 2 walkway"
+    },
+    {
+      "id": "a02-n01",
+      "x": 35,
+      "y": 30,
+      "label": "Aisle 2 shelf 1 approach"
+    },
+    {
+      "id": "a02-n02",
+      "x": 35,
+      "y": 40,
+      "label": "Aisle 2 shelf 2 approach"
+    },
+    {
+      "id": "a02-n03",
+      "x": 35,
+      "y": 50,
+      "label": "Aisle 2 shelf 3 approach"
+    },
+    {
+      "id": "a02-n04",
+      "x": 35,
+      "y": 60,
+      "label": "Aisle 2 shelf 4 approach"
+    },
+    {
+      "id": "a03-junction",
+      "x": 55,
+      "y": 10,
+      "label": "Aisle 3 walkway"
+    },
+    {
+      "id": "a03-n01",
+      "x": 55,
+      "y": 30,
+      "label": "Aisle 3 shelf 1 approach"
+    },
+    {
+      "id": "a03-n02",
+      "x": 55,
+      "y": 40,
+      "label": "Aisle 3 shelf 2 approach"
+    },
+    {
+      "id": "a03-n03",
+      "x": 55,
+      "y": 50,
+      "label": "Aisle 3 shelf 3 approach"
+    },
+    {
+      "id": "a03-n04",
+      "x": 55,
+      "y": 60,
+      "label": "Aisle 3 shelf 4 approach"
+    },
+    {
+      "id": "a04-junction",
+      "x": 75,
+      "y": 10,
+      "label": "Aisle 4 walkway"
+    },
+    {
+      "id": "a04-n01",
+      "x": 75,
+      "y": 30,
+      "label": "Aisle 4 shelf 1 approach"
+    },
+    {
+      "id": "a04-n02",
+      "x": 75,
+      "y": 40,
+      "label": "Aisle 4 shelf 2 approach"
+    },
+    {
+      "id": "a04-n03",
+      "x": 75,
+      "y": 50,
+      "label": "Aisle 4 shelf 3 approach"
+    },
+    {
+      "id": "a04-n04",
+      "x": 75,
+      "y": 60,
+      "label": "Aisle 4 shelf 4 approach"
+    },
+    {
+      "id": "a05-junction",
+      "x": 95,
+      "y": 10,
+      "label": "Aisle 5 walkway"
+    },
+    {
+      "id": "a05-n01",
+      "x": 95,
+      "y": 30,
+      "label": "Aisle 5 shelf 1 approach"
+    },
+    {
+      "id": "a05-n02",
+      "x": 95,
+      "y": 40,
+      "label": "Aisle 5 shelf 2 approach"
+    },
+    {
+      "id": "a05-n03",
+      "x": 95,
+      "y": 50,
+      "label": "Aisle 5 shelf 3 approach"
+    },
+    {
+      "id": "a05-n04",
+      "x": 95,
+      "y": 60,
+      "label": "Aisle 5 shelf 4 approach"
+    },
+    {
+      "id": "a06-junction",
+      "x": 115,
+      "y": 10,
+      "label": "Aisle 6 walkway"
+    },
+    {
+      "id": "a06-n01",
+      "x": 115,
+      "y": 30,
+      "label": "Aisle 6 shelf 1 approach"
+    },
+    {
+      "id": "a06-n02",
+      "x": 115,
+      "y": 40,
+      "label": "Aisle 6 shelf 2 approach"
+    },
+    {
+      "id": "a06-n03",
+      "x": 115,
+      "y": 50,
+      "label": "Aisle 6 shelf 3 approach"
+    },
+    {
+      "id": "a06-n04",
+      "x": 115,
+      "y": 60,
+      "label": "Aisle 6 shelf 4 approach"
+    },
+    {
+      "id": "a07-junction",
+      "x": 135,
+      "y": 10,
+      "label": "Aisle 7 walkway"
+    },
+    {
+      "id": "a07-n01",
+      "x": 135,
+      "y": 30,
+      "label": "Aisle 7 shelf 1 approach"
+    },
+    {
+      "id": "a07-n02",
+      "x": 135,
+      "y": 40,
+      "label": "Aisle 7 shelf 2 approach"
+    },
+    {
+      "id": "a07-n03",
+      "x": 135,
+      "y": 50,
+      "label": "Aisle 7 shelf 3 approach"
+    },
+    {
+      "id": "a07-n04",
+      "x": 135,
+      "y": 60,
+      "label": "Aisle 7 shelf 4 approach"
+    },
+    {
+      "id": "a08-junction",
+      "x": 155,
+      "y": 10,
+      "label": "Aisle 8 walkway"
+    },
+    {
+      "id": "a08-n01",
+      "x": 155,
+      "y": 30,
+      "label": "Aisle 8 shelf 1 approach"
+    },
+    {
+      "id": "a08-n02",
+      "x": 155,
+      "y": 40,
+      "label": "Aisle 8 shelf 2 approach"
+    },
+    {
+      "id": "a08-n03",
+      "x": 155,
+      "y": 50,
+      "label": "Aisle 8 shelf 3 approach"
+    },
+    {
+      "id": "a08-n04",
+      "x": 155,
+      "y": 60,
+      "label": "Aisle 8 shelf 4 approach"
+    }
+  ],
+  "edges": [
+    {
+      "from": "a01-junction",
+      "to": "entrance"
+    },
+    {
+      "from": "a01-junction",
+      "to": "a01-n01"
+    },
+    {
+      "from": "a01-n01",
+      "to": "a01-n02"
+    },
+    {
+      "from": "a01-n02",
+      "to": "a01-n03"
+    },
+    {
+      "from": "a01-n03",
+      "to": "a01-n04"
+    },
+    {
+      "from": "a01-junction",
+      "to": "a02-junction"
+    },
+    {
+      "from": "a02-junction",
+      "to": "a02-n01"
+    },
+    {
+      "from": "a02-n01",
+      "to": "a02-n02"
+    },
+    {
+      "from": "a02-n02",
+      "to": "a02-n03"
+    },
+    {
+      "from": "a02-n03",
+      "to": "a02-n04"
+    },
+    {
+      "from": "a02-junction",
+      "to": "a03-junction"
+    },
+    {
+      "from": "a03-junction",
+      "to": "a03-n01"
+    },
+    {
+      "from": "a03-n01",
+      "to": "a03-n02"
+    },
+    {
+      "from": "a03-n02",
+      "to": "a03-n03"
+    },
+    {
+      "from": "a03-n03",
+      "to": "a03-n04"
+    },
+    {
+      "from": "a03-junction",
+      "to": "a04-junction"
+    },
+    {
+      "from": "a04-junction",
+      "to": "a04-n01"
+    },
+    {
+      "from": "a04-n01",
+      "to": "a04-n02"
+    },
+    {
+      "from": "a04-n02",
+      "to": "a04-n03"
+    },
+    {
+      "from": "a04-n03",
+      "to": "a04-n04"
+    },
+    {
+      "from": "a04-junction",
+      "to": "a05-junction"
+    },
+    {
+      "from": "a05-junction",
+      "to": "a05-n01"
+    },
+    {
+      "from": "a05-n01",
+      "to": "a05-n02"
+    },
+    {
+      "from": "a05-n02",
+      "to": "a05-n03"
+    },
+    {
+      "from": "a05-n03",
+      "to": "a05-n04"
+    },
+    {
+      "from": "a05-junction",
+      "to": "a06-junction"
+    },
+    {
+      "from": "a06-junction",
+      "to": "a06-n01"
+    },
+    {
+      "from": "a06-n01",
+      "to": "a06-n02"
+    },
+    {
+      "from": "a06-n02",
+      "to": "a06-n03"
+    },
+    {
+      "from": "a06-n03",
+      "to": "a06-n04"
+    },
+    {
+      "from": "a06-junction",
+      "to": "a07-junction"
+    },
+    {
+      "from": "a07-junction",
+      "to": "a07-n01"
+    },
+    {
+      "from": "a07-n01",
+      "to": "a07-n02"
+    },
+    {
+      "from": "a07-n02",
+      "to": "a07-n03"
+    },
+    {
+      "from": "a07-n03",
+      "to": "a07-n04"
+    },
+    {
+      "from": "a07-junction",
+      "to": "a08-junction"
+    },
+    {
+      "from": "a08-junction",
+      "to": "a08-n01"
+    },
+    {
+      "from": "a08-n01",
+      "to": "a08-n02"
+    },
+    {
+      "from": "a08-n02",
+      "to": "a08-n03"
+    },
+    {
+      "from": "a08-n03",
+      "to": "a08-n04"
+    }
+  ],
+  "enabled_languages": [
+    "en-US"
+  ]
+}

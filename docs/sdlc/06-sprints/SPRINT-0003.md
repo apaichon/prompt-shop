@@ -37,12 +37,12 @@ There is no local velocity history or retrospective. Config lists five delivery-
 ## Exit and carry-over
 Record actual evidence from linked tests before reporting completion. Unfinished core work carries forward visibly and triggers scope cuts; do not mark tasks done because their planned date has passed. Protect 16 October deployment by cutting extra languages, recipes, vector work and visual polish first. If core ADK/Gemini Live 3.8/Laya/cloud/auth is still blocked at 15 October 18:00, report deadline risk immediately rather than relabeling a local or typed-only demo as complete.
 
-## GPT / Grok execution
+## GPT execution
 
 | Task | Builder | Reviewer |
 |---|---|---|
-| [TASK-0009](../05-tasks/TASK-0009.md) | GPT | Grok |
-| [TASK-0006](../05-tasks/TASK-0006.md) | Grok | GPT |
+| [TASK-0009](../05-tasks/TASK-0009.md) | GPT | GPT |
+| [TASK-0006](../05-tasks/TASK-0006.md) | GPT | GPT |
 
 Follow [MODEL-ALLOCATION.md](../../MODEL-ALLOCATION.md) for exclusive file ownership and handoff order. One active builder per task; additional parallel sessions must have disjoint paths. All assignments remain proposed.
 
@@ -54,3 +54,13 @@ These links identify the inputs and verification for this sprint; proposed assig
 |---|---|---|---|---|
 | [TASK-0009](../05-tasks/TASK-0009.md) | [REQ-0001](../02-requirements/REQ-0001.md), [REQ-0005](../02-requirements/REQ-0005.md) | [DES-0001](../03-designs/DES-0001.md), [ADR-0001](../04-adrs/ADR-0001.md) | [TEST-0005](../07-tests/TEST-0005.md) | [TASK-0001](../05-tasks/TASK-0001.md), [TASK-0004](../05-tasks/TASK-0004.md) |
 | [TASK-0006](../05-tasks/TASK-0006.md) | [REQ-0001](../02-requirements/REQ-0001.md), [REQ-0002](../02-requirements/REQ-0002.md), [REQ-0003](../02-requirements/REQ-0003.md), [REQ-0004](../02-requirements/REQ-0004.md), [REQ-0005](../02-requirements/REQ-0005.md), [REQ-0006](../02-requirements/REQ-0006.md) | [DES-0001](../03-designs/DES-0001.md), [ADR-0001](../04-adrs/ADR-0001.md) | [TEST-0001](../07-tests/TEST-0001.md), [TEST-0002](../07-tests/TEST-0002.md), [TEST-0003](../07-tests/TEST-0003.md), [TEST-0005](../07-tests/TEST-0005.md), [TEST-0012](../07-tests/TEST-0012.md) | [TASK-0002](../05-tasks/TASK-0002.md), [TASK-0003](../05-tasks/TASK-0003.md), [TASK-0004](../05-tasks/TASK-0004.md), [TASK-0005](../05-tasks/TASK-0005.md), [TASK-0009](../05-tasks/TASK-0009.md), [TASK-0010](../05-tasks/TASK-0010.md) |
+
+
+## TASK-0009 local build — 14 October 2026
+
+GPT built the protected Go/PostgreSQL backoffice and Svelte editor in feature/TASK-0009-backoffice with local foundation/customer-shell dependency inputs. Automated backoffice, responsive/accessibility and customer regression checks pass. TEST-0005/TASK-0009 remain blocked for actual public catalog integration, manual/deployed persistence evidence and approval gates. Read internal/backoffice/README.md for serialized config/static and TASK-0002/0005/0006 handoffs. No task completion or deployed acceptance is inferred.
+
+
+## Requested source consolidation — 2026-10-14
+
+User instructed merging TASK-0001/0002/0003/0004/0005/0009/0006 into main. Integration coordinator runs sync/resync in INTEGRATION-20261014, preserves feature history and execution evidence, and resolves shared allocation/docs/portal conflicts. [Integration ledger](../../INTEGRATION-2026-10-14.md) records snapshots, narrow preparation fixes and actual checks. This source merge does not change incomplete task/test/release states or constitute a deployment.

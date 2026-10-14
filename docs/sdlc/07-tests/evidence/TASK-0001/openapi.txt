@@ -1,0 +1,1 @@
+PASS: OpenAPI 3.1 document validates with openapi-spec-validator 0.7.2.

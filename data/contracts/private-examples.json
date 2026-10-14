@@ -1,0 +1,140 @@
+{
+  "search-callback": {
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "call_id": "call-1",
+    "classification_attempt_id": "classification-1",
+    "args": {
+      "query": "whole milk"
+    }
+  },
+  "route-callback": {
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "call_id": "call-2",
+    "classification_attempt_id": "classification-1",
+    "args": {
+      "product_id": "milk-whole-1l",
+      "search_id": "search-1"
+    }
+  },
+  "laya-request": {
+    "text": "Where is whole milk?"
+  },
+  "laya-response": {
+    "schema_version": "intent-v1",
+    "intent": "find_item",
+    "confidence": 0.93,
+    "margin": 0.6,
+    "abstained": false,
+    "reason": null,
+    "model_revision": "fixture-only-not-a-model-pin"
+  },
+  "bridge-setup": {
+    "type": "setup",
+    "session_id": "fixture-session",
+    "language": "en-US",
+    "turn_id": "turn-1",
+    "tool_capability": "fixture-not-a-secret"
+  },
+  "classification-registered": {
+    "type": "classification_registered",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "classification_attempt_id": "classification-1"
+  },
+  "classification-completed": {
+    "type": "classification_completed",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "classification_attempt_id": "classification-1",
+    "result": {
+      "schema_version": "intent-v1",
+      "intent": "find_item",
+      "confidence": 0.93,
+      "margin": 0.6,
+      "abstained": false,
+      "reason": null,
+      "model_revision": "fixture-only-not-a-model-pin"
+    }
+  },
+  "search-tool-response": {
+    "catalog_version": 1,
+    "candidates": [
+      {
+        "id": "milk-whole-1l",
+        "name": "Whole milk 1 L",
+        "category": "Dairy",
+        "aisle": {
+          "id": "a02",
+          "label": "Aisle 2"
+        },
+        "shelf": {
+          "id": "a02-s03",
+          "label": "Shelf 3"
+        },
+        "route_available": true
+      }
+    ],
+    "ambiguous": false,
+    "search_id": "search-1"
+  },
+  "route-tool-response": {
+    "product": {
+      "id": "milk-whole-1l",
+      "name": "Whole milk 1 L",
+      "category": "Dairy",
+      "aisle": {
+        "id": "a02",
+        "label": "Aisle 2"
+      },
+      "shelf": {
+        "id": "a02-s03",
+        "label": "Shelf 3"
+      },
+      "route_available": true
+    },
+    "catalog_version": 1,
+    "map_version": 1,
+    "origin_node_id": "entrance",
+    "node_ids": [
+      "entrance",
+      "a01-junction",
+      "a02-junction",
+      "a02-n01",
+      "a02-n02",
+      "a02-n03"
+    ],
+    "points": [
+      {
+        "x": 5,
+        "y": 10
+      },
+      {
+        "x": 15,
+        "y": 10
+      },
+      {
+        "x": 35,
+        "y": 10
+      },
+      {
+        "x": 35,
+        "y": 30
+      },
+      {
+        "x": 35,
+        "y": 40
+      },
+      {
+        "x": 35,
+        "y": 50
+      }
+    ],
+    "steps": [
+      "From the entrance, follow the main walkway to Aisle 2.",
+      "Follow the walkway to Shelf 3."
+    ],
+    "distance_units": 70
+  }
+}

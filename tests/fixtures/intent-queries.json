@@ -1,0 +1,202 @@
+[
+  {
+    "id": "intent-find_item-01",
+    "text": "Where is whole milk?",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-01",
+    "text": "Choose the first one.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-01",
+    "text": "Repeat those directions.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-01",
+    "text": "Book me a hotel.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-02",
+    "text": "Find toilet roll.",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-02",
+    "text": "The second one, please.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-02",
+    "text": "Say the route again.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-02",
+    "text": "Charge my credit card.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-03",
+    "text": "I need jasmine rice.",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-03",
+    "text": "Select the oat milk.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-03",
+    "text": "Tell me those steps again.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-03",
+    "text": "What is tomorrow's weather?",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-04",
+    "text": "Where can I find eggs?",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-04",
+    "text": "I want the third option.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-04",
+    "text": "Please repeat the way there.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-04",
+    "text": "Write me a poem.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-05",
+    "text": "Show me laundry detergent.",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-05",
+    "text": "Pick the skimmed milk.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-05",
+    "text": "Can you repeat the aisle directions?",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-05",
+    "text": "Call a taxi for me.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-06",
+    "text": "I'm looking for bananas.",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-06",
+    "text": "Let's go with the first result.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-06",
+    "text": "Read the route once more.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-06",
+    "text": "Reserve a cinema ticket.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-07",
+    "text": "Which aisle has pasta?",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-07",
+    "text": "Choose that cheddar cheese.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-07",
+    "text": "Remind me how to get there.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-07",
+    "text": "Transfer money to my friend.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-08",
+    "text": "Help me locate olive oil.",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-08",
+    "text": "I'll take option two.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-08",
+    "text": "Tell me the walking route again.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-08",
+    "text": "Change my account password.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-09",
+    "text": "Where do you keep green tea?",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-09",
+    "text": "Select the bottled water you showed.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-09",
+    "text": "Repeat the directions to the selected item.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-09",
+    "text": "Order delivery to my house.",
+    "expected_intent": "out_of_scope"
+  },
+  {
+    "id": "intent-find_item-10",
+    "text": "Can you find chicken breast?",
+    "expected_intent": "find_item"
+  },
+  {
+    "id": "intent-select_item-10",
+    "text": "Use the last of those three choices.",
+    "expected_intent": "select_item"
+  },
+  {
+    "id": "intent-repeat_directions-10",
+    "text": "Say those navigation instructions again.",
+    "expected_intent": "repeat_directions"
+  },
+  {
+    "id": "intent-out_of_scope-10",
+    "text": "Who won yesterday's football game?",
+    "expected_intent": "out_of_scope"
+  }
+]

@@ -1,0 +1,187 @@
+{
+  "schema_version": "qa-observations-v1",
+  "candidate": {
+    "environment": null,
+    "origin": null,
+    "commit": null,
+    "deployment_id": null,
+    "measured_at": null,
+    "device": null,
+    "network": null,
+    "native_model": null,
+    "laya_revision": null
+  },
+  "frozen_inputs": {
+    "catalog.json": "822b40b6464f933e1b605042f364611f97cf1192ed465842eca180fe8be3dbc7",
+    "catalog-queries.json": "4ccc026241416dd9d227ad360ff437a108ee86e129fab5cca4c77e281f030b89",
+    "intent-queries.json": "e2891650d9bb05cb8e6ae722397d0699bcff9831e90a1928faf098c1ad6663c1"
+  },
+  "voice": [],
+  "intent": [],
+  "typed_render": [],
+  "route_render": [],
+  "classification_warm": [],
+  "cold_and_faults": [],
+  "manual_checks": {
+    "import_atomicity": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "new rows, same-ID updates, idempotency, row errors and full invalid-batch rollback"
+    },
+    "voice_native_adk": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "required gemini-3.8-live with ADK Runner.run_live; PCM 16k input/24k output; no STT/TTS substitute"
+    },
+    "voice_classification_order": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "actual Laya precedes catalog for every semantic turn, including repeat and out-of-scope"
+    },
+    "voice_grounding": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "heard answer and visible card/map agree with current authoritative tool results; no filler timing"
+    },
+    "voice_interruption": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "barge-in clears playback, late events/stale epochs rejected, selection synchronized"
+    },
+    "voice_permissions": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "allow, deny, revoke, unsupported capture and explicit restart without auto-reconnect/replay"
+    },
+    "voice_failures": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "provider quota/outage, database failure, disconnect, setup timeout and session expiry"
+    },
+    "voice_bounds_privacy": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "300s/60s/30s limits, cleanup, private callbacks, bounded audio/tools and no content logs"
+    },
+    "map_fallbacks": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "unmapped/disconnected shelves give truthful location; stale map reload/retry exactly once"
+    },
+    "map_accessibility": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "keyboard, screen reader, color-independent path; 320/360/768/1280px without overflow"
+    },
+    "auth_sessions": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "direct server auth, secure host cookie, rotation, eight-hour absolute expiry, logout/replay"
+    },
+    "auth_origin_csrf": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "trusted origin and session-bound CSRF on every protected write; denial before mutation"
+    },
+    "backoffice_integrity": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "publish/edit-draft/archive affect public reads and stale product IDs; FK rollback/concurrent 409"
+    },
+    "backoffice_persistence": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "more than 50 rows cursor correctly; restart/container/database persistence and revision"
+    },
+    "classifier_identity": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "convaiinnovations/laya pinned revision; weights/config/tokenizer hashes/license; CPU resources"
+    },
+    "classifier_safety": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "advisory only, confidence/margin frozen, abstention contracts, private access, no raw text logs"
+    },
+    "classifier_failures": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "malformed/down/slow/busy/missing-token; inclusive 1200ms deadline, 200ms queue, bounded worker, no retry"
+    },
+    "cold_and_faults": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "prospectively separate cold/setup/fault suites and resource observations, with failures retained"
+    },
+    "deployed_integration": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "one integrated candidate with real public APIs, native audio, actual Laya, restricted database and backoffice"
+    },
+    "release_review": {
+      "status": "not_run",
+      "reviewer": null,
+      "artifact": null,
+      "sha256": null,
+      "candidate_commit": null,
+      "purpose": "feature-freeze decision and peer/high-risk human review recorded by accountable owners"
+    }
+  }
+}

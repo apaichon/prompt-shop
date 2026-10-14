@@ -1,0 +1,22 @@
+{
+  "query": "whole milk",
+  "language": "en-US",
+  "catalog_version": 1,
+  "candidates": [
+    {
+      "id": "milk-whole-1l",
+      "name": "Whole milk 1 L",
+      "category": "Dairy",
+      "aisle": {
+        "id": "a02",
+        "label": "Aisle 2"
+      },
+      "shelf": {
+        "id": "a02-s03",
+        "label": "Shelf 3"
+      },
+      "route_available": true
+    }
+  ],
+  "ambiguous": false
+}

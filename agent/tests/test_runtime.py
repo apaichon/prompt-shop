@@ -1,0 +1,276 @@
+import asyncio
+import base64
+import contextlib
+import json
+from pathlib import Path
+import jsonschema
+
+import httpx
+import pytest
+from google.genai import live, types
+
+from prompt_shop_live.host import ToolHost
+from prompt_shop_live.protocol import APP, Setup
+from prompt_shop_live.queue import BoundedLiveRequestQueue, QueueOverflow
+from prompt_shop_live.runtime import Runtime
+from prompt_shop_live.tools import BlockingTool
+
+
+def setup(sid="session-a"):
+    return Setup(type="setup", session_id=sid, language="en-US", turn_id="turn-0", tool_capability="x" * 43)
+
+
+async def classifier(text):
+    return {"schema_version": "intent-v1", "intent": "find_item", "confidence": .9,
+            "margin": .5, "abstained": False, "reason": None, "model_revision": "contract-fixture"}
+
+
+async def test_queue_counts_actual_dequeues_and_closes_full_queue():
+    queue = BoundedLiveRequestQueue()
+    for _ in range(10):
+        queue.send_realtime(types.Blob(data=b"\0" * 3200, mime_type="audio/pcm;rate=16000"))
+    with pytest.raises(QueueOverflow):
+        queue.send_realtime(types.Blob(data=b"00", mime_type="audio/pcm;rate=16000"))
+    assert queue.pending_pcm == 32000
+    await queue.get()
+    assert queue.pending_pcm == 28800
+    queue.close()
+    assert queue.pending_pcm == 0 and (await queue.get()).close
+    with pytest.raises(RuntimeError):
+        queue.send_content(types.Content(parts=[types.Part(text="late")]))
+
+
+async def test_ack_must_match_before_catalog_dispatch_and_stale_calls_cancel():
+    sent, requests = [], []
+    async def send(event):
+        sent.append(event)
+    async def transport(request):
+        requests.append(request)
+        return httpx.Response(200, json={"candidates": [], "ambiguous": False})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+        host = ToolHost(setup(), send, classifier, client)
+        host.begin("turn-1")
+        assert "error" in await host.call("search_catalog", {"query": "milk"})
+        task = asyncio.create_task(host.call("classify_intent", {"text": "milk"}))
+        await asyncio.sleep(.01)
+        event = sent[-1]
+        host.acknowledge({**event, "session_id": "wrong"})
+        assert not task.done()
+        host.acknowledge(event)
+        assert (await task)["intent"] == "find_item"
+        await host.call("search_catalog", {"query": "milk"})
+        assert len(requests) == 1
+        envelope = json.loads(requests[0].content)
+        assert envelope["classification_attempt_id"] == event["classification_attempt_id"]
+        assert requests[0].url.host == "127.0.0.1"
+        host.begin("turn-2")
+        task = asyncio.create_task(host.call("classify_intent", {"text": "oats"}))
+        await asyncio.sleep(.01)
+        host.begin("turn-3")
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        await host.close()
+
+
+async def test_extra_tool_arguments_rejected():
+    class Host:
+        async def call(self, *_):
+            pytest.fail("invalid args reached host")
+    result = await BlockingTool("search_catalog", Host()).run_async(args={"query": "milk", "url": "https://evil"}, tool_context=None)
+    assert result["error"]["code"] == "INVALID_REQUEST"
+
+
+class Bridge:
+    def __init__(self, sid):
+        self.sid = sid
+        self.incoming = asyncio.Queue()
+        self.output = []
+        self.ready = asyncio.Event()
+        self.closed = False
+
+    async def receive(self):
+        return await self.incoming.get()
+
+    async def send_json(self, event):
+        self.output.append(event)
+        if event["type"] == "provider_ready":
+            self.ready.set()
+        if event["type"] == "classification_completed":
+            self.control("classification_registered", turn_id=event["turn_id"], classification_attempt_id=event["classification_attempt_id"])
+
+    async def send_bytes(self, value):
+        self.output.append(value)
+
+    async def close(self, **_):
+        self.closed = True
+
+    def control(self, kind, **fields):
+        self.incoming.put_nowait({"type": "websocket.receive", "text": json.dumps({"type": kind, "session_id": self.sid, **fields})})
+
+
+class ProviderSocket:
+    """Fake network only: actual Runner, Gemini adapter and SDK serialization run."""
+    def __init__(self):
+        self.received = asyncio.Queue()
+        self.sent = []
+        self.closed = False
+
+    async def send(self, raw):
+        event = json.loads(raw)
+        self.sent.append(event)
+        if "setup" in event:
+            self.push({"setupComplete": {"sessionId": "provider-fixture"}})
+
+    async def recv(self, **_):
+        return await self.received.get()
+
+    def push(self, event):
+        self.received.put_nowait(json.dumps(event).encode())
+
+    async def close(self):
+        self.closed = True
+
+
+async def until(predicate):
+    async with asyncio.timeout(5):
+        while not predicate():
+            await asyncio.sleep(.01)
+
+
+async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
+    monkeypatch.setenv("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
+    sockets = []
+    @contextlib.asynccontextmanager
+    async def connect(*args, **kwargs):
+        assert kwargs["max_queue"] == 1 and kwargs["max_size"] == 65536
+        socket = ProviderSocket()
+        sockets.append(socket)
+        try:
+            yield socket
+        finally:
+            socket.closed = True
+    monkeypatch.setattr(live, "ws_connect", connect)
+    # Two concurrent real ADK runners must have isolated queue/session lifetimes.
+    async def tools(request):
+        call = json.loads(request.content)
+        if request.url.path.endswith("search_catalog"):
+            return httpx.Response(200, json={"search_id": "search-fixture", "candidates": [{"id": "milk"}], "ambiguous": False})
+        return httpx.Response(200, json={"product": {"id": "milk"}, "steps": ["Aisle 2, Shelf 3"]})
+    def clients(**kwargs):
+        return httpx.AsyncClient(transport=httpx.MockTransport(tools), **kwargs)
+    runtime = Runtime(classifier, client_factory=clients)
+    a, b = Bridge("session-a"), Bridge("session-b")
+    tasks = [asyncio.create_task(runtime.serve(a, setup(a.sid))), asyncio.create_task(runtime.serve(b, setup(b.sid)))]
+    try:
+        await asyncio.wait_for(asyncio.gather(a.ready.wait(), b.ready.wait()), 10)
+        assert runtime.active == 2 and runtime.invocations == 2
+        for socket in sockets:
+            config = socket.sent[0]["setup"]
+            assert config["model"] == "models/gemini-3.8-live"
+            assert config["generationConfig"]["responseModalities"] == ["AUDIO"]
+            declarations = [d for t in config["tools"] for d in t["functionDeclarations"]]
+            assert {d["name"] for d in declarations} == {"classify_intent", "search_catalog", "get_product_route"}
+            assert all(d["behavior"] == "BLOCKING" for d in declarations)
+            assert "inputAudioTranscription" in config and "outputAudioTranscription" in config
+            wire = json.dumps(config)
+            for forbidden in ("thinkingConfig", "enableAffectiveDialog", "proactiveAudio", "sessionResumption"):
+                assert forbidden not in wire
+            assert "capability" not in wire and "x" * 43 not in wire
+        a.control("begin_turn", turn_id="turn-1")
+        a.incoming.put_nowait({"type": "websocket.receive", "bytes": b"\x01\x01" * 1600})
+        a.control("activity_end", turn_id="turn-1")
+        await until(lambda: any("realtime_input" in x for x in sockets[0].sent))
+        sockets[0].push({"toolCall": {"functionCalls": [{"id": "classify-1", "name": "classify_intent", "args": {"text": "milk"}}]}})
+        await until(lambda: any("tool_response" in x for x in sockets[0].sent))
+        assert any(isinstance(x, dict) and x["type"] == "classification_completed" for x in a.output)
+        # Input transcription and multiple audio parts must not drop one another;
+        # audio before a successful required catalog sequence is deliberately suppressed.
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 20).decode()}},
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 20).decode()}}]},
+            "inputTranscription": {"text": "milk", "finished": True}, "turnComplete": True}})
+        await until(lambda: any(isinstance(x, dict) and x["type"] == "input_transcript" for x in a.output))
+        assert not any(isinstance(x, bytes) for x in a.output)
+        sockets[0].push({"toolCall": {"functionCalls": [{"id": "search-1", "name": "search_catalog", "args": {"query": "milk"}}]}})
+        await until(lambda: len([x for x in sockets[0].sent if "tool_response" in x]) >= 2)
+        sockets[0].push({"toolCall": {"functionCalls": [{"id": "route-1", "name": "get_product_route", "args": {"product_id": "milk", "search_id": "search-fixture"}}]}})
+        await until(lambda: len([x for x in sockets[0].sent if "tool_response" in x]) >= 3)
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 20).decode()}},
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 20).decode()}}]},
+            "outputTranscription": {"text": "Aisle 2, Shelf 3", "finished": True}, "turnComplete": True}})
+        await until(lambda: len([x for x in a.output if isinstance(x, bytes)]) == 2)
+        assert not any(isinstance(x, bytes) for x in b.output)
+        a.control("stop")
+        await asyncio.wait_for(tasks[0], 5)
+        assert runtime.active == 1
+        assert await runtime.sessions.get_session(app_name=APP, user_id=a.sid, session_id=a.sid) is None
+        assert await runtime.sessions.get_session(app_name=APP, user_id=b.sid, session_id=b.sid) is not None
+        b.control("stop")
+        await asyncio.wait_for(tasks[1], 5)
+        assert runtime.active == 0 and runtime.cleanups == 2
+        assert all(s.closed for s in sockets)
+        schema_dir = Path(__file__).parent / "contracts"
+        public_schema = json.loads((schema_dir / "live.schema.json").read_text())
+        private_schema = json.loads((schema_dir / "private.schema.json").read_text())
+        for output in a.output + b.output:
+            if not isinstance(output, dict) or output["type"] == "provider_ready":
+                continue
+            if output["type"] == "classification_completed":
+                schema = {**private_schema, "$ref": "#/$defs/classification-completed"}
+            else:
+                schema = public_schema
+            jsonschema.validate(output, schema)
+
+    finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+
+async def test_private_auth_and_health(monkeypatch):
+    from starlette.testclient import TestClient
+    from prompt_shop_live.app import create_app
+    monkeypatch.setenv("ADK_BRIDGE_SECRET", "s" * 43)
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key")
+    with TestClient(create_app(classifier)) as client:
+        assert client.get("/healthz").json() == {"status": "ok"}
+        with pytest.raises(Exception):
+            with client.websocket_connect("/live"):
+                pytest.fail("unauthenticated private websocket accepted")
+    monkeypatch.delenv("GOOGLE_API_KEY")
+    with TestClient(create_app(classifier)) as client:
+        assert client.get("/healthz").status_code == 503
+
+
+@pytest.mark.parametrize("mode", ["provider_error", "overflow", "disconnect", "stop"])
+async def test_all_exit_paths_delete_session_and_release_capacity(monkeypatch, mode):
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key")
+    class RunnerFixture:
+        def __init__(self, **kwargs):
+            self.agent = kwargs["agent"]
+        async def run_live(self, **kwargs):
+            await self.agent.model._ready()
+            if mode == "provider_error":
+                raise RuntimeError("sensitive provider payload must not escape")
+            await asyncio.Event().wait()
+            yield  # async generator with deliberately stalled consumption
+        async def close(self):
+            pass
+    runtime = Runtime(classifier, runner_factory=RunnerFixture)
+    bridge = Bridge("failure-session")
+    task = asyncio.create_task(runtime.serve(bridge, setup(bridge.sid)))
+    await asyncio.wait_for(bridge.ready.wait(), 3)
+    if mode == "overflow":
+        bridge.control("begin_turn", turn_id="turn-1")
+        for _ in range(11):
+            bridge.incoming.put_nowait({"type": "websocket.receive", "bytes": b"\0" * 3200})
+    elif mode == "disconnect":
+        bridge.incoming.put_nowait({"type": "websocket.disconnect"})
+    elif mode == "stop":
+        bridge.control("stop")
+    await asyncio.wait_for(task, 3)
+    assert runtime.active == 0 and runtime.cleanups == 1
+    assert await runtime.sessions.get_session(app_name=APP, user_id=bridge.sid, session_id=bridge.sid) is None
+    assert "sensitive provider payload" not in repr(bridge.output)

@@ -70,21 +70,21 @@ Deployment work starts early on 14 October. A local app or a cloud hello-world p
 | Task | Proposed lead | Builder | Scope | Estimate |
 |---|---|---|---|---|
 | [TASK-0001](sdlc/05-tasks/TASK-0001.md) | backend-dev-1 | **GPT** | Foundation, contracts, sample catalog/import | 3–5 h |
-| [TASK-0002](sdlc/05-tasks/TASK-0002.md) | backend-dev-1 | **Grok** | Product lookup and walkable routes | 4–6 h |
+| [TASK-0002](sdlc/05-tasks/TASK-0002.md) | backend-dev-1 | **GPT** | Product lookup and walkable routes | 4–6 h |
 | [TASK-0003](sdlc/05-tasks/TASK-0003.md) | backend-dev-2 | **GPT** | ADK native Live runtime and Go gateway | 8–14 h |
-| [TASK-0010](sdlc/05-tasks/TASK-0010.md) | backend-dev-2 | **Grok** | Laya classifier and ADK intent tool | 4–7 h |
-| [TASK-0004](sdlc/05-tasks/TASK-0004.md) | frontend-dev | **Grok** | Shared portal and Live audio customer flow | 6–9 h |
+| [TASK-0010](sdlc/05-tasks/TASK-0010.md) | backend-dev-2 | **GPT** | Laya classifier and ADK intent tool | 4–7 h |
+| [TASK-0004](sdlc/05-tasks/TASK-0004.md) | frontend-dev | **GPT** | Shared portal and Live audio customer flow | 6–9 h |
 | [TASK-0005](sdlc/05-tasks/TASK-0005.md) | devops-agent | **GPT** | Three-container GCP staging and model startup | 5–8 h |
 | [TASK-0009](sdlc/05-tasks/TASK-0009.md) | backend-dev-1 + frontend-dev | **GPT** | Minimal protected backoffice | 4–6 h |
-| [TASK-0006](sdlc/05-tasks/TASK-0006.md) | qa-agent | **Grok** | Integrated ADK/Laya/UI acceptance and hardening | 5–8 h |
+| [TASK-0006](sdlc/05-tasks/TASK-0006.md) | qa-agent | **GPT** | Integrated ADK/Laya/UI acceptance and hardening | 5–8 h |
 | [TASK-0008](sdlc/05-tasks/TASK-0008.md) | devops-agent | **GPT** | Final release/rollback | 2–3 h |
-| [TASK-0007](sdlc/05-tasks/TASK-0007.md) | docs-agent | **Grok** | Demo and submission pack | 2–3 h |
+| [TASK-0007](sdlc/05-tasks/TASK-0007.md) | docs-agent | **GPT** | Demo and submission pack | 2–3 h |
 
-Total estimate: **43–69 engineering hours**, including rehearsal work, not a delivery guarantee. There is no project velocity history. Five configured delivery-agent roles are not five confirmed human engineers. This deadline is aggressive: it relies on parallel work on separate modules, prompt access decisions and successful first-day ADK/Gemini and Laya CPU qualification. The shared schema/router/contracts stay under one owner; frontend shared layout work is serialized. Five proposed one-day sprint records cover 13–17 October. The increase from 34–53 hours covers ADK integration, required Laya inference, extra container deployment and verification. TASK-0003 (GPT) and TASK-0010 (Grok) remain under backend-dev-2 accountability but can run in separate sessions after the adapter contract is frozen. Their combined estimate remains 12–21 engineering hours; parallel execution does not guarantee that elapsed time halves. The 16 October deadline remains unchanged and is at higher risk if first-day model/runtime qualification fails.
+Total estimate: **43–69 engineering hours**, including rehearsal work, not a delivery guarantee. There is no project velocity history. Five configured delivery-agent roles are not five confirmed human engineers. This deadline is aggressive: it relies on parallel work on separate modules, prompt access decisions and successful first-day ADK/Gemini and Laya CPU qualification. The shared schema/router/contracts stay under one owner; frontend shared layout work is serialized. Five proposed one-day sprint records cover 13–17 October. The increase from 34–53 hours covers ADK integration, required Laya inference, extra container deployment and verification. TASK-0003 (GPT) and TASK-0010 (GPT) remain under backend-dev-2 accountability but can run in separate sessions after the adapter contract is frozen. Their combined estimate remains 12–21 engineering hours; parallel execution does not guarantee that elapsed time halves. The 16 October deadline remains unchanged and is at higher risk if first-day model/runtime qualification fails.
 
-## GPT and Grok allocation
+## GPT allocation
 
-[MODEL-ALLOCATION.md](MODEL-ALLOCATION.md) assigns a builder and opposite-model reviewer to every task, with exclusive file surfaces and ready-to-use handoffs. GPT leads TASK-0001/0003/0005/0008/0009; Grok leads TASK-0002/0004/0006/0007/0010. GPT owns shared integration and release; Grok does not independently change shared contracts or deploy. These are development tools, while Gemini Live 3.8, ADK and Laya remain the required runtime.
+[MODEL-ALLOCATION.md](MODEL-ALLOCATION.md) assigns all ten tasks to GPT for implementation and a separate review pass, with exclusive file surfaces and task handoffs. GPT owns shared integration and release. Gemini Live 3.8, ADK and Laya remain the required application runtime.
 
 ## Reuse already prepared
 

@@ -22,9 +22,9 @@ The backend artifact owners are `backend-dev-1` and `backend-dev-2`, matching ea
 
 Helper skills in `.claude/skills/`: `adr-writer`, `code-reviewer`, `deploy-runner`, `design-author`, `docs-updater`, `git-workflow`, `incident-responder`, `requirement-author`, `risk-review`, `roadmap-author`, `sdlc-graph-export`, `sprint-planner`, `sprint-retrospective`, `task-author`, `task-implementer`, `task-progress-update`, `test-runner`, `test-writer`.
 
-## GPT / Grok task routing
+## GPT task routing
 
-Read [docs/MODEL-ALLOCATION.md](docs/MODEL-ALLOCATION.md) before claiming implementation work. GPT builds TASK-0001, TASK-0003, TASK-0005, TASK-0008 and TASK-0009. Grok builds TASK-0002, TASK-0004, TASK-0006, TASK-0007 and TASK-0010. Each task's `implementation_model` and `review_model` select the assistants; `owner` remains the accountable SDLC role. Use one task worktree and respect exclusive file surfaces. GPT coordinates shared contracts/wiring and integration; reviewers request changes rather than editing another builder's active files. No Grok client or automatic dispatch is configured by this allocation.
+Read [docs/MODEL-ALLOCATION.md](docs/MODEL-ALLOCATION.md) before claiming implementation work. GPT builds and reviews TASK-0001 through TASK-0010. Each task's `implementation_model` and `review_model` are GPT; `owner` remains the accountable SDLC role. Use one task worktree, one active builder per task and exclusive file surfaces. GPT coordinates shared contracts/wiring and integration. A distinct GPT review pass inspects the diff and executed evidence; reviewers request changes rather than editing another builder's active files.
 
 ## Document conventions
 

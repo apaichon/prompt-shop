@@ -1,0 +1,1115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "ID": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]{1,64}$"
+    },
+    "Point": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "LabelledID": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "Alias": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "enum": [
+            "en-US",
+            "th-TH",
+            "zh-CN",
+            "ja-JP"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      },
+      "required": [
+        "language",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "aisle": {
+          "$ref": "#/$defs/LabelledID"
+        },
+        "shelf": {
+          "$ref": "#/$defs/LabelledID"
+        },
+        "route_available": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "aisle",
+        "shelf",
+        "route_available"
+      ],
+      "additionalProperties": false
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "details": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/$defs/Product"
+                }
+              },
+              "required": [
+                "product"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ],
+          "additionalProperties": false
+        },
+        "request_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "error",
+        "request_id"
+      ],
+      "additionalProperties": false
+    },
+    "SearchRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "language": {
+          "enum": [
+            "en-US"
+          ]
+        }
+      },
+      "required": [
+        "query",
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "SearchResponse": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "language": {
+          "type": "string"
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Product"
+          },
+          "maxItems": 3
+        },
+        "ambiguous": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "query",
+        "language",
+        "catalog_version",
+        "candidates",
+        "ambiguous"
+      ],
+      "additionalProperties": false
+    },
+    "RouteRequest": {
+      "type": "object",
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "origin_node_id": {
+          "const": "entrance"
+        }
+      },
+      "required": [
+        "product_id",
+        "origin_node_id"
+      ],
+      "additionalProperties": false
+    },
+    "RouteResponse": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/$defs/Product"
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "map_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "origin_node_id": {
+          "const": "entrance"
+        },
+        "node_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{1,64}$"
+          },
+          "minItems": 1
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Point"
+          },
+          "minItems": 1
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "distance_units": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "product",
+        "catalog_version",
+        "map_version",
+        "origin_node_id",
+        "node_ids",
+        "points",
+        "steps",
+        "distance_units"
+      ],
+      "additionalProperties": false
+    },
+    "StoreMap": {
+      "type": "object",
+      "properties": {
+        "store_id": {
+          "const": "demo-store"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "map_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "origin_node_id": {
+          "const": "entrance"
+        },
+        "aisles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "polygon": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Point"
+                },
+                "minItems": 3
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "polygon"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "x",
+              "y"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "to": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "enabled_languages": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "en-US"
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "store_id",
+        "name",
+        "map_version",
+        "width",
+        "height",
+        "origin_node_id",
+        "aisles",
+        "nodes",
+        "edges",
+        "enabled_languages"
+      ],
+      "additionalProperties": false
+    },
+    "VoiceRequest": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "const": "en-US"
+        }
+      },
+      "required": [
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "VoiceSession": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "ticket_expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ws_path": {
+          "const": "/ws/voice"
+        }
+      },
+      "required": [
+        "session_id",
+        "ticket_expires_at",
+        "ws_path"
+      ],
+      "additionalProperties": false
+    },
+    "AdminSession": {
+      "type": "object",
+      "properties": {
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "csrf_token": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "expires_at",
+        "csrf_token"
+      ],
+      "additionalProperties": false
+    },
+    "CreateProduct": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "shelf_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Alias"
+          },
+          "minItems": 1,
+          "maxItems": 20
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "shelf_id",
+        "aliases"
+      ],
+      "additionalProperties": false
+    },
+    "UpdateProduct": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "shelf_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Alias"
+          },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "name",
+        "category",
+        "shelf_id",
+        "aliases",
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "ExpectedVersion": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "AdminProduct": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "shelf_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Alias"
+          },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "state": {
+          "enum": [
+            "draft",
+            "published",
+            "archived"
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "shelf_id",
+        "aliases",
+        "state",
+        "version",
+        "updated_at"
+      ],
+      "additionalProperties": false
+    },
+    "AdminProducts": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AdminProduct"
+          },
+          "maxItems": 50
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "AdminShelves": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]{1,64}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "aisle": {
+                "$ref": "#/$defs/LabelledID"
+              },
+              "mapped": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "aisle",
+              "mapped"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "LoginRequest": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 72
+        }
+      },
+      "required": [
+        "password"
+      ],
+      "additionalProperties": false,
+      "description": "Password length is additionally checked in UTF-8 bytes (16-72); exact Origin required."
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ready"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "input_rate": {
+          "const": 16000
+        },
+        "output_rate": {
+          "const": 24000
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "expires_at",
+        "input_rate",
+        "output_rate"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "input_transcript"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "final": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "text",
+        "final"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "output_transcript"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "final": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "text",
+        "final"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "candidates"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "search_id": {
+          "type": "string"
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Product"
+          },
+          "maxItems": 3
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "search_id",
+        "catalog_version",
+        "candidates"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "route"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "search_id": {
+          "type": "string"
+        },
+        "product": {
+          "$ref": "#/$defs/Product"
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "map_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "origin_node_id": {
+          "const": "entrance"
+        },
+        "node_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]{1,64}$"
+          },
+          "minItems": 1
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Point"
+          },
+          "minItems": 1
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "distance_units": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "search_id",
+        "product",
+        "catalog_version",
+        "map_version",
+        "origin_node_id",
+        "node_ids",
+        "points",
+        "steps",
+        "distance_units"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "audio_start"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "generation_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "generation_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "audio_end"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "generation_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "generation_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "interrupted"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "generation_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "generation_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "turn_complete"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "code",
+        "message",
+        "retryable"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "session_ending"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "pong"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "select"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "search_id": {
+          "type": "string"
+        },
+        "product_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]{1,64}$"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "search_id",
+        "product_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "stop"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "ping"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "session_id"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "description": "Binary PCM is outside JSON Schema. Server events: ready, input_transcript, output_transcript, candidates, route, audio_start, audio_end, interrupted, turn_complete, error, session_ending, pong. Browser: text/select/stop/ping. All session IDs must match the active socket."
+}

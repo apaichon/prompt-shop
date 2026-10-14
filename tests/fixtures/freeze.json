@@ -1,0 +1,26 @@
+{
+  "frozen_at": "2026-10-14",
+  "catalog_source_commit": "a564571a91672ad1cea0b1d25a48d8acd18828b8",
+  "corpus_sources": [
+    "TEST-0001",
+    "TEST-0012"
+  ],
+  "thresholds": {
+    "catalog_correct": 27,
+    "catalog_trials": 30,
+    "intent_correct": 36,
+    "intent_trials": 40,
+    "confidence": 0.7,
+    "margin": 0.15,
+    "actionable_audio_ms": 5000,
+    "verified_card_ms": 8000,
+    "typed_render_ms": 2000,
+    "route_render_ms": 2000,
+    "classification_ms": 1200
+  },
+  "files": {
+    "catalog.json": "822b40b6464f933e1b605042f364611f97cf1192ed465842eca180fe8be3dbc7",
+    "catalog-queries.json": "4ccc026241416dd9d227ad360ff437a108ee86e129fab5cca4c77e281f030b89",
+    "intent-queries.json": "e2891650d9bb05cb8e6ae722397d0699bcff9831e90a1928faf098c1ad6663c1"
+  }
+}
