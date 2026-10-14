@@ -1,0 +1,135 @@
+{
+  "schema_version": "demo-preparation-v1",
+  "scope": "Proposal and documentation preparation only; no deployed rehearsal, media recording, cloud operation, public publication or external submission.",
+  "task": "TASK-0007",
+  "base_commit": "36569ea939fc5991b556135150a169062a644445",
+  "source_tag": "v0.1.0",
+  "source_commit": "50054b23cfe3336d019fee8da0db474da27940e0",
+  "template": {
+    "name": "Copy of Submission Template _ AI Builder Cup.pdf",
+    "sha256": "a30d6f81f915da6d554e896b7cd22c89e0c2116732d9eae8267fcbb9ecd272a4",
+    "pages": 16,
+    "width_points": 720,
+    "height_points": 405,
+    "requires": [
+      "editable PowerPoint copy",
+      "GitHub Public Repository",
+      "Demo Video Link (3 Minutes)",
+      "Final Product Link"
+    ]
+  },
+  "repository": {
+    "url": "https://github.com/apaichon/prompt-shop",
+    "visibility": "PRIVATE",
+    "checked_with": "rtk proxy gh repo view apaichon/prompt-shop --json visibility,url"
+  },
+  "sample_source": {
+    "file": "data/demo-store.json",
+    "sha256": "822b40b6464f933e1b605042f364611f97cf1192ed465842eca180fe8be3dbc7",
+    "published": 60,
+    "draft": 1,
+    "archived": 1,
+    "aisles": 8,
+    "shelves": 32,
+    "nodes": 41,
+    "edges": 40,
+    "observed_deployed_counts": null
+  },
+  "prototype_screenshot": {
+    "file": "docs/sdlc/07-tests/evidence/TASK-0009/backoffice-1280.png",
+    "sha256": "a3df186e4f9d60010784a1fd144f14065d3f28560969bfade713b8f914bc558d",
+    "environment": "local fixture",
+    "use": "Labelled cropped illustration, no deployed evidence"
+  },
+  "actual_rehearsal": {
+    "status": "not_run",
+    "test0011_last_run": null,
+    "walkthrough_recorded": false,
+    "backup_recorded": false,
+    "deployed_url": null,
+    "deployed_benchmarks": null,
+    "external_submission": "not_sent"
+  },
+  "pending": [
+    "Task 8 accepted deployment and integration",
+    "team name/leader confirmation",
+    "public repository path authorized by owner",
+    "actual native rehearsal, video/screenshots and benchmarks",
+    "exact submission destination/cutoff"
+  ],
+  "checks": [
+    {
+      "check": "presentation_package",
+      "status": "pass",
+      "slides": 16,
+      "finding_count": 0
+    },
+    {
+      "check": "presentation_layout_fonts_and_required_native_tables",
+      "status": "pass",
+      "finding_count": 0,
+      "warning_count": 0,
+      "font": "Arial",
+      "editable_table_slides": [
+        9,
+        12
+      ]
+    },
+    {
+      "check": "first_party_reimport",
+      "status": "pass",
+      "slides": 16
+    },
+    {
+      "check": "local_document_links_and_json",
+      "status": "pass",
+      "relative_file_links": 28,
+      "missing": 0,
+      "rehearsal_template_status": "not_run"
+    },
+    {
+      "check": "snapshot_reuse_integrity",
+      "status": "pass",
+      "copied_files_verified": 20
+    },
+    {
+      "check": "pdf_page_geometry_and_editability",
+      "status": "pass",
+      "pdf_pages": 16,
+      "page_size_points": [
+        720,
+        405
+      ],
+      "pptx_native_diagram_connectors": {
+        "6": 8,
+        "8": 6
+      },
+      "speaker_note_pages": 16
+    },
+    {
+      "check": "visual_review",
+      "status": "pass",
+      "all_16_pages_inspected": true,
+      "corrected_pages": [
+        6,
+        8,
+        11
+      ],
+      "unchanged_final_render_hashes": 13,
+      "scope": "Template comparison and final slide inspection; native PowerPoint app was not opened. No runtime/demo acceptance inferred."
+    }
+  ],
+  "proposal_outputs": {
+    "pptx": {
+      "file": "docs/demo/output/pptx/Prompt-Shop-AI-Builder-Cup-Proposal.pptx",
+      "sha256": "769acfb0df0bd7dae83afe0c12fd5c6de36b3670fe579d8ce02b56684f9b1c2a"
+    },
+    "pdf": {
+      "file": "docs/demo/output/pdf/Prompt-Shop-AI-Builder-Cup-Proposal.pdf",
+      "sha256": "94843fe5fa9af924988dedf53a29d82f10540b29f8bb3faa662479e04c92c051"
+    }
+  },
+  "pdf_export": "Bundled LibreOffice export from the validated editable PowerPoint; all pages subsequently rendered with Poppler for visual review.",
+  "recorded_at": "2026-10-14T04:00:41.574113+00:00",
+  "proposal_storage": "Local only; PDF and PPTX proposal files are ignored by git at user request."
+}
