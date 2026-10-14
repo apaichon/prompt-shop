@@ -37,7 +37,7 @@ The region suggestion is `asia-southeast1`; retain it only if approved. SQL is P
 | TASK-0009/shared wiring | `BACKOFFICE_DATABASE_URL` and `ADMIN_PASSWORD_HASH` are proposed deployment handoff names, not currently implemented configuration; keep backoffice protected and credentials separate |
 | TASK-0010 | `intent/pyproject.toml`, `uv.lock`, CPU dependencies, `intent_service.app:app`; `LAYA_MODEL_PATH`, `LAYA_INTERNAL_TOKEN`; port8003 `/healthz` after real model warm-up; one worker with bounded inference subprocess/queue and cleanup; `agent/tools/intent.py` using the same token and fixed loopback endpoint |
 
-Only `DATABASE_URL`/`READINESS_MODE`/`PORT` exist in the current foundation config; the deployment variables above **do not wire those features automatically**. The Laya entrypoint/environment/file layout is a proposed handoff awaiting TASK-0010 agreement. Change its Dockerfile together with that owner's final interface. Do not satisfy imports using fixture adapters or mark a mock image healthy.
+After the source integration, Go supports DATABASE_URL/READINESS_MODE/PORT plus the backoffice database, PUBLIC_ORIGIN, ADMIN_PASSWORD_HASH and STATIC_DIR configuration; backoffice/static handlers are registered. Catalog/routes, ticket database/voice flags, gateway and private listener registration remain incomplete. The deployment variables above **do not wire those features automatically**. The Laya entrypoint/environment/file layout is a proposed handoff awaiting TASK-0010 agreement. Change its Dockerfile together with that owner's final interface. Do not satisfy imports using fixture adapters or mark a mock image healthy.
 
 TASK-0010 must commit `intent/model/manifest.json` with this shape and supply the corresponding predownloaded bundle (weights need not be committed to git):
 
@@ -124,3 +124,8 @@ For an upgrade failure, retain the known-good revision and all three digests/sec
 At the approved cleanup date review Run services/jobs, unused image tags, secret versions, SQL and backups. Deletion protection deliberately prevents automated SQL deletion; retain/export data according to the approved policy before a separate deletion action. A date in configuration is a reminder/validation field, not an automatic cleanup scheduler.
 
 Implementation references checked against primary documentation: [Cloud Run YAML](https://docs.cloud.google.com/run/docs/reference/yaml/v1), [container startup order](https://docs.cloud.google.com/run/docs/configuring/services/containers), [health checks](https://docs.cloud.google.com/run/docs/configuring/healthchecks), [runtime shutdown contract](https://docs.cloud.google.com/run/docs/container-contract), [traffic migration](https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration), [SQL creation flags](https://docs.cloud.google.com/sdk/gcloud/reference/sql/instances/create), and [budget commands](https://docs.cloud.google.com/sdk/gcloud/reference/billing/budgets/create).
+
+
+## Task 8 operator tooling
+
+[RELEASE.md](RELEASE.md) documents the implemented source/QA/cloud preflight, named-revision promotion, whole-bundle rollback, drift checks and operation-bound smoke qualification. The existing v0.1.0 source tag does not pass deployment acceptance; Task 8 records current blockers separately from offline controller tests.
