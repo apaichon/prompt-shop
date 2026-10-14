@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"io/fs"
 	"net/http"
 	"time"
 
@@ -21,6 +22,7 @@ type Dependencies struct {
 	Checks        []Check
 	ReadinessMode string
 	Register      func(fiber.Router)
+	Static        fs.FS
 }
 type ErrorBody struct {
 	Code      string `json:"code"`
@@ -87,6 +89,9 @@ func New(d Dependencies) *fiber.App {
 	})
 	if d.Register != nil {
 		d.Register(app)
+	}
+	if d.Static != nil {
+		app.Use(Static(d.Static))
 	}
 	app.Use(func(c *fiber.Ctx) error { return Error(c, 404, "NOT_FOUND", "route not found", false) })
 	return app

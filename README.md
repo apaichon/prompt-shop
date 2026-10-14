@@ -52,10 +52,12 @@ Helper skills in `.claude/skills/`: `adr-writer`, `code-reviewer`, `deploy-runne
 
 The skill ships an opt-in PostToolUse hook that auto-propagates status changes across linked SDLC docs. To enable, copy the snippet from `.claude/settings.snippet.json` into your `.claude/settings.json`.
 
-## GPT / Grok collaboration
+## GPT collaboration
 
-The [task allocation plan](docs/MODEL-ALLOCATION.md) assigns five tasks to GPT and five to Grok, with file boundaries, cross-review and handoff prompts. Assignment metadata is recorded in each task. Gemini Live 3.8, ADK and Laya remain the application runtime.
+The [task allocation plan](docs/MODEL-ALLOCATION.md) assigns all ten tasks to GPT, with file boundaries, a separate review pass and handoff prompts. Assignment metadata is recorded in each task. Gemini Live 3.8, ADK and Laya remain the application runtime.
 
 ## Foundation implementation
 
 TASK-0001 code and local setup are documented in [TASK-0001-HANDOFF.md](docs/TASK-0001-HANDOFF.md). This branch implements database/import and health contracts; search, voice, portal and cloud deployment are subsequent tasks.
+
+Backoffice setup and verification: [internal/backoffice/README.md](internal/backoffice/README.md).

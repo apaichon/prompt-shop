@@ -12,7 +12,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:backoffice": "playwright test --config playwright.backoffice.config.ts"
   },
   "dependencies": {
     "svelte": "5.57.2",

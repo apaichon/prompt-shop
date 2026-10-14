@@ -37,7 +37,7 @@ These define edges in the graph emitted by `scripts/sdlc-graph.js`.
 
 ## Coding-assistant assignment
 
-Tasks also carry `implementation_model: GPT | Grok`, `review_model: GPT | Grok` and `assignment_status: proposed`. These are assignment metadata, not dependency edges or artifact statuses. `owner` remains the SDLC role; the task ID, builder session and exclusive path form the execution claim. The opposite model reviews the diff and evidence, and GPT coordinates integration. Follow [MODEL-ALLOCATION.md](docs/MODEL-ALLOCATION.md); assigning a builder does not approve or start a task. Record the actual model/client version when executing; no exact model version is selected by this plan.
+Tasks also carry `implementation_model: GPT`, `review_model: GPT` and `assignment_status: proposed`. These are assignment metadata, not dependency edges or artifact statuses. `owner` remains the SDLC role; the task ID, builder session and exclusive path form the execution claim. A separate GPT review pass checks the diff and evidence, and GPT coordinates integration. Follow [MODEL-ALLOCATION.md](docs/MODEL-ALLOCATION.md); assigning a builder does not approve or start a task. Record the actual model/client version when executing; no exact model version is selected by this plan.
 
 ## Status values
 

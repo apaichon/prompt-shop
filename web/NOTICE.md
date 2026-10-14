@@ -23,3 +23,8 @@ Selected Monti Jarvis snapshot, source version `2.38.0-rc.10`, snapshot 2026-10-
 ## Test fixture provenance
 
 `tests/fixtures/` copies the six public JSON contract examples verbatim from TASK-0001 commit `a564571`, `data/contracts/`. Dynamic ticket/ready expiry is replaced only by test code. These files are test inputs, never an application fallback or proof of model acceptance.
+
+
+## TASK-0009 backoffice adaptation
+
+`src/routes/backoffice/` adapts the catalog pagination/editor/draft principles in `excerpts/backoffice-catalog.ts.txt`; backend field/state validation was informed by `excerpts/catalog-validation.go.txt`. Exact excerpt hashes/source-line spans remain in the source MANIFEST. New code uses our single-store IDs, existing shelves, server sessions/CSRF and expected_version rather than source tenant, stock, inventory, payment or image-upload behavior. Original MIT notice remains distributed at static/MONTI-LICENSE.txt. No source secret, account, data store or infrastructure was imported.

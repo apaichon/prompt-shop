@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -84,5 +85,29 @@ func TestDatabaseCheckReleasesConnections(t *testing.T) {
 	start := time.Now()
 	if err := DatabaseCheck(pool)(context.Background()); err == nil || time.Since(start) > time.Second {
 		t.Fatal("closed pool must fail promptly")
+	}
+}
+
+func TestStaticFallbackKeepsAPIBoundaries(t *testing.T) {
+	assets := fstest.MapFS{"index.html": {Data: []byte("<h1>shell</h1>")}, "_app/immutable/app.js": {Data: []byte("export {}")}}
+	app := New(Dependencies{Static: assets})
+	defer app.Shutdown()
+	for path, want := range map[string]int{"/": 200, "/backoffice": 200, "/backoffice/edit": 200, "/api/missing": 404, "/api": 404, "/ws/voice": 404, "/internal/tools/search": 404, "/_app/missing.js": 404, "/.env": 404} {
+		r, err := app.Test(httptest.NewRequest("GET", path, nil))
+		if err != nil {
+			t.Fatal(err)
+		}
+		r.Body.Close()
+		if r.StatusCode != want {
+			t.Fatalf("%s wanted %d got %d", path, want, r.StatusCode)
+		}
+	}
+	r, err := app.Test(httptest.NewRequest("GET", "/_app/immutable/app.js", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Body.Close()
+	if !strings.Contains(r.Header.Get("Cache-Control"), "immutable") {
+		t.Fatal("hashed asset cache missing")
 	}
 }
