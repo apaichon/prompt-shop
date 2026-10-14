@@ -1,0 +1,74 @@
+{
+  "recorded_at": "2026-10-14T01:04:09.549430+00:00",
+  "tasks": [
+    {
+      "task": "TASK-0001",
+      "worktree_available": true,
+      "commit": "a564571a91672ad1cea0b1d25a48d8acd18828b8",
+      "branch": "feature/TASK-0001-foundation",
+      "dirty": false,
+      "uncommitted_catalog_hashes": {},
+      "routing_directory_available": null
+    },
+    {
+      "task": "TASK-0002",
+      "worktree_available": true,
+      "commit": "a564571a91672ad1cea0b1d25a48d8acd18828b8",
+      "branch": "feature/TASK-0002-catalog-lookup-and-walkable-route",
+      "dirty": true,
+      "uncommitted_catalog_hashes": {
+        "internal/catalog/decode.go": "298464119ae3840b2b4fabe9e2a27d74485c565a37925a053efd5f61b285937b",
+        "internal/catalog/http.go": "a8fddc2783384b6b7cd4d3bd03585690c1dfb3433f208a29479c27f651e953e2",
+        "internal/catalog/limit.go": "e30937e409794630ca0c186c060d0dc418927f2acd72d907af42ec25142a4ddd",
+        "internal/catalog/normalize.go": "9f19f794f9d5651eaa0e2e8e88fcace13c8bdbe01596533490c217bb4d804704",
+        "internal/catalog/product.go": "5c4726194b31aaa7501d62c306e046604d66785efa27544577590fd5f16a7ef1",
+        "internal/catalog/rank.go": "df24d2fae02ceda394aa4911e5c9861fd516c595c89c40bed2dde6ed5739cf19",
+        "internal/catalog/reach.go": "4e696e834d157b247f11234483754055a4546df8035bd17af597ef9acece2ec8",
+        "internal/catalog/retry.go": "9f29b7f4261b1203ab7d7cbda3dcb075baa29b6764896c9c8adffa738f85fa79"
+      },
+      "routing_directory_available": false
+    },
+    {
+      "task": "TASK-0003",
+      "worktree_available": true,
+      "commit": "d973879719dfbf2ab0e03e1346e73a0f9b2709cd",
+      "branch": "feature/TASK-0003-adk-live",
+      "dirty": false,
+      "uncommitted_catalog_hashes": {},
+      "routing_directory_available": null
+    },
+    {
+      "task": "TASK-0004",
+      "worktree_available": true,
+      "commit": "edc8da9500501c036e98efb2b1062fe9034132a3",
+      "branch": "feature/TASK-0004-customer-portal",
+      "dirty": false,
+      "uncommitted_catalog_hashes": {},
+      "routing_directory_available": null
+    },
+    {
+      "task": "TASK-0005",
+      "worktree_available": true,
+      "commit": "9ef46d50eff7fd1009bf42e24daf2159f45fe394",
+      "branch": "feature/TASK-0005-staging",
+      "dirty": false,
+      "uncommitted_catalog_hashes": {},
+      "routing_directory_available": null
+    },
+    {
+      "task": "TASK-0009",
+      "worktree_available": true,
+      "commit": "781b7ddd013b002f20e44927a92c0f740bcedf16",
+      "branch": "feature/TASK-0009-backoffice",
+      "dirty": false,
+      "uncommitted_catalog_hashes": {},
+      "routing_directory_available": null
+    },
+    {
+      "task": "TASK-0010",
+      "worktree_available": false
+    }
+  ],
+  "integration_base": "c57cd6fa2ba57e31adcad43c074df081d26db773",
+  "scope": "Read-only local worktree inventory. No secret/env file values inspected; branch availability is not integration/deployment."
+}

@@ -1,0 +1,67 @@
+{
+  "recorded_at": "2026-10-14T01:07:20.404999+00:00",
+  "scope": "Independent local component checks. This does not assert integrated/deployed acceptance.",
+  "checks": [
+    {
+      "task": "TASK-0006",
+      "command": "rtk proxy python3 -m unittest discover -s tests/unit -v",
+      "exit_code": 0,
+      "artifact": "harness-unit.txt"
+    },
+    {
+      "task": "TASK-0001",
+      "command": "rtk proxy env -u GOROOT TEST_DATABASE_URL=<isolated loopback database ending _task1> /opt/homebrew/bin/go test -race -count=1 ./...",
+      "exit_code": 0,
+      "result": "Full suite passes with real PostgreSQL import integration; temporary database only."
+    },
+    {
+      "task": "TASK-0002",
+      "command": "rtk proxy env -u GOROOT /opt/homebrew/bin/go test ./internal/catalog",
+      "exit_code": 1,
+      "result": "internal/catalog/rank.go:45:17: undefined: hit; routing implementation absent."
+    },
+    {
+      "task": "TASK-0003",
+      "command": "rtk proxy uv run --offline --locked --project agent pytest -q agent/tests",
+      "exit_code": 0,
+      "passed": 9,
+      "warnings": 2,
+      "result": "Fixtures; no actual native provider or real Laya acceptance."
+    },
+    {
+      "task": "TASK-0003",
+      "command": "rtk proxy env -u GOROOT PROMPT_SHOP_GO=/opt/homebrew/bin/go python3 internal/voice/check.py",
+      "exit_code": 0,
+      "passed": 8,
+      "skipped": 1,
+      "result": "Go vet/race checks pass. PostgreSQL atomic-ticket integration skipped because VOICE_TEST_DATABASE_URL was unset."
+    },
+    {
+      "task": "TASK-0005",
+      "command": "rtk proxy python3 -m unittest discover -s deploy/tests -v",
+      "exit_code": 0,
+      "passed": 13,
+      "result": "Offline tooling only."
+    },
+    {
+      "task": "TASK-0009",
+      "command": "rtk proxy env -u GOROOT BACKOFFICE_TEST_DATABASE_URL=<isolated loopback task9 database> /opt/homebrew/bin/go test -race -count=1 ./internal/backoffice ./internal/platform/static ./internal/config",
+      "exit_code": 1,
+      "result": "Invocation error: nonexistent internal/platform/static. Actual backoffice (including PostgreSQL lifecycle) and config packages passed; not reported as aggregate command pass."
+    },
+    {
+      "task": "TASK-0009",
+      "command": "rtk proxy env -u GOROOT /opt/homebrew/bin/go test -race -count=1 ./internal/platform/httpserver",
+      "exit_code": 0,
+      "result": "Correct static/server package passes."
+    },
+    {
+      "task": "TASK-0009",
+      "command": "rtk proxy npm test",
+      "working_directory": "web",
+      "exit_code": 0,
+      "passed": 28,
+      "result": "Portal unit tests, not deployed browser/microphone acceptance."
+    }
+  ]
+}

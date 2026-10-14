@@ -1,0 +1,1725 @@
+{
+  "schema_version": 1,
+  "store_id": "demo-store",
+  "import_version": "demo-v1",
+  "store": {
+    "name": "Demo Hypermarket",
+    "map_width": 190,
+    "map_height": 80,
+    "entrance_node_id": "entrance"
+  },
+  "aisles": [
+    {
+      "id": "a01",
+      "label": "Aisle 1",
+      "polygon": [
+        {
+          "x": 20,
+          "y": 25
+        },
+        {
+          "x": 30,
+          "y": 25
+        },
+        {
+          "x": 30,
+          "y": 65
+        },
+        {
+          "x": 20,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a02",
+      "label": "Aisle 2",
+      "polygon": [
+        {
+          "x": 40,
+          "y": 25
+        },
+        {
+          "x": 50,
+          "y": 25
+        },
+        {
+          "x": 50,
+          "y": 65
+        },
+        {
+          "x": 40,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a03",
+      "label": "Aisle 3",
+      "polygon": [
+        {
+          "x": 60,
+          "y": 25
+        },
+        {
+          "x": 70,
+          "y": 25
+        },
+        {
+          "x": 70,
+          "y": 65
+        },
+        {
+          "x": 60,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a04",
+      "label": "Aisle 4",
+      "polygon": [
+        {
+          "x": 80,
+          "y": 25
+        },
+        {
+          "x": 90,
+          "y": 25
+        },
+        {
+          "x": 90,
+          "y": 65
+        },
+        {
+          "x": 80,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a05",
+      "label": "Aisle 5",
+      "polygon": [
+        {
+          "x": 100,
+          "y": 25
+        },
+        {
+          "x": 110,
+          "y": 25
+        },
+        {
+          "x": 110,
+          "y": 65
+        },
+        {
+          "x": 100,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a06",
+      "label": "Aisle 6",
+      "polygon": [
+        {
+          "x": 120,
+          "y": 25
+        },
+        {
+          "x": 130,
+          "y": 25
+        },
+        {
+          "x": 130,
+          "y": 65
+        },
+        {
+          "x": 120,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a07",
+      "label": "Aisle 7",
+      "polygon": [
+        {
+          "x": 140,
+          "y": 25
+        },
+        {
+          "x": 150,
+          "y": 25
+        },
+        {
+          "x": 150,
+          "y": 65
+        },
+        {
+          "x": 140,
+          "y": 65
+        }
+      ]
+    },
+    {
+      "id": "a08",
+      "label": "Aisle 8",
+      "polygon": [
+        {
+          "x": 160,
+          "y": 25
+        },
+        {
+          "x": 170,
+          "y": 25
+        },
+        {
+          "x": 170,
+          "y": 65
+        },
+        {
+          "x": 160,
+          "y": 65
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "entrance",
+      "x": 5,
+      "y": 10,
+      "label": "Entrance"
+    },
+    {
+      "id": "a01-junction",
+      "x": 15,
+      "y": 10,
+      "label": "Aisle 1 walkway"
+    },
+    {
+      "id": "a01-n01",
+      "x": 15,
+      "y": 30,
+      "label": "Aisle 1 shelf 1 approach"
+    },
+    {
+      "id": "a01-n02",
+      "x": 15,
+      "y": 40,
+      "label": "Aisle 1 shelf 2 approach"
+    },
+    {
+      "id": "a01-n03",
+      "x": 15,
+      "y": 50,
+      "label": "Aisle 1 shelf 3 approach"
+    },
+    {
+      "id": "a01-n04",
+      "x": 15,
+      "y": 60,
+      "label": "Aisle 1 shelf 4 approach"
+    },
+    {
+      "id": "a02-junction",
+      "x": 35,
+      "y": 10,
+      "label": "Aisle 2 walkway"
+    },
+    {
+      "id": "a02-n01",
+      "x": 35,
+      "y": 30,
+      "label": "Aisle 2 shelf 1 approach"
+    },
+    {
+      "id": "a02-n02",
+      "x": 35,
+      "y": 40,
+      "label": "Aisle 2 shelf 2 approach"
+    },
+    {
+      "id": "a02-n03",
+      "x": 35,
+      "y": 50,
+      "label": "Aisle 2 shelf 3 approach"
+    },
+    {
+      "id": "a02-n04",
+      "x": 35,
+      "y": 60,
+      "label": "Aisle 2 shelf 4 approach"
+    },
+    {
+      "id": "a03-junction",
+      "x": 55,
+      "y": 10,
+      "label": "Aisle 3 walkway"
+    },
+    {
+      "id": "a03-n01",
+      "x": 55,
+      "y": 30,
+      "label": "Aisle 3 shelf 1 approach"
+    },
+    {
+      "id": "a03-n02",
+      "x": 55,
+      "y": 40,
+      "label": "Aisle 3 shelf 2 approach"
+    },
+    {
+      "id": "a03-n03",
+      "x": 55,
+      "y": 50,
+      "label": "Aisle 3 shelf 3 approach"
+    },
+    {
+      "id": "a03-n04",
+      "x": 55,
+      "y": 60,
+      "label": "Aisle 3 shelf 4 approach"
+    },
+    {
+      "id": "a04-junction",
+      "x": 75,
+      "y": 10,
+      "label": "Aisle 4 walkway"
+    },
+    {
+      "id": "a04-n01",
+      "x": 75,
+      "y": 30,
+      "label": "Aisle 4 shelf 1 approach"
+    },
+    {
+      "id": "a04-n02",
+      "x": 75,
+      "y": 40,
+      "label": "Aisle 4 shelf 2 approach"
+    },
+    {
+      "id": "a04-n03",
+      "x": 75,
+      "y": 50,
+      "label": "Aisle 4 shelf 3 approach"
+    },
+    {
+      "id": "a04-n04",
+      "x": 75,
+      "y": 60,
+      "label": "Aisle 4 shelf 4 approach"
+    },
+    {
+      "id": "a05-junction",
+      "x": 95,
+      "y": 10,
+      "label": "Aisle 5 walkway"
+    },
+    {
+      "id": "a05-n01",
+      "x": 95,
+      "y": 30,
+      "label": "Aisle 5 shelf 1 approach"
+    },
+    {
+      "id": "a05-n02",
+      "x": 95,
+      "y": 40,
+      "label": "Aisle 5 shelf 2 approach"
+    },
+    {
+      "id": "a05-n03",
+      "x": 95,
+      "y": 50,
+      "label": "Aisle 5 shelf 3 approach"
+    },
+    {
+      "id": "a05-n04",
+      "x": 95,
+      "y": 60,
+      "label": "Aisle 5 shelf 4 approach"
+    },
+    {
+      "id": "a06-junction",
+      "x": 115,
+      "y": 10,
+      "label": "Aisle 6 walkway"
+    },
+    {
+      "id": "a06-n01",
+      "x": 115,
+      "y": 30,
+      "label": "Aisle 6 shelf 1 approach"
+    },
+    {
+      "id": "a06-n02",
+      "x": 115,
+      "y": 40,
+      "label": "Aisle 6 shelf 2 approach"
+    },
+    {
+      "id": "a06-n03",
+      "x": 115,
+      "y": 50,
+      "label": "Aisle 6 shelf 3 approach"
+    },
+    {
+      "id": "a06-n04",
+      "x": 115,
+      "y": 60,
+      "label": "Aisle 6 shelf 4 approach"
+    },
+    {
+      "id": "a07-junction",
+      "x": 135,
+      "y": 10,
+      "label": "Aisle 7 walkway"
+    },
+    {
+      "id": "a07-n01",
+      "x": 135,
+      "y": 30,
+      "label": "Aisle 7 shelf 1 approach"
+    },
+    {
+      "id": "a07-n02",
+      "x": 135,
+      "y": 40,
+      "label": "Aisle 7 shelf 2 approach"
+    },
+    {
+      "id": "a07-n03",
+      "x": 135,
+      "y": 50,
+      "label": "Aisle 7 shelf 3 approach"
+    },
+    {
+      "id": "a07-n04",
+      "x": 135,
+      "y": 60,
+      "label": "Aisle 7 shelf 4 approach"
+    },
+    {
+      "id": "a08-junction",
+      "x": 155,
+      "y": 10,
+      "label": "Aisle 8 walkway"
+    },
+    {
+      "id": "a08-n01",
+      "x": 155,
+      "y": 30,
+      "label": "Aisle 8 shelf 1 approach"
+    },
+    {
+      "id": "a08-n02",
+      "x": 155,
+      "y": 40,
+      "label": "Aisle 8 shelf 2 approach"
+    },
+    {
+      "id": "a08-n03",
+      "x": 155,
+      "y": 50,
+      "label": "Aisle 8 shelf 3 approach"
+    },
+    {
+      "id": "a08-n04",
+      "x": 155,
+      "y": 60,
+      "label": "Aisle 8 shelf 4 approach"
+    }
+  ],
+  "edges": [
+    {
+      "from_node_id": "a01-junction",
+      "to_node_id": "entrance",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a01-junction",
+      "to_node_id": "a01-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a01-n01",
+      "to_node_id": "a01-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a01-n02",
+      "to_node_id": "a01-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a01-n03",
+      "to_node_id": "a01-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a01-junction",
+      "to_node_id": "a02-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a02-junction",
+      "to_node_id": "a02-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a02-n01",
+      "to_node_id": "a02-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a02-n02",
+      "to_node_id": "a02-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a02-n03",
+      "to_node_id": "a02-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a02-junction",
+      "to_node_id": "a03-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a03-junction",
+      "to_node_id": "a03-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a03-n01",
+      "to_node_id": "a03-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a03-n02",
+      "to_node_id": "a03-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a03-n03",
+      "to_node_id": "a03-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a03-junction",
+      "to_node_id": "a04-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a04-junction",
+      "to_node_id": "a04-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a04-n01",
+      "to_node_id": "a04-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a04-n02",
+      "to_node_id": "a04-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a04-n03",
+      "to_node_id": "a04-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a04-junction",
+      "to_node_id": "a05-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a05-junction",
+      "to_node_id": "a05-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a05-n01",
+      "to_node_id": "a05-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a05-n02",
+      "to_node_id": "a05-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a05-n03",
+      "to_node_id": "a05-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a05-junction",
+      "to_node_id": "a06-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a06-junction",
+      "to_node_id": "a06-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a06-n01",
+      "to_node_id": "a06-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a06-n02",
+      "to_node_id": "a06-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a06-n03",
+      "to_node_id": "a06-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a06-junction",
+      "to_node_id": "a07-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a07-junction",
+      "to_node_id": "a07-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a07-n01",
+      "to_node_id": "a07-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a07-n02",
+      "to_node_id": "a07-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a07-n03",
+      "to_node_id": "a07-n04",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a07-junction",
+      "to_node_id": "a08-junction",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a08-junction",
+      "to_node_id": "a08-n01",
+      "weight": 20
+    },
+    {
+      "from_node_id": "a08-n01",
+      "to_node_id": "a08-n02",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a08-n02",
+      "to_node_id": "a08-n03",
+      "weight": 10
+    },
+    {
+      "from_node_id": "a08-n03",
+      "to_node_id": "a08-n04",
+      "weight": 10
+    }
+  ],
+  "shelves": [
+    {
+      "id": "a01-s01",
+      "aisle_id": "a01",
+      "label": "Shelf 1",
+      "map_node_id": "a01-n01",
+      "x": 20,
+      "y": 30
+    },
+    {
+      "id": "a01-s02",
+      "aisle_id": "a01",
+      "label": "Shelf 2",
+      "map_node_id": "a01-n02",
+      "x": 20,
+      "y": 40
+    },
+    {
+      "id": "a01-s03",
+      "aisle_id": "a01",
+      "label": "Shelf 3",
+      "map_node_id": "a01-n03",
+      "x": 20,
+      "y": 50
+    },
+    {
+      "id": "a01-s04",
+      "aisle_id": "a01",
+      "label": "Shelf 4",
+      "map_node_id": "a01-n04",
+      "x": 20,
+      "y": 60
+    },
+    {
+      "id": "a02-s01",
+      "aisle_id": "a02",
+      "label": "Shelf 1",
+      "map_node_id": "a02-n01",
+      "x": 40,
+      "y": 30
+    },
+    {
+      "id": "a02-s02",
+      "aisle_id": "a02",
+      "label": "Shelf 2",
+      "map_node_id": "a02-n02",
+      "x": 40,
+      "y": 40
+    },
+    {
+      "id": "a02-s03",
+      "aisle_id": "a02",
+      "label": "Shelf 3",
+      "map_node_id": "a02-n03",
+      "x": 40,
+      "y": 50
+    },
+    {
+      "id": "a02-s04",
+      "aisle_id": "a02",
+      "label": "Shelf 4",
+      "map_node_id": "a02-n04",
+      "x": 40,
+      "y": 60
+    },
+    {
+      "id": "a03-s01",
+      "aisle_id": "a03",
+      "label": "Shelf 1",
+      "map_node_id": "a03-n01",
+      "x": 60,
+      "y": 30
+    },
+    {
+      "id": "a03-s02",
+      "aisle_id": "a03",
+      "label": "Shelf 2",
+      "map_node_id": "a03-n02",
+      "x": 60,
+      "y": 40
+    },
+    {
+      "id": "a03-s03",
+      "aisle_id": "a03",
+      "label": "Shelf 3",
+      "map_node_id": "a03-n03",
+      "x": 60,
+      "y": 50
+    },
+    {
+      "id": "a03-s04",
+      "aisle_id": "a03",
+      "label": "Shelf 4",
+      "map_node_id": "a03-n04",
+      "x": 60,
+      "y": 60
+    },
+    {
+      "id": "a04-s01",
+      "aisle_id": "a04",
+      "label": "Shelf 1",
+      "map_node_id": "a04-n01",
+      "x": 80,
+      "y": 30
+    },
+    {
+      "id": "a04-s02",
+      "aisle_id": "a04",
+      "label": "Shelf 2",
+      "map_node_id": "a04-n02",
+      "x": 80,
+      "y": 40
+    },
+    {
+      "id": "a04-s03",
+      "aisle_id": "a04",
+      "label": "Shelf 3",
+      "map_node_id": "a04-n03",
+      "x": 80,
+      "y": 50
+    },
+    {
+      "id": "a04-s04",
+      "aisle_id": "a04",
+      "label": "Shelf 4",
+      "map_node_id": "a04-n04",
+      "x": 80,
+      "y": 60
+    },
+    {
+      "id": "a05-s01",
+      "aisle_id": "a05",
+      "label": "Shelf 1",
+      "map_node_id": "a05-n01",
+      "x": 100,
+      "y": 30
+    },
+    {
+      "id": "a05-s02",
+      "aisle_id": "a05",
+      "label": "Shelf 2",
+      "map_node_id": "a05-n02",
+      "x": 100,
+      "y": 40
+    },
+    {
+      "id": "a05-s03",
+      "aisle_id": "a05",
+      "label": "Shelf 3",
+      "map_node_id": "a05-n03",
+      "x": 100,
+      "y": 50
+    },
+    {
+      "id": "a05-s04",
+      "aisle_id": "a05",
+      "label": "Shelf 4",
+      "map_node_id": "a05-n04",
+      "x": 100,
+      "y": 60
+    },
+    {
+      "id": "a06-s01",
+      "aisle_id": "a06",
+      "label": "Shelf 1",
+      "map_node_id": "a06-n01",
+      "x": 120,
+      "y": 30
+    },
+    {
+      "id": "a06-s02",
+      "aisle_id": "a06",
+      "label": "Shelf 2",
+      "map_node_id": "a06-n02",
+      "x": 120,
+      "y": 40
+    },
+    {
+      "id": "a06-s03",
+      "aisle_id": "a06",
+      "label": "Shelf 3",
+      "map_node_id": "a06-n03",
+      "x": 120,
+      "y": 50
+    },
+    {
+      "id": "a06-s04",
+      "aisle_id": "a06",
+      "label": "Shelf 4",
+      "map_node_id": "a06-n04",
+      "x": 120,
+      "y": 60
+    },
+    {
+      "id": "a07-s01",
+      "aisle_id": "a07",
+      "label": "Shelf 1",
+      "map_node_id": "a07-n01",
+      "x": 140,
+      "y": 30
+    },
+    {
+      "id": "a07-s02",
+      "aisle_id": "a07",
+      "label": "Shelf 2",
+      "map_node_id": "a07-n02",
+      "x": 140,
+      "y": 40
+    },
+    {
+      "id": "a07-s03",
+      "aisle_id": "a07",
+      "label": "Shelf 3",
+      "map_node_id": "a07-n03",
+      "x": 140,
+      "y": 50
+    },
+    {
+      "id": "a07-s04",
+      "aisle_id": "a07",
+      "label": "Shelf 4",
+      "map_node_id": "a07-n04",
+      "x": 140,
+      "y": 60
+    },
+    {
+      "id": "a08-s01",
+      "aisle_id": "a08",
+      "label": "Shelf 1",
+      "map_node_id": "a08-n01",
+      "x": 160,
+      "y": 30
+    },
+    {
+      "id": "a08-s02",
+      "aisle_id": "a08",
+      "label": "Shelf 2",
+      "map_node_id": "a08-n02",
+      "x": 160,
+      "y": 40
+    },
+    {
+      "id": "a08-s03",
+      "aisle_id": "a08",
+      "label": "Shelf 3",
+      "map_node_id": "a08-n03",
+      "x": 160,
+      "y": 50
+    },
+    {
+      "id": "a08-s04",
+      "aisle_id": "a08",
+      "label": "Shelf 4",
+      "map_node_id": "a08-n04",
+      "x": 160,
+      "y": 60
+    }
+  ],
+  "products": [
+    {
+      "id": "red-apples",
+      "name": "Red apples",
+      "category": "Produce",
+      "shelf_id": "a01-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Red apples"
+        }
+      ]
+    },
+    {
+      "id": "bananas",
+      "name": "Bananas",
+      "category": "Produce",
+      "shelf_id": "a01-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Bananas"
+        }
+      ]
+    },
+    {
+      "id": "oranges",
+      "name": "Oranges",
+      "category": "Produce",
+      "shelf_id": "a01-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Oranges"
+        }
+      ]
+    },
+    {
+      "id": "carrots",
+      "name": "Carrots",
+      "category": "Produce",
+      "shelf_id": "a01-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Carrots"
+        }
+      ]
+    },
+    {
+      "id": "potatoes",
+      "name": "Potatoes",
+      "category": "Produce",
+      "shelf_id": "a01-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Potatoes"
+        }
+      ]
+    },
+    {
+      "id": "tomatoes",
+      "name": "Tomatoes",
+      "category": "Produce",
+      "shelf_id": "a01-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Tomatoes"
+        }
+      ]
+    },
+    {
+      "id": "onions",
+      "name": "Onions",
+      "category": "Produce",
+      "shelf_id": "a01-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Onions"
+        }
+      ]
+    },
+    {
+      "id": "lettuce",
+      "name": "Lettuce",
+      "category": "Produce",
+      "shelf_id": "a01-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Lettuce"
+        }
+      ]
+    },
+    {
+      "id": "milk-low-fat-1l",
+      "name": "Low-fat milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Low-fat milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "milk"
+        }
+      ]
+    },
+    {
+      "id": "milk-oat-1l",
+      "name": "Oat milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Oat milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "milk"
+        }
+      ]
+    },
+    {
+      "id": "milk-whole-1l",
+      "name": "Whole milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Whole milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "milk"
+        },
+        {
+          "language": "en-US",
+          "text": "whole milk"
+        }
+      ]
+    },
+    {
+      "id": "greek-yogurt",
+      "name": "Greek yogurt",
+      "category": "Dairy",
+      "shelf_id": "a02-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Greek yogurt"
+        }
+      ]
+    },
+    {
+      "id": "cheddar-cheese",
+      "name": "Cheddar cheese",
+      "category": "Dairy",
+      "shelf_id": "a02-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Cheddar cheese"
+        }
+      ]
+    },
+    {
+      "id": "butter",
+      "name": "Butter",
+      "category": "Dairy",
+      "shelf_id": "a02-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Butter"
+        }
+      ]
+    },
+    {
+      "id": "eggs-12-pack",
+      "name": "Eggs 12 pack",
+      "category": "Dairy",
+      "shelf_id": "a02-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Eggs 12 pack"
+        }
+      ]
+    },
+    {
+      "id": "milk-soy-1l",
+      "name": "Soy milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Soy milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "milk"
+        }
+      ]
+    },
+    {
+      "id": "white-bread",
+      "name": "White bread",
+      "category": "Bakery",
+      "shelf_id": "a03-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "White bread"
+        }
+      ]
+    },
+    {
+      "id": "whole-wheat-bread",
+      "name": "Whole wheat bread",
+      "category": "Bakery",
+      "shelf_id": "a03-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Whole wheat bread"
+        }
+      ]
+    },
+    {
+      "id": "baguette",
+      "name": "Baguette",
+      "category": "Bakery",
+      "shelf_id": "a03-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Baguette"
+        }
+      ]
+    },
+    {
+      "id": "croissants",
+      "name": "Croissants",
+      "category": "Bakery",
+      "shelf_id": "a03-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Croissants"
+        }
+      ]
+    },
+    {
+      "id": "bagels",
+      "name": "Bagels",
+      "category": "Bakery",
+      "shelf_id": "a03-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Bagels"
+        }
+      ]
+    },
+    {
+      "id": "burger-buns",
+      "name": "Burger buns",
+      "category": "Bakery",
+      "shelf_id": "a03-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Burger buns"
+        }
+      ]
+    },
+    {
+      "id": "tortillas",
+      "name": "Tortillas",
+      "category": "Bakery",
+      "shelf_id": "a03-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Tortillas"
+        }
+      ]
+    },
+    {
+      "id": "blueberry-muffins",
+      "name": "Blueberry muffins",
+      "category": "Bakery",
+      "shelf_id": "a03-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Blueberry muffins"
+        }
+      ]
+    },
+    {
+      "id": "chicken-breast",
+      "name": "Chicken breast",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Chicken breast"
+        }
+      ]
+    },
+    {
+      "id": "ground-beef",
+      "name": "Ground beef",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Ground beef"
+        }
+      ]
+    },
+    {
+      "id": "pork-chops",
+      "name": "Pork chops",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Pork chops"
+        }
+      ]
+    },
+    {
+      "id": "salmon-fillet",
+      "name": "Salmon fillet",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Salmon fillet"
+        }
+      ]
+    },
+    {
+      "id": "shrimp",
+      "name": "Shrimp",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Shrimp"
+        }
+      ]
+    },
+    {
+      "id": "bacon",
+      "name": "Bacon",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Bacon"
+        }
+      ]
+    },
+    {
+      "id": "tofu",
+      "name": "Tofu",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Tofu"
+        }
+      ]
+    },
+    {
+      "id": "fish-fingers",
+      "name": "Fish fingers",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Fish fingers"
+        }
+      ]
+    },
+    {
+      "id": "jasmine-rice",
+      "name": "Jasmine rice",
+      "category": "Pantry",
+      "shelf_id": "a05-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Jasmine rice"
+        }
+      ]
+    },
+    {
+      "id": "brown-rice",
+      "name": "Brown rice",
+      "category": "Pantry",
+      "shelf_id": "a05-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Brown rice"
+        }
+      ]
+    },
+    {
+      "id": "spaghetti",
+      "name": "Spaghetti",
+      "category": "Pantry",
+      "shelf_id": "a05-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Spaghetti"
+        }
+      ]
+    },
+    {
+      "id": "flour",
+      "name": "Flour",
+      "category": "Pantry",
+      "shelf_id": "a05-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Flour"
+        }
+      ]
+    },
+    {
+      "id": "sugar",
+      "name": "Sugar",
+      "category": "Pantry",
+      "shelf_id": "a05-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Sugar"
+        }
+      ]
+    },
+    {
+      "id": "salt",
+      "name": "Salt",
+      "category": "Pantry",
+      "shelf_id": "a05-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Salt"
+        }
+      ]
+    },
+    {
+      "id": "olive-oil",
+      "name": "Olive oil",
+      "category": "Pantry",
+      "shelf_id": "a05-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Olive oil"
+        }
+      ]
+    },
+    {
+      "id": "canned-tuna",
+      "name": "Canned tuna",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Canned tuna"
+        }
+      ]
+    },
+    {
+      "id": "baked-beans",
+      "name": "Baked beans",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Baked beans"
+        }
+      ]
+    },
+    {
+      "id": "tomato-sauce",
+      "name": "Tomato sauce",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Tomato sauce"
+        }
+      ]
+    },
+    {
+      "id": "soy-sauce",
+      "name": "Soy sauce",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Soy sauce"
+        }
+      ]
+    },
+    {
+      "id": "ketchup",
+      "name": "Ketchup",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Ketchup"
+        }
+      ]
+    },
+    {
+      "id": "peanut-butter",
+      "name": "Peanut butter",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Peanut butter"
+        }
+      ]
+    },
+    {
+      "id": "strawberry-jam",
+      "name": "Strawberry jam",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Strawberry jam"
+        }
+      ]
+    },
+    {
+      "id": "drinking-water",
+      "name": "Drinking water",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Drinking water"
+        }
+      ]
+    },
+    {
+      "id": "orange-juice",
+      "name": "Orange juice",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Orange juice"
+        }
+      ]
+    },
+    {
+      "id": "cola",
+      "name": "Cola",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Cola"
+        }
+      ]
+    },
+    {
+      "id": "green-tea",
+      "name": "Green tea",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Green tea"
+        }
+      ]
+    },
+    {
+      "id": "ground-coffee",
+      "name": "Ground coffee",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Ground coffee"
+        }
+      ]
+    },
+    {
+      "id": "potato-chips",
+      "name": "Potato chips",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Potato chips"
+        }
+      ]
+    },
+    {
+      "id": "chocolate-bar",
+      "name": "Chocolate bar",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Chocolate bar"
+        }
+      ]
+    },
+    {
+      "id": "dish-soap",
+      "name": "Dish soap",
+      "category": "Household",
+      "shelf_id": "a08-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Dish soap"
+        }
+      ]
+    },
+    {
+      "id": "laundry-detergent",
+      "name": "Laundry detergent",
+      "category": "Household",
+      "shelf_id": "a08-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Laundry detergent"
+        }
+      ]
+    },
+    {
+      "id": "toilet-paper",
+      "name": "Toilet paper",
+      "category": "Household",
+      "shelf_id": "a08-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Toilet paper"
+        }
+      ]
+    },
+    {
+      "id": "paper-towels",
+      "name": "Paper towels",
+      "category": "Household",
+      "shelf_id": "a08-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Paper towels"
+        }
+      ]
+    },
+    {
+      "id": "trash-bags",
+      "name": "Trash bags",
+      "category": "Household",
+      "shelf_id": "a08-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Trash bags"
+        }
+      ]
+    },
+    {
+      "id": "toothpaste",
+      "name": "Toothpaste",
+      "category": "Household",
+      "shelf_id": "a08-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Toothpaste"
+        }
+      ]
+    },
+    {
+      "id": "shampoo",
+      "name": "Shampoo",
+      "category": "Household",
+      "shelf_id": "a08-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Shampoo"
+        }
+      ]
+    },
+    {
+      "id": "example-draft",
+      "name": "Example draft item",
+      "category": "Fixture",
+      "shelf_id": "a01-s01",
+      "state": "draft",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "example draft"
+        }
+      ]
+    },
+    {
+      "id": "example-archived",
+      "name": "Example archived item",
+      "category": "Fixture",
+      "shelf_id": "a01-s01",
+      "state": "archived",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "example archived"
+        }
+      ]
+    }
+  ]
+}
