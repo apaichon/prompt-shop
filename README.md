@@ -10,7 +10,7 @@ Deploy to GCP by **16 October 2026**; rehearse on **17 October**; submit on **18
 - [Proposed SDLC review pack](docs/sdlc/REVIEW.md)
 - [Selected Monti Jarvis code and provenance](references/monti-jarvis/README.md)
 
-Current state: planning scaffold and selected source references only. The portal is not yet integrated or deployed.
+Current state: all ten tasks' current source snapshots are consolidated for initial local testing. The portal and protected backoffice are implemented; public shopper catalog/routes and Go voice registration remain incomplete, Laya accuracy qualification failed, and the candidate is not deployed. Start with [initial local testing](docs/INITIAL-TESTING.md); the [source consolidation record](docs/INTEGRATION-ALL-TASKS-2026-10-14.md) preserves acceptance blockers.
 
 ## Tech stack
 
@@ -58,6 +58,6 @@ The [task allocation plan](docs/MODEL-ALLOCATION.md) assigns all ten tasks to GP
 
 ## Foundation implementation
 
-TASK-0001 code and local setup are documented in [TASK-0001-HANDOFF.md](docs/TASK-0001-HANDOFF.md). This branch implements database/import and health contracts; search, voice, portal and cloud deployment are subsequent tasks.
+TASK-0001 database/import and health setup is documented in [TASK-0001-HANDOFF.md](docs/TASK-0001-HANDOFF.md). That historical task handoff predates the consolidated portal, backoffice and classifier source; use the initial testing guide for the current combined checkout.
 
 Backoffice setup and verification: [internal/backoffice/README.md](internal/backoffice/README.md).

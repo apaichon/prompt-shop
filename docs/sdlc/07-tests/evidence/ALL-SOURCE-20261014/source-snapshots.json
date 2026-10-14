@@ -1,0 +1,15 @@
+{
+  "scope": "All ten requested task source heads are ancestors of the combined source. This is not feature completion or deployed acceptance.",
+  "snapshots": {
+    "feature/TASK-0001-foundation": "a564571a91672ad1cea0b1d25a48d8acd18828b8",
+    "feature/TASK-0002-catalog-lookup-and-walkable-route": "2fcbcf582a5b7a66c2123185a3726811792ae710",
+    "feature/TASK-0003-adk-live": "d973879719dfbf2ab0e03e1346e73a0f9b2709cd",
+    "feature/TASK-0004-customer-portal": "edc8da9500501c036e98efb2b1062fe9034132a3",
+    "feature/TASK-0005-staging": "9ef46d50eff7fd1009bf42e24daf2159f45fe394",
+    "feature/TASK-0006-acceptance": "298884ff59482763ee8203586756be0aba2ecf10",
+    "feature/TASK-0007-demo-and-submission": "ca744b1f1b53868dca10e66865ae3b36b854aa64",
+    "feature/TASK-0008-release-and-rollback": "d016ed6f95828ef44545e65593f68c704a04793c",
+    "feature/TASK-0009-backoffice": "781b7ddd013b002f20e44927a92c0f740bcedf16",
+    "feature/TASK-0010-laya-classifier": "d23d38b48be5a35f167ab4e27728b14530df883d"
+  }
+}
