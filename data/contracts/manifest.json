@@ -1,0 +1,12 @@
+{
+  "search-request.json": "SearchRequest",
+  "search-response.json": "SearchResponse",
+  "route-request.json": "RouteRequest",
+  "route-response.json": "RouteResponse",
+  "store-map.json": "StoreMap",
+  "voice-session.json": "VoiceSession",
+  "admin-product.json": "AdminProduct",
+  "admin-session.json": "AdminSession",
+  "admin-products.json": "AdminProducts",
+  "error.json": "Error"
+}

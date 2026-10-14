@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "milk-whole-1l",
+      "name": "Whole milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Whole milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "milk"
+        },
+        {
+          "language": "en-US",
+          "text": "whole milk"
+        }
+      ],
+      "version": 1,
+      "updated_at": "2026-10-13T12:00:00Z"
+    }
+  ],
+  "next_cursor": null
+}

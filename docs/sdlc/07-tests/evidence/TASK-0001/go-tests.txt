@@ -1,0 +1,82 @@
+Command: /opt/homebrew/bin/go test -race -count=1 -v ./...
+Exit: 0
+?   	github.com/apaichon/prompt-shop/cmd/import	[no test files]
+?   	github.com/apaichon/prompt-shop/cmd/server	[no test files]
+=== RUN   TestConfiguration
+--- PASS: TestConfiguration (0.00s)
+PASS
+ok  	github.com/apaichon/prompt-shop/internal/config	1.823s
+?   	github.com/apaichon/prompt-shop/internal/platform/database	[no test files]
+=== RUN   TestHealthAndSafeErrors
+--- PASS: TestHealthAndSafeErrors (0.00s)
+=== RUN   TestReadyAndSidecarDeadline
+--- PASS: TestReadyAndSidecarDeadline (0.26s)
+=== RUN   TestDatabaseCheckReleasesConnections
+--- PASS: TestDatabaseCheckReleasesConnections (0.17s)
+PASS
+ok  	github.com/apaichon/prompt-shop/internal/platform/httpserver	2.172s
+=== RUN   TestSeedAndNormalization
+--- PASS: TestSeedAndNormalization (0.02s)
+=== RUN   TestStrictDecode
+--- PASS: TestStrictDecode (0.21s)
+=== RUN   TestGeometry
+--- PASS: TestGeometry (0.00s)
+=== RUN   TestInvalidRows
+=== RUN   TestInvalidRows/edge-reference
+=== RUN   TestInvalidRows/bounds
+=== RUN   TestInvalidRows/duplicate
+=== RUN   TestInvalidRows/edge-weight
+=== RUN   TestInvalidRows/unreachable
+=== RUN   TestInvalidRows/alias
+=== RUN   TestInvalidRows/shelf
+=== RUN   TestInvalidRows/aisle
+=== RUN   TestInvalidRows/reverse-edge
+--- PASS: TestInvalidRows (0.24s)
+    --- PASS: TestInvalidRows/edge-reference (0.04s)
+    --- PASS: TestInvalidRows/bounds (0.04s)
+    --- PASS: TestInvalidRows/duplicate (0.03s)
+    --- PASS: TestInvalidRows/edge-weight (0.02s)
+    --- PASS: TestInvalidRows/unreachable (0.02s)
+    --- PASS: TestInvalidRows/alias (0.02s)
+    --- PASS: TestInvalidRows/shelf (0.02s)
+    --- PASS: TestInvalidRows/aisle (0.02s)
+    --- PASS: TestInvalidRows/reverse-edge (0.02s)
+=== RUN   TestIntegrationImport
+    import_test.go:171: seed: 60 published, 8 aisles, 60 reachable products; identical rerun preserved all rows
+=== RUN   TestIntegrationImport/same-version
+    import_test.go:206: same-version: VERSION_CONFLICT; snapshot unchanged
+=== RUN   TestIntegrationImport/shelf
+    import_test.go:206: shelf: INVALID_REFERENCE; snapshot unchanged
+=== RUN   TestIntegrationImport/aisle
+    import_test.go:206: aisle: INVALID_REFERENCE; snapshot unchanged
+=== RUN   TestIntegrationImport/duplicate
+    import_test.go:206: duplicate: DUPLICATE_ID; snapshot unchanged
+=== RUN   TestIntegrationImport/edge
+    import_test.go:206: edge: INVALID_REFERENCE; snapshot unchanged
+=== RUN   TestIntegrationImport/merged-map
+    import_test.go:206: merged-map: BLOCKED_NODE; snapshot unchanged
+=== NAME  TestIntegrationImport
+    import_test.go:228: database-side constraint failure after earlier writes: full snapshot unchanged
+    import_test.go:296: product update: version increments once; aliases replaced; concurrent imports serialize; unchanged payload does not bump data versions
+--- PASS: TestIntegrationImport (2.57s)
+    --- PASS: TestIntegrationImport/same-version (0.05s)
+    --- PASS: TestIntegrationImport/shelf (0.20s)
+    --- PASS: TestIntegrationImport/aisle (0.07s)
+    --- PASS: TestIntegrationImport/duplicate (0.07s)
+    --- PASS: TestIntegrationImport/edge (0.06s)
+    --- PASS: TestIntegrationImport/merged-map (0.05s)
+PASS
+ok  	github.com/apaichon/prompt-shop/internal/platform/importer	5.204s
+?   	github.com/apaichon/prompt-shop/migrations	[no test files]
+=== RUN   TestRedactTextRemovesCredentialValues
+--- PASS: TestRedactTextRemovesCredentialValues (0.00s)
+=== RUN   TestRedactTextKeepsSafeContext
+--- PASS: TestRedactTextKeepsSafeContext (0.00s)
+PASS
+ok  	github.com/apaichon/prompt-shop/references/monti-jarvis/go/security	2.577s
+=== RUN   TestHandlerServesAssetsAndSPAFallback
+--- PASS: TestHandlerServesAssetsAndSPAFallback (0.01s)
+=== RUN   TestHandlerMissingBuildIsActionable
+--- PASS: TestHandlerMissingBuildIsActionable (0.00s)
+PASS
+ok  	github.com/apaichon/prompt-shop/references/monti-jarvis/go/shoppingweb	2.847s
