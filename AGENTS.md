@@ -24,7 +24,7 @@ Helper skills in `.claude/skills/`: `adr-writer`, `code-reviewer`, `deploy-runne
 
 ## GPT / Grok task routing
 
-Read [docs/MODEL-ALLOCATION.md](docs/MODEL-ALLOCATION.md) before claiming implementation work. GPT builds TASK-0001, TASK-0003, TASK-0005, TASK-0008 and TASK-0009. Grok builds TASK-0002, TASK-0004, TASK-0006, TASK-0007 and TASK-0010. Each task's `implementation_model` and `review_model` select the assistants; `owner` remains the accountable SDLC role. Use one task worktree and respect exclusive file surfaces. GPT coordinates shared contracts/wiring and integration; reviewers request changes rather than editing another builder's active files. No Grok client or automatic dispatch is configured by this allocation.
+Read [docs/MODEL-ALLOCATION.md](docs/MODEL-ALLOCATION.md) before claiming implementation work. GPT builds TASK-0001, TASK-0003, TASK-0004, TASK-0005, TASK-0008 and TASK-0009. Grok builds TASK-0002, TASK-0006, TASK-0007 and TASK-0010. Each task's `implementation_model` and `review_model` select the assistants; `owner` remains the accountable SDLC role. Use one task worktree and respect exclusive file surfaces. GPT coordinates shared contracts/wiring and integration; reviewers request changes rather than editing another builder's active files. No Grok client or automatic dispatch is configured by this allocation.
 
 ## Document conventions
 

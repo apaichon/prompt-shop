@@ -1,0 +1,166 @@
+[
+  {
+    "type": "ready",
+    "session_id": "fixture-session",
+    "expires_at": "2026-10-13T12:05:00Z",
+    "input_rate": 16000,
+    "output_rate": 24000
+  },
+  {
+    "type": "input_transcript",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "text": "Whole milk",
+    "final": true
+  },
+  {
+    "type": "output_transcript",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "text": "Whole milk",
+    "final": true
+  },
+  {
+    "type": "candidates",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "search_id": "search-1",
+    "catalog_version": 1,
+    "candidates": [
+      {
+        "id": "milk-whole-1l",
+        "name": "Whole milk 1 L",
+        "category": "Dairy",
+        "aisle": {
+          "id": "a02",
+          "label": "Aisle 2"
+        },
+        "shelf": {
+          "id": "a02-s03",
+          "label": "Shelf 3"
+        },
+        "route_available": true
+      }
+    ]
+  },
+  {
+    "type": "route",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "search_id": "search-1",
+    "product": {
+      "id": "milk-whole-1l",
+      "name": "Whole milk 1 L",
+      "category": "Dairy",
+      "aisle": {
+        "id": "a02",
+        "label": "Aisle 2"
+      },
+      "shelf": {
+        "id": "a02-s03",
+        "label": "Shelf 3"
+      },
+      "route_available": true
+    },
+    "catalog_version": 1,
+    "map_version": 1,
+    "origin_node_id": "entrance",
+    "node_ids": [
+      "entrance",
+      "a01-junction",
+      "a02-junction",
+      "a02-n01",
+      "a02-n02",
+      "a02-n03"
+    ],
+    "points": [
+      {
+        "x": 5,
+        "y": 10
+      },
+      {
+        "x": 15,
+        "y": 10
+      },
+      {
+        "x": 35,
+        "y": 10
+      },
+      {
+        "x": 35,
+        "y": 30
+      },
+      {
+        "x": 35,
+        "y": 40
+      },
+      {
+        "x": 35,
+        "y": 50
+      }
+    ],
+    "steps": [
+      "From the entrance, follow the main walkway to Aisle 2.",
+      "Follow the walkway to Shelf 3."
+    ],
+    "distance_units": 70
+  },
+  {
+    "type": "audio_start",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "generation_id": "generation-1"
+  },
+  {
+    "type": "audio_end",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "generation_id": "generation-1"
+  },
+  {
+    "type": "interrupted",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "generation_id": "generation-1"
+  },
+  {
+    "type": "turn_complete",
+    "session_id": "fixture-session",
+    "turn_id": "turn-1"
+  },
+  {
+    "type": "error",
+    "session_id": "fixture-session",
+    "code": "DEPENDENCY_UNAVAILABLE",
+    "message": "Voice temporarily unavailable",
+    "retryable": true
+  },
+  {
+    "type": "session_ending",
+    "session_id": "fixture-session",
+    "reason": "SESSION_EXPIRED"
+  },
+  {
+    "type": "pong",
+    "session_id": "fixture-session"
+  },
+  {
+    "type": "text",
+    "session_id": "fixture-session",
+    "text": "Whole milk"
+  },
+  {
+    "type": "select",
+    "session_id": "fixture-session",
+    "search_id": "search-1",
+    "product_id": "milk-whole-1l"
+  },
+  {
+    "type": "stop",
+    "session_id": "fixture-session"
+  },
+  {
+    "type": "ping",
+    "session_id": "fixture-session"
+  }
+]
