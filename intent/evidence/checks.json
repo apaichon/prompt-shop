@@ -1,0 +1,76 @@
+{
+  "schema_version": "laya-checks-v1",
+  "recorded_at": "2026-10-14T05:13:01.936831+00:00",
+  "results": [
+    {
+      "command": "rtk proxy uv run --project intent --frozen pytest -q intent/tests",
+      "exit_code": 0,
+      "passed": 42,
+      "output": "42 passed in 5.96s",
+      "scope": "Synthetic/contract/fault tests; no model qualification claim."
+    },
+    {
+      "command": "rtk proxy uv run --project agent --frozen python -m pytest -q intent/adapter_tests",
+      "exit_code": 0,
+      "passed": 6,
+      "output": "6 passed, 1 existing deprecation warning in 0.42s",
+      "scope": "Real SDK BlockingTool and ToolHost with controlled classifier/Go fixtures."
+    },
+    {
+      "command": "rtk proxy uv run --project agent --frozen pytest -q agent/tests",
+      "exit_code": 0,
+      "passed": 9,
+      "scope": "Existing Task 3 isolated tests; no native Gemini inference."
+    },
+    {
+      "command": "rtk proxy python3 deploy/verify_model.py intent/local/model-bundle",
+      "exit_code": 0,
+      "scope": "Verified model bundle bytes; not an inference or accuracy verdict."
+    },
+    {
+      "command": "rtk proxy uv run --project agent --frozen python intent/qualify_container.py --image prompt-shop-task10-laya:local-20261014 --out intent/evidence/container-probe.json",
+      "exit_code": 1,
+      "scope": "Emulated Linux Docker 2 CPU/4 GiB readiness failed; preserved separate report."
+    },
+    {
+      "command": "rtk proxy uv run --project agent --frozen python intent/evaluate.py --model intent/local/model-bundle --out intent/evidence/host-evaluation-reviewed.json",
+      "exit_code": 1,
+      "scope": "Actual final source/private HTTP/real ADK/frozen weights; 19/40 correct; 21 low-confidence abstentions; 30 warm p95 283.81975018419325 ms. Go ACK fixture only."
+    }
+  ],
+  "docker_build": {
+    "result": "pass",
+    "platform": "linux/amd64",
+    "dockerfile_sha256": "358c93d77bc618a9f3dc43bc849c04c71bebff016189aa4894b429fff59fa14b",
+    "dockerfile_modified": false,
+    "python_base": "python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258",
+    "uv_base": "ghcr.io/astral-sh/uv:0.11.2@sha256:c4f5de312ee66d46810635ffc5df34a1973ba753e7241ce3a08ef979ddd7bea5",
+    "image_id": "sha256:37c024c33b89423168686039e65f1997b250609a315a6443483b3fefc4b2cd4e",
+    "source_hashes": {
+      "intent/intent_service/model.py": "70394a58a48472c2e879d832427368b1750a8550bcbfe5ad0a33b7bf7f83eebd",
+      "intent/intent_service/protocol.py": "7be2864eef3bccac1248008e05380f04678e1932a033ffe46d5f312c207914f6",
+      "intent/intent_service/app.py": "e486a453f7cb356f8d79be283cd1df6e624e555003ec557de006de8cf95bd8c1",
+      "intent/intent_service/worker.py": "c2610e5a5bbbdd512cdeb972eb2ba70efedc05f89311fa5968e8609673124191",
+      "agent/tools/intent.py": "08aac0a998f2072792f02a465b14e812efbc92e9cee2f9d7c4fd8a34df89869b"
+    },
+    "scope": "Allowlisted local context, real pinned weights, immutable bases. This image predates the request-body disconnect cleanup. No image push/deployment."
+  },
+  "current_implementation_hashes": {
+    "intent/intent_service/model.py": "70394a58a48472c2e879d832427368b1750a8550bcbfe5ad0a33b7bf7f83eebd",
+    "intent/intent_service/protocol.py": "7be2864eef3bccac1248008e05380f04678e1932a033ffe46d5f312c207914f6",
+    "intent/intent_service/app.py": "f21da86c8bfd07d8ce0f8b7bc88cdb17e76eaa83f77f82e0667bbaf8b5deae01",
+    "intent/intent_service/worker.py": "c2610e5a5bbbdd512cdeb972eb2ba70efedc05f89311fa5968e8609673124191",
+    "agent/tools/intent.py": "08aac0a998f2072792f02a465b14e812efbc92e9cee2f9d7c4fd8a34df89869b"
+  },
+  "changes_after_initial_evaluation": {
+    "intent/intent_service/app.py": {
+      "before": "e486a453f7cb356f8d79be283cd1df6e624e555003ec557de006de8cf95bd8c1",
+      "after": "f21da86c8bfd07d8ce0f8b7bc88cdb17e76eaa83f77f82e0667bbaf8b5deae01"
+    }
+  },
+  "review_change": "Catch incomplete-body ClientDisconnect as typed error and clear partial body in all exits. Frozen question/corpus/thresholds/model/scoring/worker unchanged. Verified by two new lifecycle tests.",
+  "classification_quality_gate": "fail; original 19/40 with 21 low-confidence abstentions, required >=36/40",
+  "native_gcp_resource_qualified": false,
+  "native_voice_qualified": false,
+  "reviewed_evaluation_code_hashes_match": true
+}

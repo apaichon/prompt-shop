@@ -1,0 +1,6 @@
+local/
+.venv/
+__pycache__/
+.pytest_cache/
+model/*
+!model/manifest.json
