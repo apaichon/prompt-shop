@@ -47,7 +47,7 @@ class LocalMVP(unittest.TestCase):
             path = Path(folder)
             (path / "go.pid").write_text("12345\n")
             class Result:
-                stdout = "/usr/bin/unrelated-server\n"
+                stdout = f"/usr/bin/unrelated-server --cwd {module.ROOT}\n"
             with patch.object(module, "RUN", path), patch.object(module.subprocess, "run", return_value=Result()), patch.object(module.os, "kill") as kill:
                 with self.assertRaises(RuntimeError):
                     module.stop()

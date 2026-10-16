@@ -49,7 +49,9 @@ def stop():
             continue
         pid = int(file.read_text().strip())
         command = subprocess.run(["ps", "-p", str(pid), "-o", "command="], capture_output=True, text=True).stdout
-        owned = str(ROOT) in command or name == "go" and command.strip().startswith("/tmp/prompt-shop-mvp-server")
+        marker = {"go": str(ROOT / "bin/prompt-shop"), "adk": "uvicorn prompt_shop_live.app:app",
+                  "laya": "uvicorn intent_service.app:app"}[name]
+        owned = str(ROOT) in command and marker in command or name == "go" and command.strip().startswith("/tmp/prompt-shop-mvp-server")
         if command and not owned:
             raise RuntimeError("A saved PID belongs to another process; it was preserved")
         if command:
