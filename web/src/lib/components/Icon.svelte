@@ -11,7 +11,12 @@
     map: 'm3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5 M9 3v16 M15 5v16',
     check: 'm5 12 4 4L19 6',
     stop: 'M6 6h12v12H6z',
-    leaf: 'M19 3C7 3 3 7 5 15c8 4 15-2 14-12 M4 21 15 9'
+    leaf: 'M19 3C7 3 3 7 5 15c8 4 15-2 14-12 M4 21 15 9',
+    chat: 'M21 11a9 9 0 0 1-9 9H4l-3 2 2-6a9 9 0 1 1 18-5 M7 10h10 M7 14h6',
+    route: 'M6 19h9a4 4 0 0 0 0-8H9a4 4 0 0 1 0-8h9 M6 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0 M18 1v4m-2-2h4',
+    sparkle: 'm12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3',
+    chevron: 'm6 9 6 6 6-6',
+    grid: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z'
   };
 </script>
 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={paths[name] ?? paths.search} /></svg>

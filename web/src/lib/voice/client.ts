@@ -8,9 +8,9 @@ import { mergeTranscriptChunk } from './transcript';
 export type VoicePhase = 'idle' | 'connecting' | 'listening' | 'thinking' | 'speaking' | 'interrupted' | 'error';
 export interface VoiceState {
   phase: VoicePhase; message: string; active: boolean; micMuted: boolean; soundMuted: boolean;
-  remaining: number; input: string; output: string;
+  remaining: number; input: string; output: string; outputLevel: number;
 }
-const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, remaining: 300, input: '', output: '' });
+const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, remaining: 300, input: '', output: '', outputLevel: 0 });
 export class VoiceClient {
   private state = initial();
   private store = writable(this.state);
@@ -52,7 +52,8 @@ export class VoiceClient {
     try {
       await audio.open((frame, voiced) => { if (current()) this.sendAudio(frame, voiced); },
         () => { if (current()) { this.audioDrained = true; if (this.audioFinished && this.ready) this.patch({ phase: 'listening' }); } },
-        () => { if (current()) this.fail('Audio stopped. Restart voice or type an item.'); });
+        () => { if (current()) this.fail('Audio stopped. Restart voice or type an item.'); },
+        (outputLevel) => { if (current()) this.patch({ outputLevel }); });
       if (!current()) { audio.close(); return; }
       const ticket = await this.api.ticket(abort.signal);
       if (!current()) return;

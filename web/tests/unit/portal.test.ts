@@ -100,7 +100,7 @@ describe('HTTP and asynchronous presentation', () => {
 class FakeAudio implements AudioEngine {
   frame?: (frame: ArrayBuffer, voiced: boolean) => void;
   drain?: () => void;
-  open = vi.fn(async (frame, drain) => { this.frame = frame; this.drain = drain; });
+  open = vi.fn<AudioEngine['open']>(async (frame, drain) => { this.frame = frame; this.drain = drain; });
   capture = vi.fn(); microphoneMuted = vi.fn(); speakerMuted = vi.fn(); play = vi.fn(); flush = vi.fn(); close = vi.fn();
 }
 class Socket {
@@ -118,6 +118,12 @@ function voiceFixture() {
 }
 afterEach(() => vi.useRealTimers());
 describe('voice lifecycle and bounded transport', () => {
+  it('ignores an old playback-level callback after Stop', async () => {
+    const f=voiceFixture(); let level: (value:number)=>void = () => {};
+    f.audio.open.mockImplementationOnce(async (_frame, _drain, _failure, onLevel) => { level=onLevel ?? (() => {}); });
+    await f.voice.start(); f.ready(); level(1); expect(get(f.voice).outputLevel).toBe(1);
+    f.voice.stop(); level(1); expect(get(f.voice).outputLevel).toBe(0);
+  });
   it('shows listening for a new utterance and interruption only for a stopped response', async () => {
     const { voice, socket, ready } = voiceFixture(); await voice.start(); ready();
     socket.receive(event('interrupted'));

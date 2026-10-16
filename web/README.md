@@ -28,3 +28,25 @@ Use HTTPS or localhost for microphone access. Start voice explicitly requests pe
 - TASK-0005: build with the checked-in package lock and copy `web/build/` into the Go static root. Add the web check/unit/build/browser commands above to the integrated CI workflow; workflow ownership stays with TASK-0005.
 
 The test suite uses foundation fixtures from TASK-0001 commit `a564571`. Browser tests cover 320/768/1280px, keyboard focus, axe accessibility, escaped captions, current facts, cancellation, mute/Stop, denied permission and a real Chromium worklet with a simulated microphone. They do not prove Gemini/Laya inference, audible provider response, deployed cookie admission, latency, or real backend integration. Manual screen-reader testing is still required; see TEST-0009. Screenshots and failure traces are generated in ignored `test-results/`.
+
+
+## Monti shopper presentation (DES-0002)
+
+The customer route uses the blue Monti Store theme; public store/assistant labels
+and avatar manifest are in `src/lib/ui-config.ts`. Gemini API key, model and voice
+remain private in `agent/.env` as documented by the root configuration guide.
+Category illustrations are labelled fallbacks until verified SKU photography is
+available. Prices, stock, bay/tier and shopping-list controls are not supplied by
+the present catalog contract.
+
+The shared 74 KB transparent atlas is in `static/avatar/monti/atlas.webp`;
+[artwork and exact generation prompt](../docs/design/assets/monti-avatar.md) retain
+its provenance. The mouth observes speaker playback through a bounded-lifecycle
+analyser, never microphone input. Reduced motion uses a static portrait. Mobile
+Minimize keeps the active dock/session; Close, Escape and End release capture.
+The existing one Portal/VoiceClient survives responsive layout changes.
+
+The automated suite now covers five widths (320/390/768/1280/1440 px).
+[Implementation evidence](../docs/design/evidence/DES-0002/README.md) separates
+fixture regressions, actual local synthetic-provider checks and pending manual
+screen-reader/full release acceptance.
