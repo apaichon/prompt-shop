@@ -148,6 +148,12 @@ export class VoiceClient {
           : { phase: 'interrupted', message: 'Response stopped. Listening to you…' }); break;
       case 'turn_complete': this.audioFinished = true; if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
       case 'error':
+        if (event.code === 'TURN_TIMEOUT') {
+          this.audio?.flush(); this.gate.anticipateTurn(); this.callbacks.turn();
+          this.audioFinished = true; this.audioDrained = true;
+          this.patch({ phase: 'listening', output: '', outputLevel: 0, message: recovery.TURN_TIMEOUT });
+          break;
+        }
         if (['STALE_SELECTION', 'CLASSIFICATION_ABSTAINED', 'CLASSIFIER_TIMEOUT', 'CLASSIFIER_BUSY'].includes(event.code)) {
           this.audio?.flush(); this.patch({ phase: 'listening', message: recovery[event.code] });
         } else this.fail(recovery[event.code] ?? 'Voice could not complete that request. Restart voice or type an item.');

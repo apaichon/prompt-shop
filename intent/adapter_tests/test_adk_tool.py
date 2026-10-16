@@ -62,7 +62,8 @@ async def test_stale_classification_is_cancelled_before_ack_or_catalog():
         host.begin('turn-1');tool=BlockingTool('classify_intent',host)
         task=asyncio.create_task(tool.run_async(args={'text':'synthetic'},tool_context=None));await asyncio.sleep(.01)
         host.begin('turn-2');gate.set()
-        with pytest.raises(asyncio.CancelledError): await task
+        assert (await task)["error"]["code"] == "STALE_SELECTION"
+        assert not host.tasks
         assert not events and not host.classified and not host.tasks
         await host.close()
 

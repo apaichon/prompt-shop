@@ -16,8 +16,12 @@ from .protocol import APP, Setup
 from .queue import BoundedLiveRequestQueue
 from .tools import BlockingTool, SCHEMAS
 
+TURN_TOOL_TIMEOUT = 8.0
+
 INSTRUCTION = """You are a friendly English voice assistant in a hypermarket. Have
 natural general conversations, answer questions and suggest food menus or recipes.
+After an interruption, the next shopper utterance is a NEW turn: classify it again,
+even when continuing the same topic. Never reuse the interrupted turn's tool results.
 On EVERY completed user turn first call classify_intent with the shopper's request
 and response_mode. Choose conversation for greetings, general questions, conversation,
 and meal/recipe ideas that do not ask for store products or locations. Choose catalog
@@ -71,6 +75,8 @@ class Runtime:
         gate_since = None
         generation = 0
         audio_open = False
+        current_input = ""
+        retried = False
 
         async def send(payload):
             async with asyncio.timeout(1):
@@ -88,7 +94,7 @@ class Runtime:
             ready.set()
 
         async def reader():
-            nonlocal last_activity, gate_since, generation, audio_open
+            nonlocal last_activity, gate_since, generation, audio_open, current_input, retried
             while True:
                 message = await ws.receive()
                 if message["type"] == "websocket.disconnect":
@@ -117,6 +123,7 @@ class Runtime:
                     host.begin(event["turn_id"])
                     generation += 1
                     audio_open = False
+                    current_input, retried = "", False
                     last_activity = time.monotonic()
                     gate_since = None
                     queue.send_activity_start()
@@ -131,6 +138,7 @@ class Runtime:
                     value = event["text"]
                     if not isinstance(value, str) or not 1 <= len(value.strip()) <= 200:
                         raise ValueError("invalid text")
+                    current_input = value
                     queue.send_activity_end()
                     queue.send_content(types.Content(role="user", parts=[types.Part(text=value)]))
                     gate_since = last_activity = time.monotonic()
@@ -140,7 +148,7 @@ class Runtime:
                     raise ValueError("invalid control")
 
         async def events(runner):
-            nonlocal stream, generation, audio_open, gate_since
+            nonlocal stream, generation, audio_open, gate_since, current_input
             self.invocations += 1
             stream = runner.run_live(user_id=setup.session_id, session_id=setup.session_id,
                                      live_request_queue=queue, run_config=run_config(self.settings))
@@ -158,9 +166,13 @@ class Runtime:
                     # fresh turn's upcoming generation in the browser gate.
                     if interrupted_output:
                         await send({"type": "interrupted", **base})
+                if host.failed:
+                    continue
                 # Independent branches: one ADK event can have captions, audio and controls.
                 for attr, name in (("input_transcription", "input_transcript"), ("output_transcription", "output_transcript")):
                     transcript = getattr(event, attr, None)
+                    if name == "input_transcript" and transcript and transcript.text:
+                        current_input = transcript.text[:1000]
                     if transcript and transcript.text and (name == "input_transcript" or host.audio_allowed):
                         await send({"type": name, **{k: v for k, v in base.items() if k != "generation_id"}, "text": transcript.text[:4000], "final": bool(transcript.finished)})
                 for part in event.content.parts if event.content and event.content.parts else []:
@@ -202,6 +214,7 @@ class Runtime:
                     await send({"type": "turn_complete", "session_id": setup.session_id, "turn_id": turn})
 
         async def timer():
+            nonlocal gate_since, retried, audio_open
             while True:
                 await asyncio.sleep(.1)
                 now = time.monotonic()
@@ -209,8 +222,29 @@ class Runtime:
                     raise TimeoutError("session deadline")
                 if ready.is_set() and now - last_activity >= 60:
                     raise TimeoutError("idle deadline")
-                if gate_since is not None and not host.audio_allowed and now - gate_since >= 8:
-                    raise TimeoutError("required tools missing")
+                if gate_since is not None and not host.audio_allowed and now - gate_since >= TURN_TOOL_TIMEOUT:
+                    if current_input and not retried:
+                        # A provider may skip a required tool after barge-in.
+                        # One bounded continuation stays inside the same native
+                        # ADK session; no withheld audio or store facts escape.
+                        retried = True
+                        gate_since = now
+                        queue.send_content(types.Content(role="user", parts=[types.Part(text=(
+                            "Resume this latest shopper request after interruption: " + current_input +
+                            "\nThe reply was withheld pending required tools. Call classify_intent first "
+                            "if not already done for THIS request. For a catalog request complete the "
+                            "required search/route tools before giving locations. Do not replay the "
+                            "interrupted reply. Respond briefly to the shopper, without mentioning this reminder."
+                        ))]))
+                    else:
+                        # A single failed/noise turn must not tear down a healthy
+                        # provider connection. Seal it until fresh shopper speech.
+                        gate_since = None
+                        host.fail(host.turn)
+                        audio_open = False
+                        await send({"type": "error", "session_id": setup.session_id, "turn_id": host.turn,
+                                    "code": "TURN_TIMEOUT", "message": "That reply timed out. Please ask again.",
+                                    "retryable": True})
 
         try:
             await self.sessions.create_session(app_name=APP, user_id=setup.session_id, session_id=setup.session_id)

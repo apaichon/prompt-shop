@@ -13,6 +13,7 @@ export const recovery: Record<string, string> = {
   STALE_SELECTION: 'That selection has expired. Please search or ask again.',
   SESSION_EXPIRED: 'Your voice session ended. Start a new session or type an item.',
   IDLE_TIMEOUT: 'Voice stopped after a minute of inactivity. Restart when you’re ready.',
+  TURN_TIMEOUT: 'That reply took too long. I’m still listening — please ask again.',
   SETUP_TIMEOUT: 'Voice took too long to connect. You can restart or type an item.',
   SESSION_TICKET_INVALID: 'The voice connection expired. Please start again.',
   CLASSIFICATION_ABSTAINED: 'I couldn’t understand that request. Try another phrase or type the item.',

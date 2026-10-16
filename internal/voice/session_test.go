@@ -2,6 +2,7 @@ package voice
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"net/http/httptest"
@@ -204,4 +205,49 @@ func TestConcurrentTurnAndClose(t *testing.T) {
 	}
 	s.Close()
 	wg.Wait()
+}
+
+func TestFailedTurnSealsPendingToolsAndAllowsFreshSpeech(t *testing.T) {
+	emitted := 0
+	s := NewSession(context.Background(), "session", "en-US", func(Event) error { emitted++; return nil })
+	defer s.Close()
+	turn := s.BeginTurn()
+	classify(t, s)
+	blocked := make(chan struct{})
+	done := make(chan error)
+	invocation := call(s, `{"query":"milk"}`)
+	go func() { _, err := s.Search(invocation, &fixtureCatalog{delay: blocked}); done <- err }()
+	if !s.FailTurn(turn) || s.FailTurn(turn) {
+		t.Fatal("failed turn was not sealed exactly once")
+	}
+	close(blocked)
+	if err := <-done; err == nil || emitted != 0 {
+		t.Fatal("failed turn published pending search", err)
+	}
+	if s.AudioAllowed(turn) || s.RegisterClassification(turn, "classification-attempt-late", "conversation") == nil {
+		t.Fatal("failed turn unlocked output")
+	}
+	next := s.BeginTurn()
+	if s.FailTurn(turn) {
+		t.Fatal("late failure cancelled a fresh turn")
+	}
+	if err := s.RegisterClassification(next, "classification-attempt-fresh", "conversation"); err != nil || !s.AudioAllowed(next) {
+		t.Fatal("healthy connection could not continue", err)
+	}
+}
+
+func TestSpeechEnergyMatchesBrowserRMSBoundary(t *testing.T) {
+	for _, tc := range []struct {
+		level  int16
+		stride int
+		want   bool
+	}{{400, 1, false}, {499, 1, false}, {500, 1, true}, {2000, 8, true}} {
+		pcm := make([]byte, 3200)
+		for i := 0; i < 1600; i += tc.stride {
+			binary.LittleEndian.PutUint16(pcm[2*i:], uint16(tc.level))
+		}
+		if got := voiced(pcm); got != tc.want {
+			t.Fatalf("level %d stride %d: got %v", tc.level, tc.stride, got)
+		}
+	}
 }

@@ -71,6 +71,13 @@ func TestGatewayBridgeACKAndVerifiedEvents(t *testing.T) {
 				return
 			}
 			if event["type"] == "text" {
+				if event["text"] == "recoverable-timeout" {
+					_ = conn.WriteJSON(Event{"type": "error", "session_id": sid, "turn_id": event["turn_id"], "code": "TURN_TIMEOUT", "retryable": true})
+					// Even a provider's late output must not revive this turn.
+					_ = conn.WriteJSON(Event{"type": "audio_start", "session_id": sid, "turn_id": event["turn_id"], "generation_id": "generation-2"})
+					_ = conn.WriteMessage(websocket.BinaryMessage, []byte{1, 0})
+					continue
+				}
 				_ = conn.WriteJSON(Event{"type": "classification_completed", "session_id": sid, "turn_id": event["turn_id"], "classification_attempt_id": "classification-attempt-0001", "result": Event{"intent": "find_item", "abstained": false}})
 			}
 			if event["type"] == "classification_registered" {
@@ -159,6 +166,47 @@ func TestGatewayBridgeACKAndVerifiedEvents(t *testing.T) {
 	}
 	if !candidates {
 		t.Fatal("audio without verified candidate event")
+	}
+	// One turn can fail without terminating the actual browser/bridge socket.
+	_ = conn.WriteJSON(Event{"type": "text", "session_id": sid, "text": "recoverable-timeout"})
+	for {
+		kind, raw, err := conn.ReadMessage()
+		if err != nil {
+			t.Fatal("turn timeout disconnected", err)
+		}
+		if kind == websocket.BinaryMessage {
+			t.Fatal("failed turn leaked audio")
+		}
+		var e Event
+		_ = json.Unmarshal(raw, &e)
+		if e["type"] == "error" {
+			if e["code"] != "TURN_TIMEOUT" || e["turn_id"] != "turn-2" {
+				t.Fatalf("wrong timeout event: %v", e)
+			}
+			break
+		}
+	}
+	_ = conn.WriteJSON(Event{"type": "ping", "session_id": sid})
+	var pongEvent Event
+	if err = conn.ReadJSON(&pongEvent); err != nil || pongEvent["type"] != "pong" {
+		t.Fatal("failed turn lost heartbeat", err, pongEvent)
+	}
+	_ = conn.WriteJSON(Event{"type": "text", "session_id": sid, "text": "milk"})
+	recovered := false
+	for !recovered {
+		kind, raw, err := conn.ReadMessage()
+		if err != nil {
+			t.Fatal("fresh turn disconnected", err)
+		}
+		if kind == websocket.BinaryMessage {
+			recovered = true
+			continue
+		}
+		var e Event
+		_ = json.Unmarshal(raw, &e)
+		if e["type"] == "error" {
+			t.Fatalf("fresh turn failed: %v", e)
+		}
 	}
 	// Malformed PCM must produce an explicit unsupported-data close.
 	_ = conn.WriteMessage(websocket.BinaryMessage, []byte{1})

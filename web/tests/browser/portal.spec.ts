@@ -27,6 +27,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
       createBufferSource() { return Object.assign(new Node(), { buffer: null, onended: null, start() { metrics.played++; }, stop() { metrics.flushed++; } }); }
     };
     (window as any).AudioWorkletNode = class extends Node {
+      constructor(){super();(window as any).__captureNode=this;}
       port = { onmessage: null, postMessage(value: string) { metrics.capture = value === 'start'; }, close() {} };
     };
   }, { denied: options.denied ?? false });
@@ -213,4 +214,37 @@ test('mobile voice controls clear the virtual keyboard and retain 44px targets',
   for(const button of await page.locator('.mobile-voice-dock button').all()){
     const bounds=await button.boundingBox(); expect(bounds!.width).toBeGreaterThanOrEqual(44); expect(bounds!.height).toBeGreaterThanOrEqual(44);
   }
+});
+
+
+test('one timed-out voice turn keeps the microphone and session usable',async({page})=>{
+  const f=await fixture(page); await f.start();
+  f.send('interrupted');
+  f.send('error',{turn_id:'turn-1',code:'TURN_TIMEOUT',message:'private detail must not render',retryable:true});
+  await expect(page.locator('.desktop-voice')).toContainText('please ask again');
+  await expect(page.getByRole('button',{name:'End voice',exact:true})).toBeVisible();
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(true);
+  f.send('candidates');
+  await expect(page.locator('.product-card')).toHaveCount(0);
+  f.send('interrupted',{turn_id:'turn-2',generation_id:'generation-2'});
+  f.send('candidates',{turn_id:'turn-2'});f.send('route',{turn_id:'turn-2'});
+  await expect(page.locator('.verified-location')).toContainText('Route found');
+  expect(f.tickets()).toBe(1);expect(await page.evaluate(()=>(window as any).__audio.opened)).toBe(1);
+  await page.getByRole('button',{name:'End voice',exact:true}).click();
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);
+});
+
+
+test('quiet microphone PCM cannot discard a reply without a server turn change',async({page})=>{
+  const f=await fixture(page);await f.start();f.send('interrupted');
+  f.send('audio_start');f.binary();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(1);
+  await page.evaluate(()=>{
+    const quiet=new Int16Array(1600).fill(400);
+    (window as any).__captureNode.port.onmessage({data:quiet.buffer});
+  });
+  f.binary();f.send('output_transcript',{text:'The reply is still playing.',final:true});
+  await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(2);
+  await expect(page.locator('.desktop-voice')).toContainText('The reply is still playing.');
+  await page.getByRole('button',{name:'End voice',exact:true}).click();
 });

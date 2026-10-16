@@ -61,3 +61,16 @@ Foundation contract snapshot source: TASK-0001's 2026-10-13 local handoff,
 under `agent/tests/contracts/provenance.json`, including the 16 October response-mode
 amendment and its original handoff hash. Final foundation/Grok acceptance
 and a clean rebase remain integration gates.
+
+
+## Recoverable turn failure
+
+ADK may send the existing `error` envelope with `code: "TURN_TIMEOUT"`, matching
+`session_id` and the current `turn_id`. Go seals/cancels only that turn, flushes its
+queued output and forwards a normalized safe message. Late classification, tools
+and audio cannot unlock the failed turn. A fresh speech/text/select turn resets
+this state; the provider socket, microphone and admission slot stay alive within
+the existing session/idle limits. Unknown/fatal provider errors still close the
+session. The browser treats only this explicitly allowed code as turn recovery.
+The public JSON error shape is unchanged; its code string already permits this
+additive value. Browser capture uses the same RMS >=500 speech test as Go.

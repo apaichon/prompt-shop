@@ -59,8 +59,10 @@ export class BrowserAudio implements AudioEngine {
     this.node.port.onmessage = ({ data }) => {
       if (this.closed || !(data instanceof ArrayBuffer)) return;
       const view = new DataView(data); let energy = 0;
-      for (let i = 0; i < view.byteLength; i += 2) energy += Math.abs(view.getInt16(i, true));
-      onFrame(data, energy / Math.max(1, view.byteLength / 2) > 350);
+      // Match the Go relay's RMS detector exactly. A more sensitive client
+      // would flush valid playback while the server remains on the old turn.
+      for (let i = 0; i < view.byteLength; i += 2) { const sample = view.getInt16(i, true); energy += sample * sample; }
+      onFrame(data, Math.sqrt(energy / Math.max(1, view.byteLength / 2)) >= 500);
     };
     this.stream!.getTracks().forEach((track) => { track.onended = onFailure; });
   }

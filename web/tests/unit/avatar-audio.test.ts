@@ -21,7 +21,8 @@ function playbackFixture() {
     createBuffer = (_channels: number, length: number) => ({ getChannelData: () => new Float32Array(length) });
     createBufferSource = () => { const source = { ...node(), onended: null as null | (() => void), start: vi.fn(), stop: vi.fn() }; sources.push(source); return source; };
   }
-  class Worklet { connect=vi.fn(); disconnect=vi.fn(); port={onmessage:null,postMessage:vi.fn(),close:vi.fn()}; }
+  const worklets: any[] = [];
+  class Worklet { constructor() {worklets.push(this);} connect=vi.fn(); disconnect=vi.fn(); port={onmessage:null,postMessage:vi.fn(),close:vi.fn()}; }
   vi.stubGlobal('window', { isSecureContext: true, AudioContext: Context, AudioWorkletNode: Worklet, matchMedia: () => ({matches:reduced}) });
   vi.stubGlobal('document', {hidden:false});
   vi.stubGlobal('navigator', {mediaDevices:{getUserMedia:async()=>({getTracks:()=>[track],getAudioTracks:()=>[track]})}});
@@ -29,7 +30,7 @@ function playbackFixture() {
   vi.stubGlobal('requestAnimationFrame',(callback:FrameRequestCallback)=>{frames.set(++next,callback);return next;});
   vi.stubGlobal('cancelAnimationFrame',(id:number)=>frames.delete(id));
   const step = () => { const [id, callback]=[...frames.entries()][0]; frames.delete(id); callback(0); };
-  return {audio:new BrowserAudio(),frames,sources,analyser,track,step,setAmplitude:(value:number)=>amplitude=value,setReduced:()=>reduced=true};
+  return {audio:new BrowserAudio(),worklets,frames,sources,analyser,track,step,setAmplitude:(value:number)=>amplitude=value,setReduced:()=>reduced=true};
 }
 
 describe('avatar output follows playback lifecycle',()=>{
@@ -63,5 +64,22 @@ describe('avatar output follows playback lifecycle',()=>{
     expect(avatarPose('idle',1)).toBe(avatarPose('idle',0));
     expect(avatarPose('listening',1)).toBe(avatarPose('listening',0));
     expect(avatarPose('speaking',1)).not.toBe(avatarPose('speaking',.5));
+  });
+});
+
+
+describe('microphone activity matches the Go relay',()=>{
+  it('uses RMS 500 so quiet noise cannot mute a reply while the server keeps the same turn',async()=>{
+    const f=playbackFixture(),frame=vi.fn();await f.audio.open(frame,vi.fn(),vi.fn());
+    const send=(value:number,stride=1)=>{
+      const pcm=new Int16Array(1600);
+      for(let i=0;i<pcm.length;i+=stride)pcm[i]=value;
+      f.worklets[0].port.onmessage({data:pcm.buffer});
+    };
+    send(400);expect(frame.mock.calls.at(-1)?.[1]).toBe(false);
+    send(499);expect(frame.mock.calls.at(-1)?.[1]).toBe(false);
+    send(500);expect(frame.mock.calls.at(-1)?.[1]).toBe(true);
+    send(2000,8);expect(frame.mock.calls.at(-1)?.[1]).toBe(true);
+    f.audio.close();
   });
 });
