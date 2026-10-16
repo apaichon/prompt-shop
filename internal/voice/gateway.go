@@ -353,11 +353,11 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 				if json.Unmarshal(event["result"], &result) != nil {
 					return errors.New("INVALID_REQUEST")
 				}
-				intent := ""
-				if result.Intent != nil {
-					intent = *result.Intent
+				var responseMode string
+				if raw, present := event["response_mode"]; present && json.Unmarshal(raw, &responseMode) != nil {
+					return errors.New("INVALID_REQUEST")
 				}
-				if s.RegisterClassification(turn, attempt, intent, result.Abstained) != nil {
+				if s.RegisterClassification(turn, attempt, responseMode) != nil {
 					continue
 				}
 				if err = bridgeEvent(Event{"type": "classification_registered", "turn_id": turn, "classification_attempt_id": attempt}); err != nil {

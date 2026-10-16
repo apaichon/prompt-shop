@@ -34,8 +34,35 @@ func call(s *Session, args string) Call {
 }
 func classify(t *testing.T, s *Session) {
 	t.Helper()
-	if err := s.RegisterClassification(s.Turn(), "classification-attempt-0001", "find_item", false); err != nil {
+	if err := s.RegisterClassification(s.Turn(), "classification-attempt-0001", "catalog"); err != nil {
 		t.Fatal(err)
+	}
+}
+func TestConversationModeResetsBeforeCatalogAndAcrossTurns(t *testing.T) {
+	s := NewSession(context.Background(), "session", "en-US", nil)
+	defer s.Close()
+	turn := s.BeginTurn()
+	if err := s.RegisterClassification(turn, "classification-attempt-0001", "arbitrary"); err == nil || s.AudioAllowed(turn) {
+		t.Fatal("unknown response mode accepted")
+	}
+	if err := s.RegisterClassification(turn, "classification-attempt-0001", "conversation"); err != nil || !s.AudioAllowed(turn) {
+		t.Fatal("acknowledged conversation did not unlock reply", err)
+	}
+	catalog := &fixtureCatalog{products: []Product{{ID: "milk"}}}
+	result, err := s.Search(call(s, `{"query":"milk"}`), catalog)
+	if err != nil || s.AudioAllowed(turn) {
+		t.Fatal("unique product bypassed route gate after conversation", err)
+	}
+	if _, err := s.Route(call(s, `{"product_id":"milk","search_id":"`+result.SearchID+`"}`), catalog); err != nil || !s.AudioAllowed(turn) {
+		t.Fatal("verified route did not unlock reply", err)
+	}
+	next := s.BeginTurn()
+	if s.AudioAllowed(next) || s.AudioAllowed(turn) {
+		t.Fatal("new turn inherited conversation/route permission")
+	}
+	// Older peers with no mode fail closed to catalog rather than general chat.
+	if err := s.RegisterClassification(next, "classification-attempt-0002", ""); err != nil || s.AudioAllowed(next) {
+		t.Fatal("missing response mode unlocked reply", err)
 	}
 }
 func TestToolsRequireClassificationSelectionAndCurrentEpoch(t *testing.T) {

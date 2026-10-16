@@ -140,14 +140,20 @@ func (s *Session) Authenticate(capability string) bool {
 	defer s.mu.Unlock()
 	return !s.closed && len(capability) >= 32 && subtle.ConstantTimeCompare([]byte(s.capability), []byte(capability)) == 1
 }
-func (s *Session) RegisterClassification(turn Epoch, attempt, intent string, abstained bool) error {
+func (s *Session) RegisterClassification(turn Epoch, attempt, responseMode string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.closed || s.turn != turn || turn == 0 || s.classification != "" || len(attempt) < 16 || len(attempt) > 128 {
 		return ErrStale
 	}
+	if responseMode == "" {
+		responseMode = "catalog"
+	}
+	if responseMode != "catalog" && responseMode != "conversation" {
+		return errors.New("INVALID_REQUEST")
+	}
 	s.classification = attempt
-	s.audioAllowed = intent == "out_of_scope" && !abstained
+	s.audioAllowed = responseMode == "conversation"
 	return nil
 }
 func (s *Session) beginCall(call Call, name string) (context.Context, context.CancelFunc, error) {
@@ -173,6 +179,8 @@ func (s *Session) beginCall(call Call, name string) (context.Context, context.Ca
 	default:
 		return nil, nil, errors.New("INVALID_REQUEST")
 	}
+	// Moving from chat into a catalog operation restores the tool-result gate.
+	s.audioAllowed = false
 	s.calls[call.CallID] = true
 	ctx, cancel := context.WithTimeout(s.turnCtx, 1500*time.Millisecond)
 	return ctx, cancel, nil

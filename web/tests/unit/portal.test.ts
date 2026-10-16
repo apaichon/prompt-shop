@@ -118,6 +118,14 @@ function voiceFixture() {
 }
 afterEach(() => vi.useRealTimers());
 describe('voice lifecycle and bounded transport', () => {
+  it('shows listening for a new utterance and interruption only for a stopped response', async () => {
+    const { voice, socket, ready } = voiceFixture(); await voice.start(); ready();
+    socket.receive(event('interrupted'));
+    expect(get(voice).phase).toBe('listening'); expect(get(voice).message).toBe('Listening to you…');
+    socket.receive(event('audio_start')); socket.receive(new ArrayBuffer(3200));
+    socket.receive(event('interrupted'));
+    expect(get(voice).phase).toBe('interrupted'); voice.stop();
+  });
   it('starts capture after ready only; captions cannot search; Stop invalidates saved callbacks', async () => {
     const { voice, audio, socket, callbacks, ready } = voiceFixture();
     expect(audio.open).not.toHaveBeenCalled(); await voice.start(); expect(audio.capture).not.toHaveBeenCalled(); ready();

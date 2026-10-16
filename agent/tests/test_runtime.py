@@ -81,6 +81,48 @@ async def test_extra_tool_arguments_rejected():
     assert result["error"]["code"] == "INVALID_REQUEST"
 
 
+@pytest.mark.parametrize("mode", ["conversation", "catalog"])
+@pytest.mark.parametrize("reason", ["low_confidence", "timeout"])
+async def test_conversation_can_reply_after_real_abstention_state_and_ack(mode, reason):
+    sent = []
+    async def abstaining(text):
+        return {"schema_version": "intent-v1", "intent": None, "confidence": .4 if reason == "low_confidence" else None,
+                "margin": .07 if reason == "low_confidence" else None, "abstained": True,
+                "reason": reason, "model_revision": "contract-fixture"}
+    async def send(event):
+        sent.append(event)
+    async def transport(request):
+        return httpx.Response(200, json={"candidates": [{"id": "milk"}], "ambiguous": False})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+        host = ToolHost(setup(), send, abstaining, client)
+        host.begin("turn-1")
+        task = asyncio.create_task(BlockingTool("classify_intent", host).run_async(
+            args={"text": "Hello", "response_mode": mode}, tool_context=None))
+        await until(lambda: bool(sent))
+        assert not host.audio_allowed and not task.done()
+        assert sent[-1]["response_mode"] == mode and sent[-1]["result"]["abstained"]
+        host.acknowledge(sent[-1])
+        result = await task
+        assert result["intent"] is None and result["reason"] == reason
+        assert host.audio_allowed == (mode == "conversation")
+        # Entering catalog lookup always restores grounding, even after chat.
+        await host.call("search_catalog", {"query": "milk"})
+        assert not host.audio_allowed
+        host.begin("turn-2")
+        assert not host.audio_allowed and not host.classified
+        await host.close()
+
+
+@pytest.mark.parametrize("mode", ["other", "", None, [], {}])
+async def test_invalid_response_mode_never_reaches_classifier(mode):
+    class Host:
+        async def call(self, *_):
+            pytest.fail("invalid mode reached host")
+    result = await BlockingTool("classify_intent", Host()).run_async(
+        args={"text": "Hello", "response_mode": mode}, tool_context=None)
+    assert result["error"]["code"] == "INVALID_REQUEST"
+
+
 class Bridge:
     def __init__(self, sid):
         self.sid = sid
@@ -198,6 +240,9 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
             assert {d["name"] for d in declarations} == {"classify_intent", "search_catalog", "get_product_route"}
             assert all(d["behavior"] == "BLOCKING" for d in declarations)
             assert all("additional_properties" not in d["parameters"] and "additionalProperties" not in d["parameters"] for d in declarations)
+            classification = next(d for d in declarations if d["name"] == "classify_intent")
+            assert classification["parameters"]["properties"]["response_mode"]["enum"] == ["conversation", "catalog"]
+            assert set(classification["parameters"]["required"]) == {"text", "response_mode"}
             assert "inputAudioTranscription" in config and "outputAudioTranscription" in config
             wire = json.dumps(config)
             for forbidden in ("thinkingConfig", "enableAffectiveDialog", "proactiveAudio", "sessionResumption"):
@@ -258,6 +303,17 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
         await asyncio.sleep(.5)
         assert len(a.audio_times) == before + 1
         assert len([x for x in a.output if isinstance(x, dict) and x["type"] == "turn_complete"]) == completions
+        # The same real Runner can switch from catalog to conversation even
+        # when an advisory shopping label does not recognize a greeting.
+        sockets[0].push({"toolCall": {"functionCalls": [{"id": "classify-2", "name": "classify_intent", "args": {
+            "text": "Hello", "response_mode": "conversation"}}]}})
+        await until(lambda: len([x for x in sockets[0].sent if "tool_response" in x]) >= 4)
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 3200).decode()}}]},
+            "outputTranscription": {"text": "Hello! How can I help?", "finished": True}, "turnComplete": True}})
+        await until(lambda: len([x for x in a.output if isinstance(x, dict) and x["type"] == "turn_complete"]) == completions + 1)
+        assert len(a.audio_times) == before + 2
+        assert a.output[-1]["turn_id"] == "turn-2"
         a.control("stop")
         await asyncio.wait_for(tasks[0], 5)
         assert runtime.active == 1
