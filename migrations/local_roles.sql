@@ -12,3 +12,9 @@ DO $$ BEGIN
  END IF;
 END $$;
 GRANT prompt_shop_voice TO prompt_shop_ticket;
+DO $$ BEGIN
+ IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='prompt_shop_admin') THEN
+  CREATE ROLE prompt_shop_admin LOGIN PASSWORD 'local-admin-only';
+ END IF;
+END $$;
+GRANT prompt_shop_backoffice TO prompt_shop_admin;

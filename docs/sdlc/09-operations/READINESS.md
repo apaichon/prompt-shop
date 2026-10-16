@@ -345,3 +345,55 @@ limitations; no shopper recording is needed.
 A speaker-mode pass does not certify native-provider latency or all disconnect
 causes. The initial Laya check was fast for one caller, while a separate 10-turn
 text run still had one 8-second reply. See TASK-0015 evidence for retained results.
+
+## TASK-0016 shared sign-in and audio devices (local MVP)
+
+1. Run `rtk proxy make mvp-start` (or `mvp-restart` after updating code).
+   The launcher creates ten accounts once when `SHOPPER_AUTH_ENABLED` is empty or
+   true. Open local `tmp/auth/credentials.txt` privately: demo01 is administrator;
+   demo02–demo10 are shoppers. Unique passwords are generated, never printed by
+   the command. Existing credentials survive restart and data reset. Files are
+   owner-only and ignored by git. `rtk proxy make demo-accounts` can provision them
+   separately; set `SHOPPER_ACCOUNTS_FILE` to the absolute accounts.json path for
+   a direct server launch. Explicit false preserves legacy maintainer sign-in.
+2. Open `http://localhost:8080` in a private browser window. Expect a sign-in form,
+   no product/map requests, and no microphone prompt before sign-in. A wrong
+   password shows a generic error. Ten attempts from one IP in a minute trigger
+   a temporary rate limit; wait one minute before continuing.
+3. Sign in as demo02. Confirm map, catalog, typed lookup and Start voice work.
+   Open `/backoffice`: expect Administrator access required. Direct backoffice
+   API requests return 403. Sign out, then sign in as demo01. Open `/backoffice`:
+   expect the catalog editor without a second password. Save a disposable test
+   draft and archive it; do not edit a product another tester is using.
+4. Start voice, then Sign out. Expect microphone capture and playback to stop,
+   shopper content to disappear and replay of the old cookie to return 401.
+   Sign-out from another tab also revokes the voice connection within about one
+   second after server revocation. Sessions expire after eight hours; restarting
+   the server requires fresh sign-in. In-memory sessions are for this single
+   local server, not a distributed authentication service.
+5. Sign in again, open **Audio settings** in Monti's panel (mobile: open the voice
+   assistant first). Click **Enable device names**, grant microphone permission,
+   and confirm the temporary microphone stream stops after enumeration. Select a
+   microphone and speaker. **Test speaker** should play a short quiet tone only
+   through the selected output. Closing settings stops the test.
+6. Start voice. The chosen microphone captures, the chosen speaker plays replies,
+   and device selectors are disabled until End voice. On computer speakers enable
+   **Speaker mode** to suppress feedback; use **Interrupt** to cut a reply short.
+   This remains separate from device selection. Check ten conversational turns
+   including greetings, product lookup and follow-ups; record timing/close codes,
+   not real audio or transcripts.
+7. End voice, resize between desktop/mobile, and confirm device choices remain.
+   Refreshing the page returns to system defaults. Unplug a selected device:
+   active voice must stop and show recovery guidance, with System default selected
+   for a deliberate new session. Permission denial or missing output must leave
+   typed search usable and release any opened microphone.
+8. In a browser without output-selection support, expect System default speaker
+   plus guidance to use OS sound settings. Output selection is feature-detected;
+   see [Chrome AudioContext.setSinkId documentation](https://developer.chrome.com/blog/audiocontext-setsinkid).
+   Physical microphone/speaker behavior still needs this manual check.
+
+Native test scripts accept `NATIVE_ACCOUNTS_FILE` pointing to the private credential
+handout and optionally `NATIVE_USERNAME` (default demo02). Authentication uses the
+browser request context, so credentials never appear in DOM screenshots or logs.
+Do not enable trace/HAR collection with real credentials. Provider keys remain in
+`agent/.env`; shared login adds no browser provider secrets.

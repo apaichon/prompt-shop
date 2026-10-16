@@ -62,3 +62,23 @@ func TestBackofficeConfigIsAllOrNothing(t *testing.T) {
 		t.Fatal("complete configuration rejected")
 	}
 }
+
+func TestSharedAuthConfiguration(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://test")
+	t.Setenv("SHOPPER_AUTH_ENABLED", "true")
+	t.Setenv("SHOPPER_ACCOUNTS_FILE", "")
+	t.Setenv("PUBLIC_ORIGIN", "http://localhost:8080")
+	t.Setenv("ADMIN_PASSWORD_HASH", "")
+	t.Setenv("BACKOFFICE_DATABASE_URL", "postgres://admin")
+	if _, e := Load(); e == nil {
+		t.Fatal("missing file accepted")
+	}
+	t.Setenv("SHOPPER_ACCOUNTS_FILE", "private/accounts.json")
+	if c, e := Load(); e != nil || !c.ShopperAuthEnabled {
+		t.Fatal("complete shared config rejected", e)
+	}
+	t.Setenv("SHOPPER_AUTH_ENABLED", "invalid")
+	if _, e := Load(); e == nil {
+		t.Fatal("invalid flag accepted")
+	}
+}

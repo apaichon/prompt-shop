@@ -1,3 +1,4 @@
+import { AudioDevices, AudioDeviceError, type AudioSelection } from './devices';
 import { writable } from 'svelte/store';
 import { Api, ApiError, errorMessage, recovery } from '../api';
 import { eventSchema, type VoiceEvent } from '../contracts';
@@ -13,6 +14,7 @@ export interface VoiceState {
 }
 const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, speakerMode: false, micHeld: false, remaining: 300, input: '', output: '', outputLevel: 0 });
 export class VoiceClient {
+  readonly devices = new AudioDevices(() => { if(this.state.active)this.stop('A selected audio device disconnected. Check Audio settings, then start voice again.'); });
   private state = initial();
   private store = writable(this.state);
   subscribe = this.store.subscribe;
@@ -65,7 +67,7 @@ export class VoiceClient {
   }
 
   constructor(private callbacks: { event: (event: VoiceEvent) => void; turn: () => void },
-    private api = new Api(), private makeAudio: () => AudioEngine = () => new BrowserAudio(),
+    private api = new Api(), private makeAudio: (selection: AudioSelection) => AudioEngine = selection => new BrowserAudio(selection),
     private makeSocket: (url: string, protocol: string) => WebSocket = (url, protocol) => new WebSocket(url, protocol),
     private origin: () => string = () => window.location.origin) {}
   private patch(patch: Partial<VoiceState>) { this.state = { ...this.state, ...patch }; this.store.set(this.state); }
@@ -76,7 +78,8 @@ export class VoiceClient {
     this.stop();
     const token = this.nonce;
     const current = () => token === this.nonce;
-    const audio = this.makeAudio(); this.audio = audio;
+    this.devices.cancel();
+    const audio = this.makeAudio(this.devices.selection()); this.audio = audio;
     const abort = new AbortController(); this.abort = abort;
     this.setupDeadline = Date.now() + 30000;
     this.patch({ ...initial(), speakerMode: this.state.speakerMode, phase: 'connecting', active: true, message: 'Allow microphone access to begin.' });
@@ -101,7 +104,7 @@ export class VoiceClient {
     } catch (error) {
       if (!current()) return;
       if (error instanceof ApiError && error.retryAfter) this.cooldown = Date.now() + error.retryAfter * 1000;
-      this.fail(error instanceof ApiError ? errorMessage(error) : 'Microphone or speaker access was not available. Check site permissions, then restart voice or type an item.');
+      this.fail(error instanceof AudioDeviceError ? error.message : error instanceof ApiError ? errorMessage(error) : 'Microphone or speaker access was not available. Check site permissions, then restart voice or type an item.');
     }
   }
   stop(message = '') {

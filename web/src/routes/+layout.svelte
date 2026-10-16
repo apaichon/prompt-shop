@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import ShopperGate from '#lib/components/ShopperGate.svelte';
   import Icon from '#lib/components/Icon.svelte';
   import '../app.css';
   let { children } = $props();
@@ -13,5 +14,5 @@
   </nav>
   <span class="store-badge"><Icon name="pin" size={15} /> Sample store</span>
 </header>{/if}
-{@render children()}
+<ShopperGate {children} adminOnly={page.url.pathname.startsWith('/backoffice')} />
 {#if page.url.pathname !== '/'}<footer class="site-footer"><span>Less searching. More finding.</span><span>Directions from the entrance · Sample store map</span></footer>{/if}

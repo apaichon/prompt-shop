@@ -130,5 +130,5 @@ export class Portal {
   }
   startVoice() { this.invalidate(); this.clicked = null; return this.voice.start(); }
   stopVoice() { this.invalidate(); this.voice.stop(); }
-  destroy() { this.alive = false; this.stopVoice(); this.mapEpoch++; this.mapRequest?.abort(); this.unsubscribe(); }
+  destroy() { this.alive = false; this.stopVoice(); this.mapEpoch++; this.mapRequest?.abort(); this.unsubscribe(); this.voice.devices.destroy(); }
 }

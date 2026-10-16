@@ -41,7 +41,7 @@ if(!process.env.NATIVE_VOICE_WAV)throw new Error('Set NATIVE_VOICE_WAV to the sy
   });
  });
  try{
-  await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');
+  await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');await require('./auth.cjs').signIn(page);
   await page.getByRole('button',{name:'Start voice',exact:true}).first().click();
   const deadline=Date.now()+110000;
   while(Date.now()<deadline&&!closed&&!(route&&Object.values(turns).filter(t=>t.complete&&t.audio_bytes).length>=4))await page.waitForTimeout(200);

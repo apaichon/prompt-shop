@@ -27,6 +27,7 @@ type GatewayConfig struct {
 	Origin, BridgeSecret string
 	Enabled              bool
 	AllowLocalHTTP       bool
+	SessionValidator     func(*fiber.Ctx) func() bool
 }
 type Gateway struct {
 	config   GatewayConfig
@@ -123,6 +124,13 @@ func publicError(c *fiber.Ctx, status int, code string) error {
 	return c.Status(status).JSON(Event{"error": Event{"code": code, "message": "Voice unavailable; retry or use typed search.", "retryable": status >= 500}, "request_id": c.GetRespHeader("X-Request-ID")})
 }
 func (g *Gateway) upgrade(c *fiber.Ctx) error {
+	var authorized func() bool
+	if g.config.SessionValidator != nil {
+		authorized = g.config.SessionValidator(c)
+		if authorized == nil || !authorized() {
+			return publicError(c, 401, "AUTH_REQUIRED")
+		}
+	}
 	if !g.config.Enabled {
 		return publicError(c, 503, "DEPENDENCY_UNAVAILABLE")
 	}
@@ -153,7 +161,7 @@ func (g *Gateway) upgrade(c *fiber.Ctx) error {
 	upgrader := websocket.FastHTTPUpgrader{Subprotocols: []string{Protocol}, CheckOrigin: func(ctx *fasthttp.RequestCtx) bool {
 		return string(ctx.Request.Header.Peek("Origin")) == g.config.Origin
 	}}
-	err = upgrader.Upgrade(c.Context(), func(client *websocket.Conn) { defer g.active.Add(-1); g.relay(client, t) })
+	err = upgrader.Upgrade(c.Context(), func(client *websocket.Conn) { defer g.active.Add(-1); g.relay(client, t, authorized) })
 	if err != nil {
 		g.active.Add(-1)
 		return publicError(c, 400, "INVALID_REQUEST")
@@ -215,7 +223,7 @@ func (q *outbox) pop(ctx context.Context) (frame, error) {
 }
 func (q *outbox) flush() { q.mu.Lock(); q.frames = nil; q.bytes = 0; q.mu.Unlock() }
 
-func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
+func (g *Gateway) relay(client *websocket.Conn, t Ticket, authorized func() bool) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	defer client.Close()
@@ -541,6 +549,9 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 			case <-ctx.Done():
 				return ctx.Err()
 			case now := <-ticker.C:
+				if authorized != nil && !authorized() {
+					return errors.New("SESSION_EXPIRED")
+				}
 				if !ready.Load() && now.Sub(startTime) >= 30*time.Second {
 					return errors.New("SETUP_TIMEOUT")
 				}

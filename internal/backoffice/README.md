@@ -77,3 +77,13 @@ Tests cover cookie attributes, anonymous/invalid/expired/logout denial, CSRF/Ori
 ## Reuse
 
 Monti reference `excerpts/backoffice-catalog.ts.txt` informs catalog pagination, editor state and draft transitions. `excerpts/catalog-validation.go.txt` informs trim/length/state validation. New code replaces source tenant/commerce dependencies with our schema, CSRF and version contracts. The source snapshot is unchanged; MIT attribution remains in web/static/MONTI-LICENSE.txt and web/NOTICE.md. See references/monti-jarvis/MANIFEST.json for exact source paths, line spans and hashes. The new helper module uses the official [bcrypt API](https://pkg.go.dev/golang.org/x/crypto/bcrypt) and [pgx transaction API](https://pkg.go.dev/github.com/jackc/pgx/v5#TxOptions); actual installed versions are locked in go.mod/go.sum.
+
+
+## Shared local MVP accounts
+
+`make mvp-start` now provisions ten demo accounts and the local least-privilege
+backoffice login. Use demo01 from `tmp/auth/credentials.txt` to enter both pages;
+demo02–demo10 cannot edit the catalog. With SHOPPER_AUTH_ENABLED=true, the legacy
+maintainer-password endpoint is disabled. Shared login rotates a database session
+with the same opaque token hash and CSRF token; logout revokes both layers.
+The legacy setup above remains available only with shared authentication disabled.

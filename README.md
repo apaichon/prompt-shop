@@ -62,6 +62,12 @@ TASK-0001 database/import and health setup is documented in [TASK-0001-HANDOFF.m
 
 Backoffice setup and verification: [internal/backoffice/README.md](internal/backoffice/README.md).
 
+Local MVP startup generates ten demo accounts once in private `tmp/auth/credentials.txt`.
+Use `demo01` for shopper + backoffice access, or `demo02`–`demo10` for shopping/voice.
+Both pages require sign-in. In Monti's panel, open **Audio settings** to select a
+microphone/speaker and test output before starting voice. Unsupported browsers use
+the system output. See [manual authentication/device checks](docs/sdlc/09-operations/READINESS.md#task-0016-shared-sign-in-and-audio-devices-local-mvp).
+
 ## Local infrastructure commands
 
 For a functional voice MVP, configure `agent/.env` and the pinned Laya bundle as described in [initial testing](docs/INITIAL-TESTING.md), then use `rtk proxy make mvp-start`. `mvp-status`, `mvp-stop` and `mvp-restart` manage the three application processes; stop retains PostgreSQL. The commands below manage PostgreSQL only.

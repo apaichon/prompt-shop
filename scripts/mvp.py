@@ -19,7 +19,7 @@ SECRETS = {"GOOGLE_API_KEY", "ADK_BRIDGE_SECRET", "LAYA_INTERNAL_TOKEN", "DATABA
 PORTS = {"go": 8080, "adk": 8001, "laya": 8003}
 ENV_KEYS = {
     "go": {"DATABASE_URL", "BACKOFFICE_DATABASE_URL", "PUBLIC_ORIGIN", "ADMIN_PASSWORD_HASH", "STATIC_DIR",
-           "PORT", "READINESS_MODE", "VOICE_ENABLED", "VOICE_ALLOW_LOCAL_HTTP", "TICKET_DATABASE_URL", "ADK_BRIDGE_SECRET"},
+           "SHOPPER_AUTH_ENABLED", "SHOPPER_ACCOUNTS_FILE", "PORT", "READINESS_MODE", "VOICE_ENABLED", "VOICE_ALLOW_LOCAL_HTTP", "TICKET_DATABASE_URL", "ADK_BRIDGE_SECRET"},
     "adk": {"GOOGLE_API_KEY", "GEMINI_MODEL", "GEMINI_VOICE", "ADK_BRIDGE_SECRET", "LAYA_INTERNAL_TOKEN"},
     "laya": {"LAYA_MODEL_PATH", "LAYA_INTERNAL_TOKEN"},
 }
@@ -142,6 +142,16 @@ def configure():
     set_key(intent_file, "LAYA_MODEL_PATH", str(model))
     set_key(intent_file, "LAYA_INTERNAL_TOKEN", token)
     intent_file.chmod(0o600)
+    if (values.get("SHOPPER_AUTH_ENABLED") or "true").lower() == "true":
+        account_path = values.get("SHOPPER_ACCOUNTS_FILE")
+        if not account_path:
+            account_dir = ROOT / "tmp/auth"
+            run("go", "run", "./cmd/demo-accounts", account_dir)
+            account_path = str(account_dir / "accounts.json")
+        if not values.get("BACKOFFICE_DATABASE_URL"):
+            set_key(file, "BACKOFFICE_DATABASE_URL", f"postgres://prompt_shop_admin:local-admin-only@127.0.0.1:{port}/{database}?sslmode=disable")
+        set_key(file, "SHOPPER_AUTH_ENABLED", "true")
+        set_key(file, "SHOPPER_ACCOUNTS_FILE", account_path)
     return dotenv_values(file), dotenv_values(agent_file), dotenv_values(intent_file)
 
 

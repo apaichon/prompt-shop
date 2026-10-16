@@ -18,14 +18,14 @@ export class BackofficeApi {
   async request<T>(path:string,schema:z.ZodType<T>|null,method='GET',body?:unknown):Promise<T>{
     let response:Response;
     try{response=await this.fetcher(path,{method,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',...(body!==undefined?{'Content-Type':'application/json'}:{}),...(method!=='GET'&&this.csrf?{'X-CSRF-Token':this.csrf}:{})},body:body===undefined?undefined:JSON.stringify(body)})}catch{throw new BackofficeError('DEPENDENCY_UNAVAILABLE')}
-    if(!response.ok){let value:any;try{value=await response.json()}catch{};const code=typeof value?.error?.code==='string'?value.error.code:'DEPENDENCY_UNAVAILABLE';if(code==='AUTH_REQUIRED')this.csrf='';const delay=Number(response.headers.get('Retry-After'));throw new BackofficeError(code,Number.isFinite(delay)?Math.min(3600,Math.max(0,delay)):0)}
+    if(!response.ok){let value:any;try{value=await response.json()}catch{};const code=typeof value?.error?.code==='string'?value.error.code:'DEPENDENCY_UNAVAILABLE';if(code==='AUTH_REQUIRED'){this.csrf='';if(typeof window!=='undefined')window.dispatchEvent(new Event('shop-auth-required'));}const delay=Number(response.headers.get('Retry-After'));throw new BackofficeError(code,Number.isFinite(delay)?Math.min(3600,Math.max(0,delay)):0)}
     if(!schema){if(response.status!==204)throw new BackofficeError('INVALID_RESPONSE');return undefined as T}
     const raw=await response.text();if(raw.length>1000000)throw new BackofficeError('INVALID_RESPONSE');let value;try{value=JSON.parse(raw)}catch{throw new BackofficeError('INVALID_RESPONSE')}
     const parsed=schema.safeParse(value);if(!parsed.success)throw new BackofficeError('INVALID_RESPONSE');return parsed.data;
   }
   async session(){const s=await this.request('/api/backoffice/session',session);this.csrf=s.csrf_token;return s}
   async login(password:string){const s=await this.request('/api/backoffice/session',session,'POST',{password});this.csrf=s.csrf_token;return s}
-  async logout(){await this.request('/api/backoffice/session',null,'DELETE');this.csrf=''}
+  async logout(){await this.request('/api/backoffice/session',null,'DELETE');this.csrf='';if(typeof window!=='undefined')window.dispatchEvent(new Event('shop-auth-required'))}
   list(q='',state='',cursor=''){return this.request('/api/backoffice/products?'+new URLSearchParams({q,state,cursor}),page)}
   shelves(){return this.request('/api/backoffice/shelves',shelves)}
   save(content:Content,id:string,expected_version:number|null){return this.request('/api/backoffice/products'+(expected_version===null?'':'/'+encodeURIComponent(id)),product,expected_version===null?'POST':'PUT',expected_version===null?{id,...content}:{...content,expected_version})}
