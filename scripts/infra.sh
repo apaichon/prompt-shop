@@ -72,6 +72,7 @@ wait_for_db() {
 
 seed_db() {
     rtk proxy env -u GOROOT go run ./cmd/import -migrate -file data/demo-store.json
+    rtk proxy env -u GOROOT go run ./cmd/import -file data/catalog-expansion-v2.json
     compose exec -T db sh -c 'exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' < migrations/roles.sql
     compose exec -T db sh -c 'exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1' < migrations/local_roles.sql
 }

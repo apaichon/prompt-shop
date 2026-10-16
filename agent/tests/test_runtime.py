@@ -289,7 +289,12 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
         paced = a.audio_times[before:]
         assert sum(size for _, size in paced) == 96000
         assert all(size <= 16384 for _, size in paced)
-        assert all(now - prior >= size / 48000 * .95 for (prior, size), (now, _) in zip(paced, paced[1:]))
+        # The cumulative lead is bounded to 120ms, plus scheduler tolerance.
+        elapsed_audio = 0
+        for at, size in paced:
+            assert elapsed_audio <= at - paced[0][0] + .15
+            elapsed_audio += size / 48000
+        assert paced[-1][0] - paced[0][0] >= (96000 - paced[-1][1]) / 48000 - .15
         await until(lambda: len([x for x in a.output if isinstance(x, dict) and x["type"] == "audio_end"]) == 2)
         # Barge-in during a paced multipart event must discard the rest and its
         # obsolete completion without waiting for the entire response to drain.

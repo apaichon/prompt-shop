@@ -35,7 +35,8 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
     const path = new URL(request.request().url()).pathname;
     if(path.startsWith('/api/backoffice/')){await request.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Log in',retryable:false},request_id:'fixture'}});return}
     let body: unknown;
-    if (path === '/api/store-map') body = map;
+    if (path === '/api/products') body = {catalog_version:1,products:[],total:0,page:1,page_size:12,categories:[]};
+    else if (path === '/api/store-map') body = map;
     else if (path === '/api/search') { searches++; body = search; }
     else if (path === '/api/routes') body = route;
     else if (path === '/api/voice/sessions') { tickets++; body = { session_id: 'fixture-session', ticket_expires_at: new Date(Date.now() + 30000).toISOString(), ws_path: '/ws/voice' }; }
@@ -155,7 +156,7 @@ test('real Chromium worklet captures bounded PCM only after ready and stops on E
   const page = await context.newPage(); const f = await fixture(page, { realAudio: true });
   await f.start();
   await expect.poll(() => f.messages.filter(Buffer.isBuffer).length).toBeGreaterThan(2);
-  expect(f.messages.filter(Buffer.isBuffer).every((m) => m.length === 3200)).toBe(true);
+  expect(f.messages.filter(Buffer.isBuffer).every((m) => m.length === 640)).toBe(true);
   await page.getByRole('button', { name: 'End voice' }).click();
   await context.close();
 });
@@ -247,4 +248,60 @@ test('quiet microphone PCM cannot discard a reply without a server turn change',
   await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(2);
   await expect(page.locator('.desktop-voice')).toContainText('The reply is still playing.');
   await page.getByRole('button',{name:'End voice',exact:true}).click();
+});
+
+
+test('published gallery filters, locates, shows same-shelf imagery and falls back on missing artwork',async({page})=>{
+ await fixture(page);
+ const milk=route.product;
+ const almond={...milk,id:'almond-milk-1l',name:'Almond milk 1 L'};
+ const calls:string[]=[];
+ await page.route('**/api/products?**',async r=>{
+  const url=new URL(r.request().url());calls.push(url.search);
+  const shelf=url.searchParams.get('shelf_id');const category=url.searchParams.get('category');
+  await r.fulfill({json:{catalog_version:1,products:shelf?[milk,almond]:category==='Produce'?[]:[milk],total:category==='Produce'&&!shelf?0:shelf?2:1,page:1,page_size:shelf?24:12,categories:[{name:'Dairy',count:1},{name:'Produce',count:1}]}});
+ });
+ await page.reload();
+ const gallery=page.locator('.catalog-browser');
+ await expect(gallery.getByRole('heading',{name:milk.name})).toBeVisible();
+ await expect(gallery.locator('.product-packshot')).toHaveCount(1);
+ await gallery.getByRole('button',{name:'Produce (1 products)',exact:true}).click();
+ await expect(gallery.getByText('No products in this category.')).toBeVisible();
+ await gallery.getByRole('button',{name:'Dairy (1 products)',exact:true}).click();
+ await gallery.getByRole('button',{name:`Show route to ${milk.name}`,exact:true}).click();
+ await expect(page.getByTestId('route-path')).toBeVisible();
+ const shelf=page.locator('.shelf-display');
+ await expect(shelf.getByRole('button',{name:`Show route to ${milk.name}`,exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(shelf.getByRole('button',{name:`Show route to ${almond.name}`,exact:true})).toBeVisible();
+ for(const width of [320,390,768,1280,1440]){
+  await page.setViewportSize({width,height:900});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+
+ expect(calls.some(c=>c.includes('shelf_id='+milk.shelf.id))).toBe(true);
+ await page.route('**/products/*.webp',r=>r.abort());await page.reload();
+ await expect(gallery.locator('.product-packshot')).toHaveCount(0);
+ await expect(gallery.getByText('Category illustration')).toBeVisible();
+});
+
+test('late shelf responses cannot replace a newer selection',async({page})=>{
+ await fixture(page);
+ const milk=route.product;
+ const other={...milk,id:'almond-milk-1l',name:'Almond milk 1 L',shelf:{id:'a02-s01',label:'Shelf 1'}};
+ let oldRequest:import('@playwright/test').Route|undefined;
+ await page.route('**/api/products?**',async r=>{
+  const url=new URL(r.request().url());const shelf=url.searchParams.get('shelf_id');
+  if(shelf===milk.shelf.id){oldRequest=r;return;}
+  await r.fulfill({json:{catalog_version:1,products:shelf?[other]:[milk,other],total:shelf?1:2,page:1,page_size:shelf?24:12,categories:[{name:'Dairy',count:2}]}});
+ });
+ await page.route('**/api/routes',async r=>{const id=r.request().postDataJSON().product_id;await r.fulfill({json:{...route,product:id===other.id?other:milk}});});
+ await page.reload();const gallery=page.locator('.catalog-browser');
+ await gallery.getByRole('button',{name:`Show route to ${milk.name}`,exact:true}).click();
+ await expect.poll(()=>!!oldRequest).toBe(true);
+ await gallery.getByRole('button',{name:`Show route to ${other.name}`,exact:true}).click();
+ await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
+ await oldRequest!.fulfill({json:{catalog_version:1,products:[milk],total:1,page:1,page_size:24,categories:[{name:'Dairy',count:2}]}}).catch(()=>{});
+ await expect(page.locator('.shelf-display')).toContainText(other.name);
+ await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
 });

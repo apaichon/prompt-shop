@@ -254,3 +254,27 @@ After submission, retain or remove cloud resources on the owner's agreed date. T
 ## Dated verification gates
 
 Early 14 October cloud staging uses TEST-0010 with ADK/Gemini audio/tools and real Laya classification. Integrated acceptance on 15 October uses TEST-0001/0002/0003/0005 and required TEST-0012. Final 16 October promotion adds TEST-0004 release/rollback evidence. The 17 October package is TEST-0011 and does not block the 16 October deployment. See TASK-0005, TASK-0006, TASK-0008 and TASK-0007 respectively.
+
+
+## Visual catalog and smoother voice check (TASK-0011)
+
+1. Run `rtk proxy make mvp-restart`, then open `http://localhost:8080` and reload.
+   Startup imports the base and additive batches without resetting existing edits.
+2. Confirm **Explore your store** shows **120 products** on an unchanged demo DB
+   (custom published products can increase the count). Browse all eight categories
+   and use Next/Previous. Expect distinct sample packshots and no inactive fixtures.
+3. Choose **Locate item** on Almond milk, avocado or another new item. Confirm the
+   selected card, highlighted walking route and shelf heading agree on stored labels.
+   The colorful shelf panel must show the selected product and published neighbors.
+4. At phone width, confirm two product columns, horizontally scrollable categories
+   and shelf facings, no page overflow, a visible voice dock, and usable Locate buttons.
+   Shelf pictures are illustrations, not physical tier/stock/packaging evidence.
+5. Start voice and say **Hello**, ask a general question, then a meal idea. Expect
+   spoken replies and captions in the same session. Ask **Where is whole milk?** and
+   confirm the spoken/visible aisle and shelf match the stored route.
+6. Interrupt a reply with a new question; confirm old audio stops and the new reply
+   completes without pausing/disconnecting. End voice and confirm the mic stops.
+   Listen for gaps with your actual browser/headset. The four-turn synthetic timing
+   sample improved, but physical-device and 30-trial performance acceptance remain open.
+
+Evidence and remaining limitations: [TASK-0011](../07-tests/evidence/TASK-0011/README.md).

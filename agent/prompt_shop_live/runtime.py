@@ -75,6 +75,7 @@ class Runtime:
         gate_since = None
         generation = 0
         audio_open = False
+        output_clock = 0.0
         current_input = ""
         retried = False
 
@@ -148,7 +149,7 @@ class Runtime:
                     raise ValueError("invalid control")
 
         async def events(runner):
-            nonlocal stream, generation, audio_open, gate_since, current_input
+            nonlocal stream, generation, audio_open, gate_since, current_input, output_clock
             self.invocations += 1
             stream = runner.run_live(user_id=setup.session_id, session_id=setup.session_id,
                                      live_request_queue=queue, run_config=run_config(self.settings))
@@ -190,17 +191,18 @@ class Runtime:
                         if not audio_open:
                             await send({"type": "audio_start", **base})
                             audio_open = True
+                            output_clock = time.monotonic()
                         for offset in range(0, len(blob.data), 16384):
                             if generation != event_generation or host.turn != turn:
                                 break
                             chunk = blob.data[offset:offset + 16384]
+                            # Absolute playout clock: retain a small bounded lead
+                            # without adding scheduling/network overhead per chunk.
+                            await asyncio.sleep(max(0, output_clock - time.monotonic() - .12))
+                            if generation != event_generation or host.turn != turn:
+                                break
                             await send(chunk)
-                            # Native audio arrives faster than playback. Apply
-                            # backpressure here, keeping the one-second relay
-                            # and browser bounds rather than enlarging queues.
-                            # The independent reader still handles barge-in;
-                            # cancellation interrupts this wait immediately.
-                            await asyncio.sleep(len(chunk) / 48000)
+                            output_clock = max(output_clock, time.monotonic()) + len(chunk) / 48000
                 if generation != event_generation or host.turn != turn:
                     continue
                 # ADK may yield completion separately from the audio event.

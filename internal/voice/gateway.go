@@ -451,7 +451,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 						speaking = true
 					}
 				}
-				if speaking && !voiced(data) && now.Sub(lastVoiced) >= 500*time.Millisecond {
+				if speaking && !voiced(data) && now.Sub(lastVoiced) >= 350*time.Millisecond {
 					if err = bridgeEvent(Event{"type": "activity_end", "turn_id": s.Turn()}); err != nil {
 						return err
 					}

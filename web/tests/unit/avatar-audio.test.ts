@@ -59,6 +59,14 @@ describe('avatar output follows playback lifecycle',()=>{
     expect(()=>f.audio.play(new ArrayBuffer(16384))).toThrow('Audio backlog');
     f.audio.flush(); f.audio.close(); expect(f.frames.size).toBe(0);
   });
+  it('adds one jitter lead and schedules consecutive chunks without accumulating silence',async()=>{
+    const f=playbackFixture();await f.audio.open(vi.fn(),vi.fn(),vi.fn());
+    f.audio.play(new ArrayBuffer(4800));f.audio.play(new ArrayBuffer(4800));f.audio.play(new ArrayBuffer(4800));
+    expect(f.sources.map(s=>s.start.mock.calls[0][0])).toEqual([.06,.16,.26]);
+    f.audio.flush();f.audio.play(new ArrayBuffer(4800));
+    expect(f.sources.at(-1).start).toHaveBeenCalledWith(.06);
+    f.audio.close();
+  });
   it('cannot use stale or microphone levels to make idle/listening avatars speak',()=>{
     expect(avatarPose('speaking',0)).toBe(avatarPose('idle',0));
     expect(avatarPose('idle',1)).toBe(avatarPose('idle',0));

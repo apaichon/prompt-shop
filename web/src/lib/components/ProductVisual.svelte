@@ -1,9 +1,18 @@
 <script lang="ts">
+  import images from '../product-images.json';
+  export let productID = '';
   export let category = '';
+  let failed = false;
+  $: image = (images as Record<string,{atlas:number;cell:number}>)[productID];
+  $: productID, failed = false;
   export let compact = false;
   $: type = /dairy|milk|beverage/i.test(category) ? 'carton' : /personal|health|clean/i.test(category) ? 'bottle' : 'bag';
 </script>
 <div class="product-visual" class:compact data-type={type} aria-hidden="true">
+  {#if image && !failed}
+    <img class="atlas-preload" src={`/products/atlas-${image.atlas}.webp`} alt="" onerror={() => failed = true} />
+    <div class="product-packshot" style={`background-image:url('/products/atlas-${image.atlas}.webp');background-position:${(image.cell%6)*20}% ${Math.floor(image.cell/6)*100/3}%`}></div>
+  {:else}
   <div class="product-visual-halo"></div>
   <svg viewBox="0 0 180 200" fill="none">
     <ellipse cx="90" cy="184" rx="48" ry="7" fill="#143B7912" />
@@ -23,5 +32,11 @@
       <path d="M89 143v-36m0 12c-13 0-18-7-18-13 12 0 18 5 18 13Zm0 12c13 0 18-7 18-13-12 0-18 5-18 13Z" stroke="#376E5A" stroke-width="3" stroke-linecap="round" />
     {/if}
   </svg>
-  {#if !compact}<span class="illustration-label">Category illustration</span>{/if}
+  {/if}
+  {#if !compact}<span class="illustration-label">{image && !failed ? 'Sample product image' : 'Category illustration'}</span>{/if}
 </div>
+
+<style>
+ .atlas-preload {position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+ .product-packshot {width:100%;aspect-ratio:1;max-width:240px;background-size:600% 400%;background-repeat:no-repeat;mix-blend-mode:multiply}
+</style>

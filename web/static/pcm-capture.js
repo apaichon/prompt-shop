@@ -5,7 +5,7 @@ class PcmCapture extends AudioWorkletProcessor {
     super();
     this.ratio = sampleRate / 16000;
     this.sum = 0; this.weight = 0; this.offset = 0;
-    this.frame = new ArrayBuffer(3200);
+    this.frame = new ArrayBuffer(640);
     this.view = new DataView(this.frame);
     this.enabled = false;
     this.port.onmessage = ({ data }) => {
@@ -25,9 +25,9 @@ class PcmCapture extends AudioWorkletProcessor {
           const value = Math.max(-1, Math.min(1, this.sum / this.ratio));
           this.view.setInt16(this.offset, Math.round(value < 0 ? value * 32768 : value * 32767), true);
           this.offset += 2; this.sum = 0; this.weight = 0;
-          if (this.offset === 3200) {
+          if (this.offset === 640) {
             this.port.postMessage(this.frame, [this.frame]);
-            this.frame = new ArrayBuffer(3200); this.view = new DataView(this.frame); this.offset = 0;
+            this.frame = new ArrayBuffer(640); this.view = new DataView(this.frame); this.offset = 0;
           }
         }
       }

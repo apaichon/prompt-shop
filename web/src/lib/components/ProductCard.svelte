@@ -7,7 +7,7 @@
   export let choose: (product: Product) => void;
 </script>
 <article class="product-card" class:chosen={selected}>
-  <div class="product-art-wrap"><ProductVisual category={product.category} />
+  <div class="product-art-wrap"><ProductVisual productID={product.id} category={product.category} />
     {#if selected}<span class="selected-badge"><Icon name="check" size={12} />Selected</span>{/if}
   </div>
   <div class="product-card-body"><span class="product-category">{product.category}</span><h3>{product.name}</h3>

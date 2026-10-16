@@ -8,6 +8,12 @@ export const productSchema = z.object({
   id, name: z.string().min(1).max(120), category: z.string().min(1).max(80),
   aisle: label, shelf: label, route_available: z.boolean()
 }).strict();
+export const productListSchema = z.object({
+ catalog_version: version, products: z.array(productSchema).max(24), total: z.number().int().nonnegative(),
+ page: z.number().int().min(1).max(10000), page_size: z.number().int().min(1).max(24),
+ categories: z.array(z.object({name:z.string().min(1).max(80),count:z.number().int().positive()}).strict()).max(10000)
+}).strict();
+export type ProductList = z.infer<typeof productListSchema>;
 export const searchSchema = z.object({
   query: z.string().min(1).max(200), language: z.literal('en-US'), catalog_version: version,
   candidates: z.array(productSchema).max(3), ambiguous: z.boolean()

@@ -111,7 +111,7 @@ export class VoiceClient {
         this.patch({ phase: 'listening', input: '', output: '', message: 'Listening to you…' });
       }
       this.speakingInput = true; this.lastSpeech = now;
-    } else if (this.speakingInput && now - this.lastSpeech >= 500) {
+    } else if (this.speakingInput && now - this.lastSpeech >= 350) {
       this.speakingInput = false; this.patch({ phase: 'thinking', message: 'Thinking…' });
     }
     try { this.socket.send(frame); } catch { this.fail('Voice disconnected. Restart voice or type an item.'); }

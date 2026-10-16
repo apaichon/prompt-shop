@@ -62,6 +62,32 @@ func TestSeededReadonlyCatalogAndHTTP(t *testing.T) {
 		}
 		return res.StatusCode, raw
 	}
+
+	for _, path := range []string{"/api/products?page=0", "/api/products?page_size=25", "/api/products?shelf_id=../secret"} {
+		status, _ := request("GET", path, "")
+		if status != 400 {
+			t.Fatal("invalid browse accepted", path, status)
+		}
+	}
+	statusList, rawList := request("GET", "/api/products?page_size=24", "")
+	var list ProductList
+	if statusList != 200 || json.Unmarshal(rawList, &list) != nil || list.Total < 60 || len(list.Products) > 24 {
+		t.Fatal("published browse unavailable", statusList)
+	}
+	for _, p := range list.Products {
+		if p.ID == "example-draft" || p.ID == "example-archived" {
+			t.Fatal("unpublished browse leaked")
+		}
+	}
+	statusList, rawList = request("GET", "/api/products?shelf_id=a02-s03&page_size=24", "")
+	if statusList != 200 || json.Unmarshal(rawList, &list) != nil {
+		t.Fatal("shelf filter unavailable")
+	}
+	for _, p := range list.Products {
+		if p.Shelf.ID != "a02-s03" {
+			t.Fatal("foreign shelf escaped")
+		}
+	}
 	status, raw := request("GET", "/api/store-map", "")
 	var m StoreMap
 	if status != 200 || json.Unmarshal(raw, &m) != nil || m.Origin != "entrance" || len(m.Aisles) != 8 || len(m.Nodes) == 0 {
