@@ -22,6 +22,7 @@ class ToolHost:
         self.closed = False
         self.failed = False
         self.counts = {}
+        self.flows = set()
 
     def begin(self, turn):
         if not isinstance(turn, str) or not turn.startswith("turn-") or int(turn[5:]) <= int(self.turn[5:]):
@@ -31,6 +32,7 @@ class ToolHost:
         self.turn, self.attempt = turn, None
         self.classified = self.audio_allowed = self.failed = False
         self.counts = {}
+        self.flows = set()
         self.ack = asyncio.Event()
 
     def fail(self, turn):
@@ -94,15 +96,7 @@ class ToolHost:
                 # Laya's four shopping labels are advisory, including abstention.
                 # A conversation has no store facts to verify before replying.
                 self.audio_allowed = response_mode == "conversation"
-                # Model-visible guidance belongs to this completed classification,
-                # not a previous turn. The private classifier DTO remains unchanged.
-                return {**result, "response_mode": response_mode, "next_action": (
-                    "Reply briefly in English now; no store lookup is needed."
-                    if response_mode == "conversation" else
-                    "For a new item or repeated directions, call search_catalog now, then "
-                    "get_product_route with the exact returned IDs. For a selection from "
-                    "pending ambiguous candidates, use that result's exact IDs."
-                )}
+                return result
             if not self.classified or not self.ack.is_set():
                 return tool_error("CLASSIFICATION_REQUIRED")
             self.audio_allowed = False
