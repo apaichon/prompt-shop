@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"github.com/apaichon/prompt-shop/internal/config"
 	"github.com/apaichon/prompt-shop/internal/platform/database"
 	"github.com/apaichon/prompt-shop/internal/platform/httpserver"
+	"github.com/apaichon/prompt-shop/internal/shopauth"
 	"github.com/apaichon/prompt-shop/internal/voice"
 	"github.com/gofiber/fiber/v2"
 )
@@ -40,7 +42,43 @@ func run() int {
 	}
 	deps := httpserver.Dependencies{Checks: checks, ReadinessMode: cfg.ReadinessMode}
 	catalogService := catalog.NewService(pool)
-	registrations := []func(fiber.Router){catalogService.Register}
+	registrations := []func(fiber.Router){}
+	var shopper *shopauth.Auth
+	var adminRepo backoffice.Repository
+	if cfg.ShopperAuthEnabled {
+		accounts, e := shopauth.LoadAccounts(cfg.ShopperAccountsFile)
+		if e != nil {
+			log.Print(e)
+			return 1
+		}
+		shopper, e = shopauth.New(shopauth.Config{Origin: cfg.PortalOrigin, Accounts: accounts,
+			OnLogin: func(ctx context.Context, oldKey, newKey string, s shopauth.Session) error {
+				if adminRepo == nil {
+					if s.Role == "admin" {
+						return errors.New("backoffice unavailable")
+					}
+					return nil
+				}
+				if s.Role == "admin" {
+					return adminRepo.Rotate(ctx, oldKey, newKey, backoffice.Session{ExpiresAt: s.ExpiresAt, CSRFToken: s.CSRF}, time.Now())
+				}
+				return adminRepo.Revoke(ctx, oldKey)
+			}, OnLogout: func(ctx context.Context, key string) error {
+				if adminRepo != nil {
+					return adminRepo.Revoke(ctx, key)
+				}
+				return nil
+			},
+		})
+		if e != nil {
+			log.Print(e)
+			return 1
+		}
+		registrations = append(registrations, shopper.Register)
+	} else {
+		registrations = append(registrations, shopauth.Disabled)
+	}
+	registrations = append(registrations, catalogService.Register)
 	var privateServer *http.Server
 	var privateListener net.Listener
 	privateStopped := make(chan error, 1)
@@ -51,7 +89,11 @@ func run() int {
 			return 1
 		}
 		defer ticketPool.Close()
-		gateway, e := voice.NewGateway(voice.GatewayConfig{Origin: cfg.PortalOrigin, BridgeSecret: cfg.BridgeSecret, Enabled: true, AllowLocalHTTP: cfg.VoiceAllowLocalHTTP}, voice.PostgresTickets{Pool: ticketPool}, catalogService)
+		voiceConfig := voice.GatewayConfig{Origin: cfg.PortalOrigin, BridgeSecret: cfg.BridgeSecret, Enabled: true, AllowLocalHTTP: cfg.VoiceAllowLocalHTTP}
+		if shopper != nil {
+			voiceConfig.SessionValidator = shopper.Validator
+		}
+		gateway, e := voice.NewGateway(voiceConfig, voice.PostgresTickets{Pool: ticketPool}, catalogService)
 		if e != nil {
 			log.Print("voice configuration invalid")
 			return 1
@@ -80,7 +122,16 @@ func run() int {
 			return 1
 		}
 		defer adminPool.Close()
-		admin, e := backoffice.New(backoffice.NewRepository(adminPool), backoffice.Config{Origin: cfg.PortalOrigin, PasswordHash: cfg.MaintainerHash})
+		adminRepo = backoffice.NewRepository(adminPool)
+		adminConfig := backoffice.Config{Origin: cfg.PortalOrigin, PasswordHash: cfg.MaintainerHash}
+		if shopper != nil {
+			adminConfig.SharedSession = func(c *fiber.Ctx) (backoffice.Session, string, bool) {
+				s, key, ok := shopper.AdminSession(c)
+				return backoffice.Session{ExpiresAt: s.ExpiresAt, CSRFToken: s.CSRF}, key, ok
+			}
+			adminConfig.SharedLogout = shopper.Logout
+		}
+		admin, e := backoffice.New(adminRepo, adminConfig)
 		if e != nil {
 			log.Print("backoffice configuration invalid")
 			return 1

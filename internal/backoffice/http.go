@@ -20,6 +20,8 @@ import (
 
 type Config struct {
 	Origin, PasswordHash string
+	SharedSession        func(*fiber.Ctx) (Session, string, bool)
+	SharedLogout         fiber.Handler
 	Now                  func() time.Time
 	Random               io.Reader
 }
@@ -36,7 +38,7 @@ func New(repo Repository, cfg Config) (*API, error) {
 		return nil, errors.New("invalid backoffice origin")
 	}
 	cost, err := bcrypt.Cost([]byte(cfg.PasswordHash))
-	if err != nil || cost != 12 {
+	if cfg.SharedSession == nil && (err != nil || cost != 12) {
 		return nil, errors.New("invalid maintainer password hash: cost 12 required")
 	}
 	if cfg.Now == nil {
@@ -48,9 +50,15 @@ func New(repo Repository, cfg Config) (*API, error) {
 	return &API{repo: repo, cfg: cfg, loginLimit: newLimiter(5, 2), writeLimit: newLimiter(20, 2), compareSlots: make(chan struct{}, 2)}, nil
 }
 func (a *API) Register(r fiber.Router) {
-	r.Post("/api/backoffice/session", a.login)
+	if a.cfg.SharedSession == nil {
+		r.Post("/api/backoffice/session", a.login)
+	}
 	r.Get("/api/backoffice/session", a.protect(false, func(c *fiber.Ctx, s Session, hash string, ctx context.Context) error { return c.JSON(s) }))
-	r.Delete("/api/backoffice/session", a.protect(true, a.logout))
+	if a.cfg.SharedLogout != nil {
+		r.Delete("/api/backoffice/session", a.cfg.SharedLogout)
+	} else {
+		r.Delete("/api/backoffice/session", a.protect(true, a.logout))
+	}
 	r.Get("/api/backoffice/products", a.protect(false, a.list))
 	r.Get("/api/backoffice/shelves", a.protect(false, a.shelves))
 	r.Post("/api/backoffice/products", a.protect(true, a.mutate("create")))
@@ -143,11 +151,20 @@ func (a *API) protect(write bool, next handler) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, cancel := context.WithTimeout(c.UserContext(), 1500*time.Millisecond)
 		defer cancel()
-		raw := c.Cookies(cookieName)
-		if !tokenPattern.MatchString(raw) {
-			return fail(c, errAuth)
+		var hash string
+		if a.cfg.SharedSession != nil {
+			_, key, ok := a.cfg.SharedSession(c)
+			if !ok {
+				return fail(c, &fault{403, "FORBIDDEN", "Administrator access is required."})
+			}
+			hash = key
+		} else {
+			raw := c.Cookies(cookieName)
+			if !tokenPattern.MatchString(raw) {
+				return fail(c, errAuth)
+			}
+			hash = tokenHash(raw)
 		}
-		hash := tokenHash(raw)
 		s, err := a.repo.Session(ctx, hash, a.cfg.Now())
 		if err != nil {
 			return fail(c, err)

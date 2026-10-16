@@ -14,7 +14,9 @@ import (
 	"github.com/apaichon/prompt-shop/internal/backoffice"
 	"github.com/apaichon/prompt-shop/internal/platform/httpserver"
 	"github.com/apaichon/prompt-shop/internal/platform/importer"
+	"github.com/apaichon/prompt-shop/internal/shopauth"
 	"github.com/apaichon/prompt-shop/migrations"
+	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -90,7 +92,7 @@ func run() error {
 		return err
 	}
 	defer assets.Close()
-	app := httpserver.New(httpserver.Dependencies{Register: api.Register, Static: assets.FS(), ReadinessMode: "backoffice-fixture", Checks: []httpserver.Check{admin.Ping}})
+	app := httpserver.New(httpserver.Dependencies{Register: func(r fiber.Router) { shopauth.Disabled(r); api.Register(r) }, Static: assets.FS(), ReadinessMode: "backoffice-fixture", Checks: []httpserver.Check{admin.Ping}})
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return err

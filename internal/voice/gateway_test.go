@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -36,8 +37,16 @@ func TestHTTPVoiceOriginIsExplicitAndLoopbackOnly(t *testing.T) {
 }
 
 func TestGatewayBridgeACKAndVerifiedEvents(t *testing.T) {
+	for _, revoke := range []bool{false, true} {
+		t.Run(fmt.Sprintf("revoke=%v", revoke), func(t *testing.T) { testGatewayBridge(t, revoke) })
+	}
+}
+func testGatewayBridge(t *testing.T, revoke bool) {
+	var authorized atomic.Bool
+	authorized.Store(true)
+
 	tickets := &memoryTickets{}
-	g, err := NewGateway(GatewayConfig{Origin: "https://shop.example", BridgeSecret: strings.Repeat("s", 43), Enabled: true}, tickets, &fixtureCatalog{products: []Product{{ID: "milk"}, {ID: "oat"}}})
+	g, err := NewGateway(GatewayConfig{Origin: "https://shop.example", BridgeSecret: strings.Repeat("s", 43), Enabled: true, SessionValidator: func(*fiber.Ctx) func() bool { return authorized.Load }}, tickets, &fixtureCatalog{products: []Product{{ID: "milk"}, {ID: "oat"}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,12 +217,22 @@ func TestGatewayBridgeACKAndVerifiedEvents(t *testing.T) {
 			t.Fatalf("fresh turn failed: %v", e)
 		}
 	}
-	// Malformed PCM must produce an explicit unsupported-data close.
-	_ = conn.WriteMessage(websocket.BinaryMessage, []byte{1})
-	_, _, err = conn.ReadMessage()
-	if !websocket.IsCloseError(err, websocket.CloseUnsupportedData) {
-		t.Fatalf("invalid PCM close: %v", err)
+	if revoke {
+		authorized.Store(false)
+		_ = conn.SetReadDeadline(time.Now().Add(3 * time.Second))
+		_, _, err = conn.ReadMessage()
+		if !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+			t.Fatalf("revocation close: %v", err)
+		}
+	} else {
+		// Malformed PCM must produce an explicit unsupported-data close.
+		_ = conn.WriteMessage(websocket.BinaryMessage, []byte{1})
+		_, _, err = conn.ReadMessage()
+		if !websocket.IsCloseError(err, websocket.CloseUnsupportedData) {
+			t.Fatalf("invalid PCM close: %v", err)
+		}
 	}
+
 	conn.Close()
 	deadline := time.Now().Add(3 * time.Second)
 	for g.active.Load() != 0 && time.Now().Before(deadline) {

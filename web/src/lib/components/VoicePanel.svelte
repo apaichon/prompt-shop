@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import AudioSettings from './AudioSettings.svelte';
   import Icon from './Icon.svelte';
   import AssistantAvatar from './AssistantAvatar.svelte';
   import { shopBrand } from '../ui-config';
@@ -31,6 +32,7 @@
     </div>
     <p class="speaker-mode-help">{$voice.speakerMode ? 'Mic pauses during replies. Tap Interrupt to speak sooner.' : 'You can interrupt by speaking. Using speakers? Turn on Speaker mode.'}</p>
     {#if $voice.message}<p class="voice-notice" role={$voice.phase === 'error' ? 'alert' : undefined}>{$voice.message}</p>{/if}
+    <AudioSettings {voice} {prefix} />
     <p class="privacy-note"><Icon name="check" size={12} /> Listening starts only when you choose.</p>
   </div>
 </section>

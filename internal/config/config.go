@@ -9,6 +9,8 @@ import (
 type Config struct {
 	DatabaseURL, ListenAddress, ReadinessMode, BackofficeDatabaseURL, PortalOrigin, MaintainerHash, StaticDir string
 	TicketDatabaseURL, BridgeSecret                                                                           string
+	ShopperAccountsFile                                                                                       string
+	ShopperAuthEnabled                                                                                        bool
 	VoiceEnabled, VoiceAllowLocalHTTP                                                                         bool
 }
 
@@ -20,7 +22,17 @@ func Load() (Config, error) {
 	c.StaticDir = os.Getenv("STATIC_DIR")
 	c.TicketDatabaseURL = os.Getenv("TICKET_DATABASE_URL")
 	c.BridgeSecret = os.Getenv("ADK_BRIDGE_SECRET")
+	c.ShopperAccountsFile = os.Getenv("SHOPPER_ACCOUNTS_FILE")
 	var err error
+	if value := os.Getenv("SHOPPER_AUTH_ENABLED"); value != "" {
+		c.ShopperAuthEnabled, err = strconv.ParseBool(value)
+		if err != nil {
+			return c, fmt.Errorf("invalid SHOPPER_AUTH_ENABLED")
+		}
+	}
+	if c.ShopperAuthEnabled && (c.ShopperAccountsFile == "" || c.PortalOrigin == "") {
+		return c, fmt.Errorf("shopper auth requires SHOPPER_ACCOUNTS_FILE and PUBLIC_ORIGIN")
+	}
 	if value := os.Getenv("VOICE_ENABLED"); value != "" {
 		c.VoiceEnabled, err = strconv.ParseBool(value)
 		if err != nil {
@@ -39,7 +51,7 @@ func Load() (Config, error) {
 	if c.VoiceAllowLocalHTTP && os.Getenv("K_SERVICE") != "" {
 		return c, fmt.Errorf("HTTP voice development is local-only")
 	}
-	if (c.BackofficeDatabaseURL != "" || c.MaintainerHash != "") && (c.BackofficeDatabaseURL == "" || c.PortalOrigin == "" || c.MaintainerHash == "") {
+	if (c.BackofficeDatabaseURL != "" || c.MaintainerHash != "") && (c.BackofficeDatabaseURL == "" || c.PortalOrigin == "" || (c.MaintainerHash == "" && !c.ShopperAuthEnabled)) {
 		return c, fmt.Errorf("backoffice requires BACKOFFICE_DATABASE_URL, PUBLIC_ORIGIN and ADMIN_PASSWORD_HASH")
 	}
 	if c.DatabaseURL == "" {

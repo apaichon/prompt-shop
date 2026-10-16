@@ -3,7 +3,10 @@ package backoffice
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/apaichon/prompt-shop/internal/platform/httpserver"
+	"github.com/apaichon/prompt-shop/internal/shopauth"
+	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
@@ -217,5 +220,86 @@ func TestLimitsAndCursorBinding(t *testing.T) {
 	}
 	if _, err := parseFilter("", "", "../../file"); err == nil {
 		t.Fatal("invalid cursor")
+	}
+}
+
+func TestSharedAccountsEnforceAdminAndRevoke(t *testing.T) {
+	repo := &memoryRepository{sessions: map[string]Session{}}
+	accounts := make([]shopauth.Account, 10)
+	for i := range accounts {
+		role := "shopper"
+		if i == 0 {
+			role = "admin"
+		}
+		accounts[i] = shopauth.Account{Username: fmt.Sprintf("demo%02d", i+1), PasswordHash: passwordHash(t), Role: role}
+	}
+	auth, e := shopauth.New(shopauth.Config{Origin: "https://portal.test", Accounts: accounts, OnLogin: func(ctx context.Context, old, new string, s shopauth.Session) error {
+		if s.Role == "admin" {
+			return repo.Rotate(ctx, old, new, Session{ExpiresAt: s.ExpiresAt, CSRFToken: s.CSRF}, time.Now())
+		}
+		return repo.Revoke(ctx, old)
+	}, OnLogout: repo.Revoke})
+	if e != nil {
+		t.Fatal(e)
+	}
+	api, e := New(repo, Config{Origin: "https://portal.test", SharedSession: func(c *fiber.Ctx) (Session, string, bool) {
+		s, key, ok := auth.AdminSession(c)
+		return Session{ExpiresAt: s.ExpiresAt, CSRFToken: s.CSRF}, key, ok
+	}, SharedLogout: auth.Logout})
+	if e != nil {
+		t.Fatal(e)
+	}
+	app := fiber.New()
+	auth.Register(app)
+	api.Register(app)
+	send := func(method, path, body, cookie, csrf string) *http.Response {
+		t.Helper()
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		r.Header.Set("Origin", "https://portal.test")
+		r.Header.Set("Cookie", cookie)
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("X-CSRF-Token", csrf)
+		res, e := app.Test(r, 15000)
+		if e != nil {
+			t.Fatal(e)
+		}
+		t.Cleanup(func() { res.Body.Close() })
+		return res
+	}
+	var adminCookie, csrf string
+	for i := 1; i <= 2; i++ {
+		r := send("POST", "/api/auth/session", fmt.Sprintf(`{"username":"demo%02d","password":"task9-test-password-only"}`, i), "", "")
+		if r.StatusCode != 200 {
+			t.Fatal("login failed")
+		}
+		var s shopauth.Session
+		json.NewDecoder(r.Body).Decode(&s)
+		c := r.Cookies()[0]
+		cookie := c.Name + "=" + c.Value
+		want := 403
+		if i == 1 {
+			want = 200
+			adminCookie = cookie
+			csrf = s.CSRF
+		}
+		if send("GET", "/api/backoffice/products", "", cookie, "").StatusCode != want {
+			t.Fatal("role boundary failed")
+		}
+		if send("POST", "/api/backoffice/products", `{}`, cookie, "").StatusCode != 403 {
+			t.Fatal("CSRF bypass")
+		}
+		legacyWant := 405
+		if r := send("POST", "/api/backoffice/session", `{"password":"task9-test-password-only"}`, cookie, ""); r.StatusCode != legacyWant {
+			t.Fatalf("legacy login status: expected %d got %d", legacyWant, r.StatusCode)
+		}
+	}
+	if len(repo.sessions) != 1 {
+		t.Fatal("admin session bridge missing")
+	}
+	if send("DELETE", "/api/auth/session", "", adminCookie, csrf).StatusCode != 204 || len(repo.sessions) != 0 {
+		t.Fatal("DB logout not revoked")
+	}
+	if send("GET", "/api/backoffice/products", "", adminCookie, "").StatusCode != 401 {
+		t.Fatal("logout replay")
 	}
 }
