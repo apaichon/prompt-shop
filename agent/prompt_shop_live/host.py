@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import secrets
 from collections.abc import Awaitable, Callable
 
@@ -93,7 +94,15 @@ class ToolHost:
                 # Laya's four shopping labels are advisory, including abstention.
                 # A conversation has no store facts to verify before replying.
                 self.audio_allowed = response_mode == "conversation"
-                return result
+                # Model-visible guidance belongs to this completed classification,
+                # not a previous turn. The private classifier DTO remains unchanged.
+                return {**result, "response_mode": response_mode, "next_action": (
+                    "Reply briefly in English now; no store lookup is needed."
+                    if response_mode == "conversation" else
+                    "For a new item or repeated directions, call search_catalog now, then "
+                    "get_product_route with the exact returned IDs. For a selection from "
+                    "pending ambiguous candidates, use that result's exact IDs."
+                )}
             if not self.classified or not self.ack.is_set():
                 return tool_error("CLASSIFICATION_REQUIRED")
             self.audio_allowed = False
@@ -102,6 +111,12 @@ class ToolHost:
             async with asyncio.timeout(1.5):
                 response = await self.client.post("http://127.0.0.1:8002/internal/tools/" + name,
                     headers={"Authorization": "Bearer " + self.setup.tool_capability}, json=envelope)
+                if response.is_error:
+                    # Diagnose status only, never a raw provider/tool body or URL.
+                    logging.getLogger(__name__).warning(
+                        "voice_tool_failure tool=%s status=%d",
+                        name if name in {"search_catalog", "get_product_route"} else "unknown",
+                        response.status_code)
                 response.raise_for_status()
                 result = response.json()
             if turn != self.turn or self.closed or self.failed:

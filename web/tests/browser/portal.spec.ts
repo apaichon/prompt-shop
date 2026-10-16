@@ -318,3 +318,27 @@ test('brief loud capture noise cannot stop playback while sustained speech can',
  await expect.poll(()=>page.evaluate(()=>(window as any).__audio.flushed)).toBe(before+1);
  await expect(page.locator('.desktop-voice').getByText('Listening',{exact:true})).toBeVisible();
 });
+
+
+test('voice updates never reload or abort an unchanged pending shelf',async({page})=>{
+ const f=await fixture(page);let calls=0;let pending:import('@playwright/test').Route|undefined;
+ await page.route('**/api/products?**',async r=>{
+  if(new URL(r.request().url()).searchParams.has('shelf_id')){calls++;pending=r;return;}
+  await r.fallback();
+ });
+ await f.start();f.send('candidates');f.send('route');
+ await expect.poll(()=>calls).toBe(1);
+ // New-turn invalidation retains the selected product but dirties object props.
+ // Captions and the countdown continue while this shelf response is pending.
+ for(let i=0;i<12;i++){
+  f.send('interrupted',{turn_id:'turn-'+(i+2),generation_id:'generation-'+(i+2)});
+  f.send('output_transcript',{turn_id:'turn-'+(i+2),text:'Directions continue. ',final:false});
+  await page.waitForTimeout(100);
+ }
+ expect(calls).toBe(1);
+ await pending!.fulfill({json:{catalog_version:1,products:[route.product],total:1,page:1,page_size:24,categories:[]}});
+ await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
+ await page.waitForTimeout(1100);
+ expect(calls).toBe(1);
+ await page.getByRole('button',{name:'End voice',exact:true}).click();
+});

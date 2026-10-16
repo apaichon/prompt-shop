@@ -158,3 +158,8 @@ statuses and the frozen classifier failure remain unchanged.
 TASK-0012 is assigned to one GPT sync builder and a distinct GPT review pass.
 It owns the bounded voice English/noise/failure-observability follow-up and current
 Go/Python assessment. Shared surfaces are serialized; no parallel agent is active.
+
+
+TASK-0013 is assigned to one GPT sync builder and a distinct GPT review pass.
+Own the bounded shelf-request and repeated-conversation follow-up in one task
+worktree; serialize frontend and ADK changes, with no parallel agent work.

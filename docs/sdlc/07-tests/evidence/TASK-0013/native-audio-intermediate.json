@@ -1,0 +1,110 @@
+{
+  "input": "synthetic spoken microphone; actual Chromium capture/playout",
+  "turns": [
+    {
+      "index": 1,
+      "complete": true,
+      "audio_bytes": 102720,
+      "expected_route": true
+    },
+    {
+      "index": 2,
+      "complete": true,
+      "audio_bytes": 145922,
+      "expected_route": true
+    },
+    {
+      "index": 3,
+      "complete": true,
+      "audio_bytes": 204480,
+      "expected_route": true
+    },
+    {
+      "index": 4,
+      "complete": true,
+      "audio_bytes": 136802,
+      "expected_route": true
+    },
+    {
+      "index": 5,
+      "complete": true,
+      "audio_bytes": 172322,
+      "expected_route": true
+    },
+    {
+      "index": 6,
+      "complete": true,
+      "audio_bytes": 126240,
+      "expected_route": true
+    },
+    {
+      "index": 7,
+      "complete": true,
+      "audio_bytes": 166560,
+      "expected_route": true
+    },
+    {
+      "index": 8,
+      "complete": true,
+      "audio_bytes": 153600,
+      "expected_route": true
+    },
+    {
+      "index": 9,
+      "complete": true,
+      "audio_bytes": 86880,
+      "expected_route": true
+    },
+    {
+      "index": 10,
+      "complete": true,
+      "audio_bytes": 158400,
+      "expected_route": true
+    }
+  ],
+  "closed": false,
+  "error_codes": [],
+  "shelf_requests": 7,
+  "playout": [
+    {
+      "first_playout_ms": 1996.4999999999995,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 9917.399999998508,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 2430.1000000014924,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 2560.2000000029825,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 2727.799999997022,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 2341.299999997022,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 5385.799999997022,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 2738.099999994042,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 1630.799999997022,
+      "max_gap_ms": 0
+    },
+    {
+      "first_playout_ms": 3101.1000000014924,
+      "max_gap_ms": 0
+    }
+  ]
+}
