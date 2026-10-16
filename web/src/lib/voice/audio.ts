@@ -1,3 +1,4 @@
+import { AudioDeviceError, type AudioSelection, type SinkContext } from './devices';
 // Mic permission, PCM conversion and cancellable source playback adapted from
 // Monti Jarvis. AudioWorklet transport, bounds and lifecycle are new; see NOTICE.md.
 export interface AudioEngine {
@@ -10,6 +11,7 @@ export interface AudioEngine {
   close(): void;
 }
 export class BrowserAudio implements AudioEngine {
+  constructor(private selection: AudioSelection = {microphoneId:'',speakerId:''}) {}
   private context?: AudioContext;
   private stream?: MediaStream;
   private node?: AudioWorkletNode;
@@ -37,7 +39,7 @@ export class BrowserAudio implements AudioEngine {
     this.analyser = context.createAnalyser?.();
     if (this.analyser) { this.analyser.fftSize = 256; this.analyser.connect(context.destination); }
     const resumed = context.resume();
-    const permission = navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    const permission = navigator.mediaDevices.getUserMedia({ audio: { ...(this.selection.microphoneId ? {deviceId:{exact:this.selection.microphoneId}} : {}), channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
     // Attach both handlers immediately, including the permission result after Stop.
     const [resume, media] = await Promise.allSettled([resumed, permission]);
     if (media.status === 'fulfilled') {
@@ -46,9 +48,15 @@ export class BrowserAudio implements AudioEngine {
     }
     if (resume.status === 'rejected' || media.status === 'rejected') {
       this.close();
+      if(media.status==='rejected'&&['NotFoundError','OverconstrainedError'].includes(media.reason?.name))throw new AudioDeviceError('The selected microphone is unavailable. Choose another device in Audio settings.');
       throw new Error('Microphone or speaker access was not available. Check site permissions, then restart voice or type an item.');
     }
     if (this.closed) return;
+    if(this.selection.speakerId){
+      try{const output=context as SinkContext;if(!output.setSinkId)throw new Error();await output.setSinkId(this.selection.speakerId);}
+      catch{this.close();throw new AudioDeviceError('The selected speaker is unavailable. Choose another output or System default in Audio settings.');}
+    }
+    if(this.closed)return;
     await context.audioWorklet.addModule('/pcm-capture.js');
     if (this.closed) return;
     this.node = new AudioWorkletNode(context, 'pcm-capture');

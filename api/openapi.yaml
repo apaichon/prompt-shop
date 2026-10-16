@@ -107,6 +107,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication session is missing, revoked or expired."
           }
         },
         "tags": [
@@ -123,7 +126,14 @@
             }
           }
         },
-        "x-body-limit-bytes": 8192
+        "x-body-limit-bytes": 8192,
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode.",
+        "security": [
+          {
+            "shopperCookie": []
+          },
+          {}
+        ]
       }
     },
     "/api/routes": {
@@ -267,6 +277,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication session is missing, revoked or expired."
           }
         },
         "tags": [
@@ -283,7 +296,14 @@
             }
           }
         },
-        "x-body-limit-bytes": 8192
+        "x-body-limit-bytes": 8192,
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode.",
+        "security": [
+          {
+            "shopperCookie": []
+          },
+          {}
+        ]
       }
     },
     "/api/store-map": {
@@ -335,12 +355,22 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication session is missing, revoked or expired."
           }
         },
         "tags": [
           "customer"
         ],
-        "x-implementation-task": "TASK-0002"
+        "x-implementation-task": "TASK-0002",
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode.",
+        "security": [
+          {
+            "shopperCookie": []
+          },
+          {}
+        ]
       }
     },
     "/api/voice/sessions": {
@@ -467,6 +497,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication session is missing, revoked or expired."
           }
         },
         "tags": [
@@ -494,6 +527,13 @@
               "format": "uri"
             }
           }
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode.",
+        "security": [
+          {
+            "shopperCookie": []
+          },
+          {}
         ]
       }
     },
@@ -503,8 +543,12 @@
         "tags": [
           "voice"
         ],
-        "description": "Requires exact Origin, single-use ticket cookie and subprotocol prompt-shop.voice.v1. No URL credentials. Ordered PCM and JSON contract: data/contracts/live.schema.json; not implemented by TASK-0001.",
+        "description": "Requires exact Origin, single-use ticket cookie and subprotocol prompt-shop.voice.v1. No URL credentials. Ordered PCM and JSON contract: data/contracts/live.schema.json; not implemented by TASK-0001. Shared authentication additionally requires an active shopper cookie when enabled; the gateway rechecks revocation during the connection.",
         "security": [
+          {
+            "voiceTicket": [],
+            "shopperCookie": []
+          },
           {
             "voiceTicket": []
           }
@@ -918,7 +962,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       },
       "get": {
         "operationId": "get_api_backoffice_session",
@@ -999,9 +1044,13 @@
         "x-implementation-task": "TASK-0009",
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       },
       "delete": {
         "operationId": "delete_api_backoffice_session",
@@ -1098,6 +1147,9 @@
         "x-implementation-task": "TASK-0009",
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
         ],
@@ -1119,7 +1171,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       }
     },
     "/api/backoffice/products": {
@@ -1225,6 +1278,9 @@
         "x-implementation-task": "TASK-0009",
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
         ],
@@ -1258,7 +1314,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       },
       "post": {
         "operationId": "post_api_backoffice_products",
@@ -1465,6 +1522,9 @@
         "x-body-limit-bytes": 16384,
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
         ],
@@ -1486,7 +1546,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       }
     },
     "/api/backoffice/products/{id}": {
@@ -1718,6 +1779,9 @@
         "x-body-limit-bytes": 16384,
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
         ],
@@ -1748,7 +1812,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       }
     },
     "/api/backoffice/products/{id}/publish": {
@@ -1980,6 +2045,9 @@
         "x-body-limit-bytes": 16384,
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
         ],
@@ -2010,7 +2078,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       }
     },
     "/api/backoffice/products/{id}/archive": {
@@ -2242,6 +2311,9 @@
         "x-body-limit-bytes": 16384,
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
         ],
@@ -2272,7 +2344,8 @@
               "type": "string"
             }
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       }
     },
     "/api/backoffice/shelves": {
@@ -2355,9 +2428,13 @@
         "x-implementation-task": "TASK-0009",
         "security": [
           {
+            "shopperCookie": []
+          },
+          {
             "maintainerCookie": []
           }
-        ]
+        ],
+        "description": "When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode."
       }
     },
     "/api/products": {
@@ -2455,6 +2532,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication session is missing, revoked or expired."
           }
         },
         "tags": [
@@ -2504,7 +2584,161 @@
             }
           }
         ],
-        "description": "Published-only catalog browse. Exact category and shelf filters, deterministic name/ID ordering. Categories contain global published counts. No model-derived facts."
+        "description": "Published-only catalog browse. Exact category and shelf filters, deterministic name/ID ordering. Categories contain global published counts. No model-derived facts. When shared authentication is enabled, a shopper session is required; backoffice routes require its admin role. Legacy maintainer login is disabled in that mode.",
+        "security": [
+          {
+            "shopperCookie": []
+          },
+          {}
+        ]
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "operationId": "getSharedSession",
+        "security": [
+          {
+            "shopperCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shared session; GET returns enabled=false when shared authentication is explicitly disabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ShopperSession"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "enabled"
+                      ],
+                      "properties": {
+                        "enabled": {
+                          "const": false
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign-in required"
+          }
+        }
+      },
+      "post": {
+        "operationId": "loginSharedSession",
+        "description": "Exact Origin required. Ten attempts per remote IP per minute; two concurrent bcrypt comparisons; rotates current session. Enabled mode only.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "maxLength": 32
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 72
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shared session; GET returns enabled=false when shared authentication is explicitly disabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ShopperSession"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "enabled"
+                      ],
+                      "properties": {
+                        "enabled": {
+                          "const": false
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "403": {
+            "description": "Wrong Origin"
+          },
+          "429": {
+            "description": "Bounded attempts or sessions exceeded"
+          },
+          "503": {
+            "description": "Session storage unavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "logoutSharedSession",
+        "description": "Exact Origin and X-CSRF-Token required. Revokes admin DB session and active voice. Enabled mode only.",
+        "security": [
+          {
+            "shopperCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Signed out"
+          },
+          "401": {
+            "description": "Already expired"
+          },
+          "403": {
+            "description": "Origin or CSRF rejected"
+          },
+          "503": {
+            "description": "Revocation failed; retry"
+          }
+        }
       }
     }
   },
@@ -3249,6 +3483,38 @@
             }
           }
         }
+      },
+      "ShopperSession": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enabled",
+          "username",
+          "role",
+          "expires_at",
+          "csrf_token"
+        ],
+        "properties": {
+          "enabled": {
+            "const": true
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "admin",
+              "shopper"
+            ]
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "csrf_token": {
+            "type": "string"
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -3261,6 +3527,12 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "__Host-voice-ticket"
+      },
+      "shopperCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-shop-session",
+        "description": "Required for all public APIs and voice upgrade when SHOPPER_AUTH_ENABLED=true; administrator role additionally required for backoffice."
       }
     }
   }

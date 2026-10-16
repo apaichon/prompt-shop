@@ -5,37 +5,41 @@ import search from '../fixtures/search-response.json' with { type: 'json' };
 import route from '../fixtures/route-response.json' with { type: 'json' };
 import events from '../fixtures/live-events.json' with { type: 'json' };
 
-async function fixture(page: Page, options: { denied?: boolean; realAudio?: boolean } = {}) {
+async function fixture(page: Page, options: { denied?: boolean; realAudio?: boolean; devices?: boolean } = {}) {
   let searches = 0, tickets = 0;
   const messages: (string | Buffer)[] = [];
   let socket: WebSocketRoute | undefined;
-  if (!options.realAudio) await page.addInitScript(({ denied }) => {
-    const metrics = { opened: 0, stopped: 0, played: 0, flushed: 0, capture: false, muted: false };
+  if (!options.realAudio) await page.addInitScript(({ denied, devices }) => {
+    const metrics = { opened: 0, stopped: 0, played: 0, flushed: 0, capture: false, muted: false, constraints: null as any, sink: "", tones: 0, closed: 0 };
     (window as any).__audio = metrics;
     const track = { enabled: true, onended: null, stop() { metrics.stopped++; } };
-    Object.defineProperty(navigator, 'mediaDevices', { value: { async getUserMedia() {
+    Object.defineProperty(navigator, 'mediaDevices', { value: { async enumerateDevices(){return devices?[{kind:'audioinput',deviceId:'usb-mic',label:'USB microphone'},{kind:'audiooutput',deviceId:'headset',label:'Headphones'}]:[];}, async getUserMedia(constraints:any) {
+      metrics.constraints=constraints;
       metrics.opened++; if (denied) throw new DOMException('Denied', 'NotAllowedError');
       return { getTracks: () => [track], getAudioTracks: () => [track] };
     } } });
     class Node { connect() {} disconnect() {} }
     (window as any).AudioContext = class {
       state = 'running'; currentTime = 0; destination = {}; audioWorklet = { async addModule() {} };
-      async resume() {} async close() { this.state = 'closed'; }
+      async resume() {} async close() { this.state = 'closed'; metrics.closed++; }
+      createOscillator(){return Object.assign(new Node(),{frequency:{value:0},onended:null,start(){metrics.tones++;},stop(){}});}
       createMediaStreamSource() { return new Node(); }
       createGain() { return Object.assign(new Node(), { gain: { value: 0 } }); }
       createBuffer(_channels: number, length: number) { return { getChannelData: () => new Float32Array(length) }; }
       createBufferSource() { return Object.assign(new Node(), { buffer: null, onended: null, start() { metrics.played++; }, stop() { metrics.flushed++; } }); }
     };
+    if(devices)(window as any).AudioContext.prototype.setSinkId=async(id:string)=>{metrics.sink=id;};
     (window as any).AudioWorkletNode = class extends Node {
       constructor(){super();(window as any).__captureNode=this;}
       port = { onmessage: null, postMessage(value: string) { metrics.capture = value === 'start'; }, close() {} };
     };
-  }, { denied: options.denied ?? false });
+  }, { denied: options.denied ?? false, devices: options.devices ?? false });
   await page.route('**/api/**', async (request) => {
     const path = new URL(request.request().url()).pathname;
     if(path.startsWith('/api/backoffice/')){await request.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Log in',retryable:false},request_id:'fixture'}});return}
     let body: unknown;
-    if (path === '/api/products') body = {catalog_version:1,products:[],total:0,page:1,page_size:12,categories:[]};
+    if(path === '/api/auth/session') body = {enabled:false};
+    else if (path === '/api/products') body = {catalog_version:1,products:[],total:0,page:1,page_size:12,categories:[]};
     else if (path === '/api/store-map') body = map;
     else if (path === '/api/search') { searches++; body = search; }
     else if (path === '/api/routes') body = route;
@@ -51,6 +55,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
     send, messages, searches: () => searches, tickets: () => tickets,
     binary: () => socket!.send(Buffer.alloc(3200)),
     async start(scope = page.locator('.desktop-voice')) {
+      socket = undefined;
       await scope.getByRole('button', { name: /Start voice|Restart voice/ }).click();
       await expect.poll(() => !!socket).toBe(true);
       send('ready', { expires_at: new Date(Date.now() + 300000).toISOString() });
@@ -387,4 +392,27 @@ test('mobile speaker mode has a reachable Interrupt in the minimized dock and sh
   await page.setViewportSize({width:1280,height:900});
   await expect(page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode on',exact:true})).toBeVisible();
   expect(f.tickets()).toBe(1);
+});
+
+
+test('audio device choices apply to voice and survive desktop/mobile switching',async({page})=>{
+ const f=await fixture(page,{devices:true});const panel=page.locator('.desktop-voice');
+ await panel.getByText('Audio settings',{exact:true}).click();await panel.getByRole('button',{name:'Enable device names',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).__audio.stopped)).toBe(1);
+ await panel.getByLabel('Microphone',{exact:true}).selectOption('usb-mic');await panel.getByLabel('Speaker',{exact:true}).selectOption('headset');
+ await panel.getByRole('button',{name:'Test speaker',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).__audio.tones)).toBe(1);
+ await f.start();await expect(panel.getByLabel('Microphone',{exact:true})).toBeDisabled();
+ expect(await page.evaluate(()=>(window as any).__audio.constraints.audio.deviceId)).toEqual({exact:'usb-mic'});expect(await page.evaluate(()=>(window as any).__audio.sink)).toBe('headset');
+ await panel.getByRole('button',{name:'End voice',exact:true}).click();await page.setViewportSize({width:390,height:900});await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.getByText('Audio settings',{exact:true}).click();
+ await expect(dialog.getByLabel('Microphone',{exact:true})).toHaveValue('usb-mic');await expect(dialog.getByLabel('Speaker',{exact:true})).toHaveValue('headset');expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+});
+
+test('logout and authentication loss stop capture and remove shopper content',async({page})=>{
+ const f=await fixture(page);let signed=true;
+ await page.route('**/api/auth/session',async r=>{
+  if(r.request().method()==='DELETE'){signed=false;return r.fulfill({status:204});}
+  return r.fulfill({status:signed?200:401,json:signed?{enabled:true,username:'demo02',role:'shopper',expires_at:new Date(Date.now()+3600000).toISOString(),csrf_token:'fixture-csrf'}:{}});
+ });
+ await page.reload();await f.start();await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);expect(await page.evaluate(()=>(window as any).__audio.stopped)).toBe(1);
+ signed=true;await page.reload();await f.start();await page.evaluate(()=>window.dispatchEvent(new Event('shop-auth-required')));await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);
 });

@@ -4,14 +4,16 @@ import { avatarPose } from '../../src/lib/ui-config';
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
-function playbackFixture() {
+function playbackFixture(selection = {microphoneId:"",speakerId:""}, sinkFails = false) {
   let amplitude = 0, reduced = false, next = 0;
   const frames = new Map<number, FrameRequestCallback>();
   const track = { enabled: true, onended: null, stop: vi.fn() };
   const node = () => ({ connect: vi.fn(), disconnect: vi.fn() });
   const analyser = { ...node(), fftSize: 256, getFloatTimeDomainData: (samples: Float32Array) => samples.fill(amplitude) };
   const sources: any[] = [];
+  const sink=vi.fn(async (_id:string)=>{if(sinkFails)throw new DOMException('gone','NotFoundError');});
   class Context {
+    setSinkId = sink;
     state = 'running'; currentTime = 0; destination = {};
     audioWorklet = { addModule: vi.fn(async () => {}) };
     resume = vi.fn(async () => {}); close = vi.fn(async () => {this.state='closed';});
@@ -25,12 +27,13 @@ function playbackFixture() {
   class Worklet { constructor() {worklets.push(this);} connect=vi.fn(); disconnect=vi.fn(); port={onmessage:null,postMessage:vi.fn(),close:vi.fn()}; }
   vi.stubGlobal('window', { isSecureContext: true, AudioContext: Context, AudioWorkletNode: Worklet, matchMedia: () => ({matches:reduced}) });
   vi.stubGlobal('document', {hidden:false});
-  vi.stubGlobal('navigator', {mediaDevices:{getUserMedia:async()=>({getTracks:()=>[track],getAudioTracks:()=>[track]})}});
+  const media=vi.fn(async()=>({getTracks:()=>[track],getAudioTracks:()=>[track]}));
+  vi.stubGlobal('navigator', {mediaDevices:{getUserMedia:media}});
   vi.stubGlobal('AudioContext',Context); vi.stubGlobal('AudioWorkletNode',Worklet);
   vi.stubGlobal('requestAnimationFrame',(callback:FrameRequestCallback)=>{frames.set(++next,callback);return next;});
   vi.stubGlobal('cancelAnimationFrame',(id:number)=>frames.delete(id));
   const step = () => { const [id, callback]=[...frames.entries()][0]; frames.delete(id); callback(0); };
-  return {audio:new BrowserAudio(),worklets,frames,sources,analyser,track,step,setAmplitude:(value:number)=>amplitude=value,setReduced:()=>reduced=true};
+  return {audio:new BrowserAudio(selection),media,sink,worklets,frames,sources,analyser,track,step,setAmplitude:(value:number)=>amplitude=value,setReduced:()=>reduced=true};
 }
 
 describe('avatar output follows playback lifecycle',()=>{
@@ -90,4 +93,17 @@ describe('microphone activity matches the Go relay',()=>{
     send(2000,8);expect(frame.mock.calls.at(-1)?.[1]).toBe(true);
     f.audio.close();
   });
+});
+
+describe('selected audio devices',()=>{
+ it('applies exact microphone and output choices while retaining echo cancellation',async()=>{
+  const f=playbackFixture({microphoneId:'usb-mic',speakerId:'headset'});await f.audio.open(vi.fn(),vi.fn(),vi.fn());
+  expect(f.media).toHaveBeenCalledWith({audio:expect.objectContaining({deviceId:{exact:'usb-mic'},echoCancellation:true,noiseSuppression:true})});
+  expect(f.sink).toHaveBeenCalledWith('headset');f.audio.close();expect(f.track.stop).toHaveBeenCalledOnce();
+ });
+ it('fails closed and releases the mic when selected output disappears',async()=>{
+  const f=playbackFixture({microphoneId:'',speakerId:'removed'},true);
+  await expect(f.audio.open(vi.fn(),vi.fn(),vi.fn())).rejects.toThrow(/speaker/i);
+  expect(f.track.stop).toHaveBeenCalledOnce();expect(f.worklets).toHaveLength(0);
+ });
 });

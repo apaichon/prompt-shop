@@ -8,7 +8,7 @@ const {chromium}=require('@playwright/test');
  let starts=0,completed=0,bytes=0,output='',closed=false;const errors=[];
  page.on('websocket',ws=>{ws.on('close',()=>closed=true);ws.on('framereceived',({payload})=>{if(Buffer.isBuffer(payload)){bytes+=payload.length;return;}try{const e=JSON.parse(payload);if(e.type==='audio_start')starts++;if(e.type==='turn_complete')completed++;if(e.type==='output_transcript')output+=' '+e.text;if(e.type==='error')errors.push(e.code);}catch{}});});
  try{
-  await page.goto('http://localhost:8080');await page.locator('.desktop-voice').getByRole('button',{name:'Start voice',exact:true}).click();
+  await page.goto('http://localhost:8080');await require('./auth.cjs').signIn(page);await page.locator('.desktop-voice').getByRole('button',{name:'Start voice',exact:true}).click();
   await page.waitForFunction(()=>window.__voiceProbe.session!==null);
   await page.waitForTimeout(8000);const quietStart=starts===0&&bytes===0;
   const results=[];

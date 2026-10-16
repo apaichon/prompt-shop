@@ -19,7 +19,7 @@ const {chromium}=require('@playwright/test');
   }catch{}
  });});
  try{
-  await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');
+  await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');await require('./auth.cjs').signIn(page);
   // Drive the documented public protocol directly. A silent fake microphone
   // started through the UI would correctly expire after 60s of no speech.
   await page.evaluate(async()=>{

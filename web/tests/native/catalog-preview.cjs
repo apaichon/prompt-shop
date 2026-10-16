@@ -2,7 +2,7 @@ const {chromium}=require('@playwright/test');
 (async()=>{const browser=await chromium.launch();
 const page=await browser.newPage({viewport:{width:1440,height:1050}});
 const faults=[];page.on('pageerror',e=>faults.push(e.message));
-await page.goto('http://localhost:8080');await page.locator('.catalog-browser .product-card').first().waitFor();
+await page.goto('http://localhost:8080');await require('./auth.cjs').signIn(page);await page.locator('.catalog-browser .product-card').first().waitFor();
 await page.screenshot({path:'docs/design/assets/products/desktop-catalog.png',fullPage:true});
 await page.locator('.catalog-browser .route-button').first().click();await page.locator('.shelf-facing.selected').waitFor();
 await page.screenshot({path:'docs/design/assets/products/desktop-shelf.png',fullPage:true});

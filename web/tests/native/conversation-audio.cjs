@@ -52,7 +52,7 @@ if(injectFeedback&&!speakerMode)throw new Error('Synthetic feedback probe requir
   if(e.type==='error')errors.push(e.code);
  });});
  try{
-  await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');
+  await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');await require('./auth.cjs').signIn(page);
   if(speakerMode)await page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode off',exact:true}).click();
   await page.locator('.desktop-voice').getByRole('button',{name:'Start voice',exact:true}).click();
   const deadline=Date.now()+165000;

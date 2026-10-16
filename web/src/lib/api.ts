@@ -5,6 +5,7 @@ export class ApiError extends Error {
   constructor(public code: string, public product?: Product, public retryAfter = 0) { super(code); }
 }
 export const recovery: Record<string, string> = {
+  AUTH_REQUIRED: 'Please sign in to continue.',
   INVALID_REQUEST: 'Enter one item name, up to 200 characters.',
   LANGUAGE_DISABLED: 'English is available for this store.',
   RATE_LIMITED: 'A few too many requests. Please wait a moment and try again.',
@@ -45,6 +46,7 @@ export class Api {
     let value: unknown;
     try { value = JSON.parse(raw); } catch { throw new ApiError('INVALID_RESPONSE'); }
     if (!response.ok) {
+      if(response.status===401 && typeof window!=='undefined') window.dispatchEvent(new Event('shop-auth-required'));
       const parsed = errorSchema.safeParse(value);
       const delay = Number(response.headers.get('Retry-After'));
       throw new ApiError(parsed.success ? parsed.data.error.code : 'DEPENDENCY_UNAVAILABLE',
