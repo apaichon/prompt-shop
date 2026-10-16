@@ -278,3 +278,19 @@ Early 14 October cloud staging uses TEST-0010 with ADK/Gemini audio/tools and re
    sample improved, but physical-device and 30-trial performance acceptance remain open.
 
 Evidence and remaining limitations: [TASK-0011](../07-tests/evidence/TASK-0011/README.md).
+
+
+## English and interruption regression check (TASK-0012)
+
+1. Refresh after `rtk proxy make mvp-restart`. Start voice, stay quiet for eight
+   seconds, then say Hello. Expect quiet waiting followed by an English reply.
+2. Ask a normal question; during playback make a brief click/noise. A short impulse
+   should not stop it. Speak a new request normally; expect interruption and recovery.
+3. Ask for another language. The current English-only store should reply in English.
+4. Find milk by voice, then click a current match while voice is active. Expect a
+   spoken grounded confirmation without disconnecting from an empty audio activity.
+5. If it still disconnects, inspect allowlisted `voice_runtime_failure reason=`
+   and `voice_session_end reason=` entries in tmp/run. Do not share provider keys,
+   raw exception payloads, shopper audio or transcripts. Required-tool timeouts and
+   sustained noise/echo still need qualification; a runtime language rewrite has
+   no measured stability benefit in this app.

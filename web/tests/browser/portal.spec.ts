@@ -305,3 +305,16 @@ test('late shelf responses cannot replace a newer selection',async({page})=>{
  await expect(page.locator('.shelf-display')).toContainText(other.name);
  await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
 });
+
+
+test('brief loud capture noise cannot stop playback while sustained speech can',async({page})=>{
+ const f=await fixture(page);await f.start();f.send('audio_start');f.binary();
+ await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(1);
+ const before=await page.evaluate(()=>(window as any).__audio.flushed);
+ await page.evaluate(()=>{const pcm=new Int16Array(320).fill(1000);(window as any).__captureNode.port.onmessage({data:pcm.buffer});});
+ await expect(page.locator('.desktop-voice').getByText('Speaking',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>(window as any).__audio.flushed)).toBe(before);
+ await page.evaluate(()=>{const send=(n:number)=>{const pcm=new Int16Array(320).fill(n);(window as any).__captureNode.port.onmessage({data:pcm.buffer});};send(0);for(let i=0;i<4;i++)send(1000);});
+ await expect.poll(()=>page.evaluate(()=>(window as any).__audio.flushed)).toBe(before+1);
+ await expect(page.locator('.desktop-voice').getByText('Listening',{exact:true})).toBeVisible();
+});

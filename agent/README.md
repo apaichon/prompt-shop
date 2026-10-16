@@ -148,3 +148,31 @@ The transport queue controls use a version-qualified private GenAI attribute;
 upgrade ADK/GenAI only after rerunning the actual SDK wire tests. SDK/body logging
 is silenced and Uvicorn access logs should remain disabled. Original implementation;
 no Monti source was copied. Reference snapshots retain their original license.
+
+
+## English policy and failure diagnosis
+
+Spoken replies stay in English, including unclear input and requests to switch
+languages; silence/background noise does not choose a language. Native audio does
+not support forcing `speech_config.language_code`, so this policy lives in system
+instructions. Actual synthetic native caption checks are recorded with TASK-0012.
+
+Go/browser activity requires 80ms sustained RMS500 onset and 350ms silent PCM end.
+Go preserves the onset before forwarding speech, and does not forward idle PCM.
+Brief noises do not cancel playback; sustained noise/echo still needs device testing.
+`voice_runtime_failure reason=...` records allowlisted categories only; never log
+raw provider exceptions, credentials or transcripts. Go emits `voice_session_end`
+with a similarly bounded reason. Check these categories when a session disconnects.
+
+[Current Go/Python assessment](RUNTIME-ASSESSMENT.md): Go ADK supports RunLive now,
+but changing runtime has no demonstrated advantage for the reproduced detector bug.
+
+Text-only and clicked selections send text without empty audio activity markers.
+Audio activity starts only when the first PCM frame arrives; ending an unopened
+audio activity is suppressed. A native provider disconnect reproduced before this
+change, and the same three-turn silence/language/route probe passed afterward.
+One intermediate spoken required-tool timeout remains recorded in TASK-0012 evidence.
+
+Recoverable `voice_turn_timeout` entries record only whether classification/search/
+route were attempted and classification completed. These booleans help distinguish
+missing required model calls from tool failure without exposing a shopper request.

@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import logging
 import time
 
 import httpx
@@ -10,6 +11,7 @@ from google.genai import types
 from starlette.websockets import WebSocketDisconnect
 
 from .host import ToolHost
+from .diagnostics import failure_reason, provider_status
 from .config import LiveSettings
 from .model import ObservedGemini, run_config
 from .protocol import APP, Setup
@@ -20,6 +22,12 @@ TURN_TOOL_TIMEOUT = 8.0
 
 INSTRUCTION = """You are a friendly English voice assistant in a hypermarket. Have
 natural general conversations, answer questions and suggest food menus or recipes.
+Always speak English, even if the shopper asks for another language. Do not switch
+languages because of accent, background voices, noise or silence. When the shopper
+finishes a request, promptly answer it in English: the pause after their speech is
+YOUR turn to answer, not a reason to withhold the reply. If unclear, ask a short
+English clarification. After answering, wait for a new shopper request; do not
+invent requests or add unsolicited follow-up speech during background silence.
 After an interruption, the next shopper utterance is a NEW turn: classify it again,
 even when continuing the same topic. Never reuse the interrupted turn's tool results.
 On EVERY completed user turn first call classify_intent with the shopper's request
@@ -75,6 +83,7 @@ class Runtime:
         gate_since = None
         generation = 0
         audio_open = False
+        input_active = False
         output_clock = 0.0
         current_input = ""
         retried = False
@@ -95,7 +104,7 @@ class Runtime:
             ready.set()
 
         async def reader():
-            nonlocal last_activity, gate_since, generation, audio_open, current_input, retried
+            nonlocal last_activity, gate_since, generation, audio_open, current_input, retried, input_active
             while True:
                 message = await ws.receive()
                 if message["type"] == "websocket.disconnect":
@@ -104,6 +113,9 @@ class Runtime:
                 if raw is not None:
                     if not ready.is_set() or not 0 < len(raw) <= 6400 or len(raw) % 2:
                         raise ValueError("invalid audio")
+                    if not input_active:
+                        queue.send_activity_start()
+                        input_active = True
                     queue.send_realtime(types.Blob(data=raw, mime_type="audio/pcm;rate=16000"))
                     continue
                 text = message.get("text", "")
@@ -121,17 +133,23 @@ class Runtime:
                 elif kind == "begin_turn":
                     if set(event) != {"type", "session_id", "turn_id"} or not isinstance(event["turn_id"], str):
                         raise ValueError("invalid turn")
+                    if input_active:
+                        queue.send_activity_end()
+                        input_active = False
                     host.begin(event["turn_id"])
                     generation += 1
                     audio_open = False
                     current_input, retried = "", False
                     last_activity = time.monotonic()
                     gate_since = None
-                    queue.send_activity_start()
+                    # Wait for the first PCM frame. A clicked/text selection
+                    # has no audio and must not open/close an empty activity.
                 elif kind == "activity_end":
                     if set(event) != {"type", "session_id", "turn_id"} or event["turn_id"] != host.turn:
                         raise ValueError("invalid activity")
-                    queue.send_activity_end()
+                    if input_active:
+                        queue.send_activity_end()
+                        input_active = False
                     gate_since = time.monotonic()
                 elif kind == "text":
                     if set(event) != {"type", "session_id", "turn_id", "text"} or event["turn_id"] != host.turn:
@@ -140,7 +158,9 @@ class Runtime:
                     if not isinstance(value, str) or not 1 <= len(value.strip()) <= 200:
                         raise ValueError("invalid text")
                     current_input = value
-                    queue.send_activity_end()
+                    if input_active:
+                        queue.send_activity_end()
+                        input_active = False
                     queue.send_content(types.Content(role="user", parts=[types.Part(text=value)]))
                     gate_since = last_activity = time.monotonic()
                 elif kind == "stop":
@@ -242,6 +262,10 @@ class Runtime:
                         # A single failed/noise turn must not tear down a healthy
                         # provider connection. Seal it until fresh shopper speech.
                         gate_since = None
+                        logging.getLogger(__name__).warning(
+                            "voice_turn_timeout classified=%s classification_called=%s search_called=%s route_called=%s",
+                            host.classified, bool(host.counts.get("classify_intent")),
+                            bool(host.counts.get("search_catalog")), bool(host.counts.get("get_product_route")))
                         host.fail(host.turn)
                         audio_open = False
                         await send({"type": "error", "session_id": setup.session_id, "turn_id": host.turn,
@@ -261,7 +285,8 @@ class Runtime:
                 done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 for task in done:
                     task.result()
-        except (Exception, WebSocketDisconnect):
+        except (Exception, WebSocketDisconnect) as error:
+            logging.getLogger(__name__).warning("voice_runtime_failure reason=%s status=%d", failure_reason(error), provider_status(error))
             with contextlib.suppress(Exception):
                 await send({"type": "error", "session_id": setup.session_id, "code": "DEPENDENCY_UNAVAILABLE",
                             "message": "Voice ended; start a fresh session or use typed search.", "retryable": True})
