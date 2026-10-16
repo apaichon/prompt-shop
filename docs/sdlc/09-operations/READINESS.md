@@ -322,3 +322,26 @@ Native opt-in probes are `web/tests/native/conversation.cjs` (set
 provider; optional `NATIVE_REPORT_PATH` writes only counts/timings/booleans, never
 transcripts or audio. Use the TASK-0013 evidence for the exact input schedule and
 limitations; no shopper recording is needed.
+
+
+## Computer-speaker check (TASK-0015)
+
+1. Refresh `http://localhost:8080`. In the assistant panel (open the assistant on
+   mobile), click **Speaker mode off** so it reads **Speaker mode on**.
+2. Start voice and say “Hello”. Expect an English reply and **Mic paused for
+   speakers** during playback. Speech during that pause is deliberately ignored.
+3. Wait for **Microphone on**, then ask “Where is whole milk?” and check the spoken
+   answer, item and route. Repeat with rice and toothpaste for ten turns.
+4. During a reply, click **Interrupt**. Expect the old audio to stop, then the mic
+   to resume after the short acoustic tail. Say a new request and check that its
+   reply and verified route replace the old turn. On mobile, minimize the panel
+   and repeat using Interrupt in the bottom dock.
+5. Test Mute sound, Mute mic, End and Start. Mic mute must remain independent;
+   End stops capture. Speaker mode remains selected until page reload.
+6. Turn Speaker mode off to restore interruption by speaking. Compare with
+   headphones. Record hardware/browser, reply completion, any error status and
+   delays without saving private shopper audio or transcripts.
+
+A speaker-mode pass does not certify native-provider latency or all disconnect
+causes. The initial Laya check was fast for one caller, while a separate 10-turn
+text run still had one 8-second reply. See TASK-0015 evidence for retained results.

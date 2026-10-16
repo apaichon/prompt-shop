@@ -1,0 +1,20 @@
+{
+  "ui_status": "Voice paused",
+  "ui_notice": "Voice could not connect. Restart voice or type an item.",
+  "transport_errors": [
+    "WebSocket connection to '[local websocket]' failed: Error in connection establishment: net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS"
+  ],
+  "candidate_static_assets": true,
+  "speaker_mode": true,
+  "synthetic_feedback": true,
+  "feedback": {
+    "injected_frames": 0,
+    "leaked_frames": 0
+  },
+  "input": "synthetic spoken microphone; actual Chromium capture/playout",
+  "turns": [],
+  "closed": true,
+  "error_codes": [],
+  "shelf_requests": 0,
+  "playout": []
+}
