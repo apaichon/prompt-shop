@@ -342,3 +342,49 @@ test('voice updates never reload or abort an unchanged pending shelf',async({pag
  expect(calls).toBe(1);
  await page.getByRole('button',{name:'End voice',exact:true}).click();
 });
+
+
+test('speaker mode blocks feedback PCM, offers Interrupt, and retains the choice after End', async ({page}) => {
+  const f = await fixture(page);
+  const panel = page.locator('.desktop-voice');
+  await panel.getByRole('button', {name:'Speaker mode off',exact:true}).click();
+  await f.start(); f.send('audio_start'); f.binary();
+  await expect(panel).toContainText('Mic paused for speakers');
+  await page.evaluate(() => (window as any).__captureNode.port.onmessage({data:new Int16Array(1280).fill(2000).buffer}));
+  await expect.poll(() => f.messages.filter(Buffer.isBuffer).length).toBe(1);
+  expect(f.messages.filter(Buffer.isBuffer)[0].every(n => n === 0)).toBe(true);
+  expect(await page.evaluate(() => (window as any).__audio.flushed)).toBe(0);
+  await panel.getByRole('button',{name:'Interrupt',exact:true}).click();
+  await expect.poll(() => page.evaluate(() => (window as any).__audio.flushed)).toBe(1);
+  f.binary(); await expect.poll(() => page.evaluate(() => (window as any).__audio.played)).toBe(1);
+  await expect(panel).toContainText('Microphone on');
+  await panel.getByRole('button',{name:'End voice',exact:true}).click();
+  await expect(panel.getByRole('button',{name:'Speaker mode on',exact:true})).toHaveAttribute('aria-pressed','true');
+});
+
+test('mobile speaker mode has a reachable Interrupt in the minimized dock and shares desktop state', async ({page}) => {
+  await page.setViewportSize({width:320,height:900}); const f = await fixture(page);
+  await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button',{name:'Speaker mode off',exact:true}).click();
+  await f.start(dialog); f.send('audio_start'); f.binary();
+  await expect(dialog).toContainText('Mic paused for speakers');
+  await dialog.getByRole('button',{name:'Minimize'}).click();
+  const dock = page.locator('.mobile-voice-dock');
+  await expect(dock).toContainText('Mic paused');
+  for (const width of [320,390,768,1100]) {
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    for (const button of await dock.getByRole('button').all()) {
+      const box = await button.boundingBox(); expect(box!.width).toBeGreaterThanOrEqual(44); expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
+  }
+  expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+  await page.setViewportSize({width:390,height:900});
+  await page.screenshot({path:'test-results/mobile-speaker-mode.png',fullPage:true});
+  await dock.getByRole('button',{name:'Interrupt',exact:true}).click();
+  await expect(dock).toContainText('Mic on');
+  await page.setViewportSize({width:1280,height:900});
+  await expect(page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode on',exact:true})).toBeVisible();
+  expect(f.tickets()).toBe(1);
+});

@@ -1,0 +1,324 @@
+{
+  "method": "real local adapter and Laya; 30 sequential then three batches of four simultaneous fixed synthetic requests",
+  "sequential": {
+    "requests": 30,
+    "median_ms": 158.0,
+    "p95_ms": 206.9,
+    "max_ms": 225.3,
+    "outcomes": {
+      "low_confidence": 15,
+      "classified": 15
+    }
+  },
+  "four_concurrent": {
+    "requests": 12,
+    "median_ms": 216.8,
+    "p95_ms": 330.1,
+    "max_ms": 330.1,
+    "outcomes": {
+      "low_confidence": 3,
+      "classified": 3,
+      "busy": 6
+    }
+  },
+  "rows": {
+    "sequential": [
+      {
+        "case": 0,
+        "elapsed_ms": 192.3,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 154.0,
+        "intent": "find_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 225.3,
+        "intent": "repeat_directions",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 181.7,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 193.0,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 161.4,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 0,
+        "elapsed_ms": 153.6,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 154.3,
+        "intent": "find_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 166.9,
+        "intent": "repeat_directions",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 154.5,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 165.6,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 160.8,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 0,
+        "elapsed_ms": 153.9,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 156.8,
+        "intent": "find_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 154.0,
+        "intent": "repeat_directions",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 154.1,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 160.0,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 153.4,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 0,
+        "elapsed_ms": 153.9,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 152.7,
+        "intent": "find_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 179.5,
+        "intent": "repeat_directions",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 206.9,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 159.2,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 163.7,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 0,
+        "elapsed_ms": 154.2,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 153.5,
+        "intent": "find_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 201.2,
+        "intent": "repeat_directions",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 153.4,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 153.9,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 159.3,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      }
+    ],
+    "four_concurrent": [
+      {
+        "case": 0,
+        "elapsed_ms": 318.8,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 165.9,
+        "intent": "find_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 216.1,
+        "intent": null,
+        "abstained": true,
+        "reason": "busy"
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 212.3,
+        "intent": null,
+        "abstained": true,
+        "reason": "busy"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 167.2,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 217.4,
+        "intent": null,
+        "abstained": true,
+        "reason": "busy"
+      },
+      {
+        "case": 0,
+        "elapsed_ms": 330.1,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 1,
+        "elapsed_ms": 209.5,
+        "intent": null,
+        "abstained": true,
+        "reason": "busy"
+      },
+      {
+        "case": 2,
+        "elapsed_ms": 231.5,
+        "intent": null,
+        "abstained": true,
+        "reason": "busy"
+      },
+      {
+        "case": 3,
+        "elapsed_ms": 184.1,
+        "intent": null,
+        "abstained": true,
+        "reason": "low_confidence"
+      },
+      {
+        "case": 4,
+        "elapsed_ms": 328.6,
+        "intent": "select_item",
+        "abstained": false,
+        "reason": null
+      },
+      {
+        "case": 5,
+        "elapsed_ms": 217.7,
+        "intent": null,
+        "abstained": true,
+        "reason": "busy"
+      }
+    ]
+  }
+}
