@@ -303,6 +303,11 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
         await asyncio.sleep(.5)
         assert len(a.audio_times) == before + 1
         assert len([x for x in a.output if isinstance(x, dict) and x["type"] == "turn_complete"]) == completions
+        # Provider confirmation belongs to the cancelled output, not the new
+        # gateway turn. Forwarding it as turn-2 blocks that fresh turn in the UI.
+        sockets[0].push({"serverContent": {"interrupted": True}})
+        await asyncio.sleep(.05)
+        assert not any(isinstance(x, dict) and x["type"] == "interrupted" and x["turn_id"] == "turn-2" for x in a.output)
         # The same real Runner can switch from catalog to conversation even
         # when an advisory shopping label does not recognize a greeting.
         sockets[0].push({"toolCall": {"functionCalls": [{"id": "classify-2", "name": "classify_intent", "args": {
@@ -314,6 +319,12 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
         await until(lambda: len([x for x in a.output if isinstance(x, dict) and x["type"] == "turn_complete"]) == completions + 1)
         assert len(a.audio_times) == before + 2
         assert a.output[-1]["turn_id"] == "turn-2"
+        # A cancellation of actual current output is still forwarded.
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 3200).decode()}}]}}})
+        await until(lambda: len(a.audio_times) == before + 3)
+        sockets[0].push({"serverContent": {"interrupted": True}})
+        await until(lambda: any(isinstance(x, dict) and x["type"] == "interrupted" and x["turn_id"] == "turn-2" for x in a.output))
         a.control("stop")
         await asyncio.wait_for(tasks[0], 5)
         assert runtime.active == 1

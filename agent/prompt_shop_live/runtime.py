@@ -151,8 +151,13 @@ class Runtime:
                 if event.error_code:
                     raise RuntimeError("provider failure")
                 if event.interrupted:
+                    interrupted_output = audio_open
                     audio_open = False
-                    await send({"type": "interrupted", **base})
+                    # Go has already advanced/flushed on new user speech. A
+                    # delayed provider ACK for old audio must not cancel that
+                    # fresh turn's upcoming generation in the browser gate.
+                    if interrupted_output:
+                        await send({"type": "interrupted", **base})
                 # Independent branches: one ADK event can have captions, audio and controls.
                 for attr, name in (("input_transcription", "input_transcript"), ("output_transcription", "output_transcript")):
                     transcript = getattr(event, attr, None)

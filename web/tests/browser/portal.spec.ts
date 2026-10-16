@@ -57,9 +57,11 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
   };
 }
 
-for (const width of [320, 768, 1280]) test(`typed flow, map and accessibility at ${width}px`, async ({ page }) => {
+for (const width of [320, 390, 768, 1280, 1440]) test(`typed flow, map and accessibility at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   const f = await fixture(page);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({path:`test-results/idle-${width}.png`,fullPage:true});
   expect(f.tickets()).toBe(0);
   await page.getByRole('textbox', { name: 'Item name' }).fill('milk');
   await page.getByRole('textbox', { name: 'Item name' }).press('Enter');
@@ -119,7 +121,7 @@ test('clicked voice choice sends identity and focuses verified directions', asyn
 
 test('mobile modal traps keyboard focus, restores launcher and stops capture on Escape', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 }); await page.emulateMedia({ reducedMotion: 'reduce' });
-  const f = await fixture(page); const launcher = page.getByRole('button', { name: 'Rather ask? Open voice assistant' });
+  const f = await fixture(page); const launcher = page.getByRole('button', { name: 'Open voice assistant', exact: true });
   await launcher.click(); const dialog = page.getByRole('dialog'); await f.start(dialog);
   for (let n = 0; n < 10; n++) { await page.keyboard.press('Tab'); expect(await page.evaluate(() => !!document.activeElement?.closest('dialog'))).toBe(true); }
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -155,4 +157,60 @@ test('real Chromium worklet captures bounded PCM only after ready and stops on E
   expect(f.messages.filter(Buffer.isBuffer).every((m) => m.length === 3200)).toBe(true);
   await page.getByRole('button', { name: 'End voice' }).click();
   await context.close();
+});
+
+test('mobile minimize and desktop resize retain one voice controller; Close ends it', async ({page}) => {
+  await page.setViewportSize({width:390,height:900});
+  const f=await fixture(page); const launcher=page.getByRole('button',{name:'Open voice assistant',exact:true});
+  await launcher.click(); const dialog=page.getByRole('dialog'); await f.start(dialog);
+  await dialog.getByRole('button',{name:'Minimize'}).click();
+  await expect(dialog).not.toBeVisible(); await expect(launcher).toBeFocused();
+  await expect(page.locator('.mobile-voice-dock')).toContainText('Mic on');
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(true);
+  await launcher.click(); await expect(dialog.getByRole('button',{name:'End voice',exact:true})).toBeVisible();
+  await page.setViewportSize({width:1280,height:900}); await expect(dialog).not.toBeVisible();
+  await expect(page.locator('.desktop-voice').getByRole('button',{name:'End voice',exact:true})).toBeFocused();
+  expect(f.tickets()).toBe(1); expect(await page.evaluate(()=>(window as any).__audio.opened)).toBe(1);
+  await page.locator('.desktop-voice').getByRole('button',{name:'End voice',exact:true}).click();
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);
+});
+
+test('missing avatar falls back without stopping microphone or typed lookup',async({page})=>{
+  await page.route('**/avatar/monti/atlas.webp',r=>r.abort());
+  const f=await fixture(page); await expect(page.locator('.desktop-voice .avatar-fallback')).toBeVisible();
+  expect(f.tickets()).toBe(0); await f.start();
+  await page.getByRole('button',{name:'End voice',exact:true}).click();
+  await page.getByRole('button',{name:'Milk',exact:true}).click();
+  await expect(page.locator('.product-card')).toHaveCount(1);
+});
+
+test('mobile selection moves the chosen match first while directions keep focus',async({page})=>{
+  await page.setViewportSize({width:390,height:900}); await fixture(page);
+  await page.route('**/api/search',r=>r.fulfill({json:{...search,ambiguous:true,candidates:[
+    {...search.candidates[0],id:'milk-oat-fixture',name:'Oat milk fixture'},
+    {...search.candidates[0],id:'milk-skim-fixture',name:'Skim milk fixture'},
+    search.candidates[0]]}}));
+  await page.getByRole('button',{name:'Milk',exact:true}).click();
+  await expect(page.locator('.product-card').first()).toContainText('Oat milk fixture');
+  await page.getByRole('button',{name:'Show route to Whole milk 1 L'}).click();
+  await expect(page.locator('.product-card').first()).toContainText('Whole milk 1 L');
+  await expect(page.locator('#route-heading')).toBeFocused();
+  await expect(page.getByRole('button',{name:'Show route to Oat milk fixture'})).not.toBeVisible();
+  await page.getByRole('button',{name:'Show all 3 matches'}).click();
+  await expect(page.getByRole('button',{name:'Show route to Oat milk fixture'})).toBeVisible();
+});
+
+test('mobile voice controls clear the virtual keyboard and retain 44px targets',async({page})=>{
+  await page.setViewportSize({width:320,height:900});
+  await page.addInitScript(()=>{
+    const viewport=Object.assign(new EventTarget(),{height:900,scale:1,offsetTop:0});
+    Object.defineProperty(window,'visualViewport',{value:viewport,configurable:true});
+    (window as any).__keyboard=(height:number)=>{viewport.height=height;viewport.dispatchEvent(new Event('resize'));};
+  });
+  await fixture(page); await page.getByRole('textbox',{name:'Item name'}).focus();
+  await page.evaluate(()=>(window as any).__keyboard(600));
+  await expect(page.locator('.mobile-voice-dock')).toHaveCSS('bottom','300px');
+  for(const button of await page.locator('.mobile-voice-dock button').all()){
+    const bounds=await button.boundingBox(); expect(bounds!.width).toBeGreaterThanOrEqual(44); expect(bounds!.height).toBeGreaterThanOrEqual(44);
+  }
 });
