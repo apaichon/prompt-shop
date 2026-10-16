@@ -9,7 +9,7 @@ from .measurements import assess_series, assess_voice, assess_intent
 
 MANUAL_CHECKS = {
     "import_atomicity": "new rows, same-ID updates, idempotency, row errors and full invalid-batch rollback",
-    "voice_native_adk": "required gemini-3.8-live with ADK Runner.run_live; PCM 16k input/24k output; no STT/TTS substitute",
+    "voice_native_adk": "configured Gemini Live model with ADK Runner.run_live; PCM 16k input/24k output; no STT/TTS substitute",
     "voice_classification_order": "actual Laya precedes catalog for every semantic turn, including repeat and out-of-scope",
     "voice_grounding": "heard answer and visible card/map agree with current authoritative tool results; no filler timing",
     "voice_interruption": "barge-in clears playback, late events/stale epochs rejected, selection synchronized",
@@ -64,13 +64,14 @@ def measured_evidence(observations, queries, intents):
     return results
 
 
-def release_report(freeze, catalog, queries, intents, observations, http_run=None, artifact_directory=None):
+def release_report(freeze, catalog, queries, intents, observations, http_run=None, artifact_directory=None, *, expected_model="gemini-3.8-live"):
     from .audit import sha256
+    require(isinstance(expected_model, str) and re.fullmatch(r"(?:models/)?[A-Za-z0-9][A-Za-z0-9._-]{0,127}", expected_model), "expected Gemini model ID required")
     require(isinstance(observations, dict) and isinstance(observations.get("candidate", {}), dict) and isinstance(observations.get("manual_checks", {}), dict), "observation metadata objects required")
     require(http_run is None or isinstance(http_run, dict) and isinstance(http_run.get("suites", {}), dict), "HTTP run/suites objects required")
     report = {"schema_version": "qa-release-v1", "generated_at": datetime.now(timezone.utc).isoformat(),
               "frozen_inputs": freeze["files"], "fixture": audit_fixture(catalog, queries),
-              "measurements": measured_evidence(observations, queries, intents), "blockers": []}
+              "measurements": measured_evidence(observations, queries, intents), "expected_native_model": expected_model, "blockers": []}
     blockers = report["blockers"]
     candidate = observations.get("candidate", {})
     parsed = urlsplit(candidate.get("origin") or "")
@@ -81,7 +82,8 @@ def release_report(freeze, catalog, queries, intents, observations, http_run=Non
         pass
     qualified = candidate.get("environment") == "deployed" and parsed.scheme == "https" and parsed.hostname and not local and not parsed.username and not parsed.password and parsed.path in ("", "/") and not parsed.query and not parsed.fragment
     qualified = qualified and bool(re.fullmatch(r"[0-9a-f]{40}", candidate.get("commit") or "")) and all(candidate.get(key) for key in ("deployment_id", "measured_at", "device", "network"))
-    qualified = qualified and candidate.get("native_model") == "gemini-3.8-live" and bool(re.fullmatch(r"[0-9a-f]{40}", candidate.get("laya_revision") or ""))
+    actual_model = candidate.get("native_model")
+    qualified = qualified and isinstance(actual_model, str) and actual_model.removeprefix("models/") == expected_model.removeprefix("models/") and bool(re.fullmatch(r"[0-9a-f]{40}", candidate.get("laya_revision") or ""))
     if not qualified:
         blockers.append("deployed candidate/model/checkpoint/device/network provenance missing")
     if observations.get("schema_version") != "qa-observations-v1" or observations.get("frozen_inputs") != freeze["files"]:

@@ -34,6 +34,11 @@ def matches(pattern, value):
     return isinstance(value, str) and re.fullmatch(pattern, value) is not None
 
 
+def validate_gemini(c):
+    require(matches(r"(?:models/)?[A-Za-z0-9][A-Za-z0-9._-]{0,127}", c.get("gemini_model")), "invalid gemini_model")
+    require(c.get("gemini_voice") == "" or matches(r"[A-Za-z][A-Za-z0-9_-]{0,63}", c.get("gemini_voice")), "invalid gemini_voice")
+
+
 def validate_config(c, *, render=False):
     expected = set(json.loads((Path(__file__).parent / "staging.example.json").read_text()))
     require(set(c) == expected, "configuration keys must match staging.example.json; never add secret values")
@@ -52,6 +57,7 @@ def validate_config(c, *, render=False):
     require(isinstance(c.get("approved_by"), str) and bool(c["approved_by"].strip()), "record cloud authorization in approved_by")
     require(date.fromisoformat(c.get("cleanup_date") or "1900-01-01") >= date.today(), "future cleanup/retention date required")
     require(c.get("reviewer_access") in ("private", "public"), "explicit reviewer_access required")
+    validate_gemini(c)
     expected = set().union(*(set(env.values()) for env in SECRET_ENV.values()))
     require(set(c.get("secrets", {})) == expected, "exact named secret inventory required")
     names = []
@@ -97,6 +103,11 @@ def secret_env(c, role):
         for env, key in SECRET_ENV[role].items()]
 
 
+def gemini_env(c):
+    return [{"name": "GEMINI_MODEL", "value": c["gemini_model"]},
+            {"name": "GEMINI_VOICE", "value": c["gemini_voice"]}]
+
+
 def probe(port, path):
     return {"httpGet": {"path": path, "port": port}, "timeoutSeconds": 2,
             "periodSeconds": 5, "failureThreshold": 48}
@@ -119,6 +130,8 @@ def render(c, lock):
             container["env"] += [{"name": k, "value": v} for k, v in {
                 "READINESS_MODE": "full", "STATIC_DIR": "/app/web/build",
                 "PUBLIC_ORIGIN": c["public_origin"], "VOICE_ENABLED": "true"}.items()]
+        elif role == "adk":
+            container["env"] += gemini_env(c)
         containers.append(container)
     revision = c["service"] + "-" + c["revision_suffix"]
     require(revision != c.get("previous_revision"), "candidate must differ from previous_revision")

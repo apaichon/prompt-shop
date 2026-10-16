@@ -10,6 +10,7 @@ from google.genai import types
 from starlette.websockets import WebSocketDisconnect
 
 from .host import ToolHost
+from .config import LiveSettings
 from .model import ObservedGemini, run_config
 from .protocol import APP, Setup
 from .queue import BoundedLiveRequestQueue
@@ -27,8 +28,9 @@ classification succeeded when it abstains. Repeat directions by revalidating the
 
 
 class Runtime:
-    def __init__(self, classifier, *, model_factory=ObservedGemini, runner_factory=Runner, client_factory=httpx.AsyncClient):
+    def __init__(self, classifier, *, settings=None, model_factory=ObservedGemini, runner_factory=Runner, client_factory=httpx.AsyncClient):
         self.classifier = classifier
+        self.settings = settings if settings is not None else LiveSettings.from_env()
         self.model_factory, self.runner_factory = model_factory, runner_factory
         self.client_factory = client_factory
         self.sessions = InMemorySessionService()
@@ -127,7 +129,7 @@ class Runtime:
             nonlocal stream, generation, audio_open, gate_since
             self.invocations += 1
             stream = runner.run_live(user_id=setup.session_id, session_id=setup.session_id,
-                                     live_request_queue=queue, run_config=run_config())
+                                     live_request_queue=queue, run_config=run_config(self.settings))
             async for event in stream:
                 turn = host.turn
                 base = {"session_id": setup.session_id, "turn_id": turn, "generation_id": f"generation-{generation}"}
@@ -180,7 +182,7 @@ class Runtime:
             created = True
             async with self.client_factory(timeout=1.5, follow_redirects=False, trust_env=False) as client:
                 host = ToolHost(setup, send, self.classifier, client)
-                model = self.model_factory(on_ready)
+                model = self.model_factory(on_ready, settings=self.settings)
                 agent = Agent(name="item_finder", model=model, instruction=INSTRUCTION,
                               tools=[BlockingTool(name, host) for name in SCHEMAS])
                 runner = self.runner_factory(app_name=APP, agent=agent, session_service=self.sessions)

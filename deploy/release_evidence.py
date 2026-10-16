@@ -76,13 +76,13 @@ def qa(c, lock, r, directory):
     candidate = observations.get("candidate", {})
     require(candidate.get("commit") == r["source_commit"] == lock["source_commit"] and candidate.get("deployment_id") == r["candidate_revision"] and candidate.get("origin") == c["public_origin"], "QA belongs to a different candidate/origin/source")
     frozen = load_frozen()
-    report = release_report(*frozen, observations, http_run, directory / r["qa_artifacts"])
+    report = release_report(*frozen, observations, http_run, directory / r["qa_artifacts"], expected_model=c["gemini_model"])
     require(report["recommendation"] == "READY_FOR_OWNER_REVIEW", "TASK-0006 acceptance incomplete or failed")
     return {"frozen_inputs": report["frozen_inputs"], "observations_sha256": digest(observations), "http_sha256": digest(http_run),
             "model_revision": candidate["laya_revision"], "device": candidate["device"], "network": candidate["network"]}
 
 
-SMOKE_FACTS = {"https_ready", "native_gemini_3_8_adk", "real_laya", "audible_grounded_answer", "verified_card_and_route",
+SMOKE_FACTS = {"https_ready", "native_gemini_adk", "real_laya", "audible_grounded_answer", "verified_card_and_route",
                "spoken_selection", "protected_backoffice", "fresh_session_on_target", "old_socket_restart", "no_secret_or_content_logs"}
 
 
