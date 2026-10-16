@@ -3,15 +3,19 @@ package main
 import (
 	"context"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/apaichon/prompt-shop/internal/backoffice"
+	"github.com/apaichon/prompt-shop/internal/catalog"
 	"github.com/apaichon/prompt-shop/internal/config"
 	"github.com/apaichon/prompt-shop/internal/platform/database"
 	"github.com/apaichon/prompt-shop/internal/platform/httpserver"
+	"github.com/apaichon/prompt-shop/internal/voice"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,6 +39,40 @@ func run() int {
 		checks = append(checks, httpserver.SidecarCheck("http://127.0.0.1:8001/healthz"), httpserver.SidecarCheck("http://127.0.0.1:8003/healthz"))
 	}
 	deps := httpserver.Dependencies{Checks: checks, ReadinessMode: cfg.ReadinessMode}
+	catalogService := catalog.NewService(pool)
+	registrations := []func(fiber.Router){catalogService.Register}
+	var privateServer *http.Server
+	var privateListener net.Listener
+	privateStopped := make(chan error, 1)
+	if cfg.VoiceEnabled {
+		ticketPool, e := database.Open(ctx, cfg.TicketDatabaseURL, 1)
+		if e != nil {
+			log.Print("voice database configuration invalid")
+			return 1
+		}
+		defer ticketPool.Close()
+		gateway, e := voice.NewGateway(voice.GatewayConfig{Origin: cfg.PortalOrigin, BridgeSecret: cfg.BridgeSecret, Enabled: true, AllowLocalHTTP: cfg.VoiceAllowLocalHTTP}, voice.PostgresTickets{Pool: ticketPool}, catalogService)
+		if e != nil {
+			log.Print("voice configuration invalid")
+			return 1
+		}
+		registrations = append(registrations, gateway.Register)
+		deps.Checks = append(deps.Checks, ticketPool.Ping)
+		privateServer = voice.PrivateServer(gateway.Registry, catalogService)
+		privateListener, e = net.Listen("tcp", privateServer.Addr)
+		if e != nil {
+			log.Print("private tool listener unavailable")
+			return 1
+		}
+		defer privateListener.Close()
+		defer privateServer.Close()
+	} else {
+		registrations = append(registrations, func(r fiber.Router) {
+			r.Post("/api/voice/sessions", func(c *fiber.Ctx) error {
+				return httpserver.Error(c, 503, "DEPENDENCY_UNAVAILABLE", "Voice is not configured.", true)
+			})
+		})
+	}
 	if cfg.BackofficeDatabaseURL != "" {
 		adminPool, e := database.Open(ctx, cfg.BackofficeDatabaseURL, 2)
 		if e != nil {
@@ -47,13 +85,18 @@ func run() int {
 			log.Print("backoffice configuration invalid")
 			return 1
 		}
-		deps.Register = admin.Register
+		registrations = append(registrations, admin.Register)
 		deps.Checks = append(deps.Checks, adminPool.Ping)
 	} else {
-		deps.Register = func(r fiber.Router) {
+		registrations = append(registrations, func(r fiber.Router) {
 			r.All("/api/backoffice/*", func(c *fiber.Ctx) error {
 				return httpserver.Error(c, 503, "DEPENDENCY_UNAVAILABLE", "Backoffice is not configured.", true)
 			})
+		})
+	}
+	deps.Register = func(r fiber.Router) {
+		for _, register := range registrations {
+			register(r)
 		}
 	}
 	if cfg.StaticDir != "" {
@@ -70,16 +113,30 @@ func run() int {
 		deps.Static = assets.FS()
 	}
 	app := httpserver.New(deps)
+	if privateServer != nil {
+		go func() { privateStopped <- privateServer.Serve(privateListener) }()
+	}
 	stopped := make(chan error, 1)
 	go func() { stopped <- app.Listen(cfg.ListenAddress) }()
 	log.Printf("server starting; readiness_scope=%s", cfg.ReadinessMode)
 	select {
+	case err := <-privateStopped:
+		if err != nil && err != http.ErrServerClosed {
+			log.Print("private tool listener failed")
+		}
+		_ = app.ShutdownWithTimeout(5 * time.Second)
+		return 1
 	case err := <-stopped:
 		if err != nil {
 			log.Print("server listener failed")
 			return 1
 		}
 	case <-ctx.Done():
+		if privateServer != nil {
+			shutdown, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			_ = privateServer.Shutdown(shutdown)
+			cancel()
+		}
 		if err := app.ShutdownWithTimeout(5 * time.Second); err != nil {
 			log.Print("server shutdown deadline reached")
 			return 1

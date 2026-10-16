@@ -1,6 +1,21 @@
 # Initial testing from main
 
-All ten tasks' current code is consolidated on `main` at the user's request. The merge preserves unfinished task/QA states. Begin with local component and portal testing; full shopper search/route/voice acceptance cannot pass yet because Task 2 public handlers and shared Go voice/catalog registration are incomplete. Laya's actual frozen accuracy is 19/40, required 36/40; native deployment CPU performance remains unqualified. No deployment occurred.
+All ten tasks' current code is consolidated on `main` at the user's request. The merge preserves unfinished task/QA states. Public search/map/routes and the shared Go voice/catalog registration are now connected, with one real synthetic browser-to-Gemini/ADK/Laya lookup/route/audio check. Laya's actual frozen accuracy is still 19/40, required 36/40; the complete frozen voice/browser/deployment suites and native deployment CPU performance remain unqualified. No cloud deployment occurred.
+
+## Start the complete local MVP
+
+Set `GOOGLE_API_KEY`, optional `GEMINI_MODEL`/`GEMINI_VOICE`, and the private bridge configuration in `agent/.env`; see [agent setup](../agent/README.md). Prepare the pinned offline Laya model bundle using [intent setup](../intent/README.md). The existing verified bundle under `.worktrees/TASK-0010/intent/local/model-bundle` is reused if no main-checkout bundle is configured; it is never downloaded at service startup.
+
+```sh
+rtk proxy make mvp-start
+rtk proxy make mvp-status
+rtk proxy make mvp-restart
+rtk proxy make mvp-stop
+```
+
+Open **http://localhost:8080**, allow microphone access and choose **Start voice**. The launcher initializes PostgreSQL without resetting data, installs locked Python environments, verifies the model bundle, builds the portal/Go server, then starts warmed Laya → ADK → Go. It creates/matches private bridge/classifier tokens without copying the provider key into Go or Laya. Runtime logs/PIDs are under ignored `tmp/run/`. `mvp-stop` stops only saved, verified project processes and retains PostgreSQL; `make stop` separately stops the database. Use `mvp-restart` after configuration or source edits.
+
+This local launcher explicitly enables HTTP only for the exact localhost origin; secure ticket cookies and exact Origin checks remain in place. `VOICE_ALLOW_LOCAL_HTTP` cannot be enabled on Cloud Run. Deployment still requires HTTPS and its own qualified three-container setup. The backoffice is optional and remains unavailable until its separate login/hash/origin settings are configured.
 
 ## Build and check the portal
 
@@ -13,7 +28,7 @@ rtk proxy npm --prefix web test
 rtk proxy npm --prefix web run build
 ```
 
-For an initial UI preview, run `rtk proxy npm --prefix web run dev` and open the URL it prints. This is a frontend development server; customer API failures are expected until the backend handlers are implemented and connected. The production portal is served by Go with `STATIC_DIR=web/build`.
+For an initial UI preview, run `rtk proxy npm --prefix web run dev` and open the URL it prints. This is a frontend development server; use Go at localhost:8080 for functional API/voice testing unless a development API proxy is configured. The built portal is served by Go with `STATIC_DIR=web/build`.
 
 ## Local database and Go server
 
@@ -48,11 +63,13 @@ rtk proxy sh -c 'set -a; . ./.env; set +a; unset GOROOT; exec /opt/homebrew/bin/
 
 Use the installed Go executable in place of `/opt/homebrew/bin/go` on another machine. This Mac's commands unset a stale global GOROOT without changing shell configuration. Set `STATIC_DIR=web/build` after building the portal. The local template uses `READINESS_MODE=foundation`; that checks DB/schema/seed only and cannot qualify a deployment. Open `http://localhost:8080/`, `/healthz` and `/readyz`. In full mode readiness stays 503 until the private ADK/Laya dependencies are ready.
 
-The portal can render from this server, but `/api/catalog/search`, map/route and public voice endpoints are not yet registered. Backoffice returns 503 until its separate DB login, PUBLIC_ORIGIN and bcrypt hash are configured together. Follow [protected backoffice setup](../internal/backoffice/README.md) for maintainer credentials, role grants, HTTPS/cookies and actual backend/browser verification. Do not use operator credentials for the public or backoffice service.
+The server registers `POST /api/search`, `POST /api/routes` and `GET /api/store-map`. Enabling voice requires `VOICE_ENABLED=true`, `TICKET_DATABASE_URL`, a matching `ADK_BRIDGE_SECRET`, the exact `PUBLIC_ORIGIN`, and running private ADK/Laya services; `mvp-start` prepares this local configuration. Backoffice returns 503 until its separate DB login, PUBLIC_ORIGIN and bcrypt hash are configured together. Follow [protected backoffice setup](../internal/backoffice/README.md) for maintainer credentials, role grants, HTTPS/cookies and actual backend/browser verification. Do not use operator credentials for public, ticket or backoffice traffic.
 
 ## Python modules and offline QA
 
 The ADK and classifier have separate locked Python environments:
+
+Stop the application services with `make mvp-stop` before Go gateway tests: those tests reserve private port 8001 for a controlled bridge fixture. Restart with `make mvp-start` afterward.
 
 ```sh
 rtk proxy uv sync --project agent --frozen --python 3.11

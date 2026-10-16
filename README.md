@@ -10,7 +10,7 @@ Deploy to GCP by **16 October 2026**; rehearse on **17 October**; submit on **18
 - [Proposed SDLC review pack](docs/sdlc/REVIEW.md)
 - [Selected Monti Jarvis code and provenance](references/monti-jarvis/README.md)
 
-Current state: all ten tasks' current source snapshots are consolidated for initial local testing. The portal and protected backoffice are implemented; public shopper catalog/routes and Go voice registration remain incomplete, Laya accuracy qualification failed, and the candidate is not deployed. Start with [initial local testing](docs/INITIAL-TESTING.md); the [source consolidation record](docs/INTEGRATION-ALL-TASKS-2026-10-14.md) preserves acceptance blockers.
+Current state: all ten tasks' source is consolidated. Local typed search, map/routes and the native Gemini/ADK/Laya voice path are connected; use `rtk proxy make mvp-start` for the complete local stack. A synthetic browser voice request returned a real product/route and native audio. Laya accuracy qualification remains failed and the candidate is not deployed. Start with [initial local testing](docs/INITIAL-TESTING.md); [voice-start diagnosis](docs/VOICE-START-FIX-2026-10-16.md) records the fix and its limits.
 
 ## Tech stack
 
@@ -63,6 +63,8 @@ TASK-0001 database/import and health setup is documented in [TASK-0001-HANDOFF.m
 Backoffice setup and verification: [internal/backoffice/README.md](internal/backoffice/README.md).
 
 ## Local infrastructure commands
+
+For a functional voice MVP, configure `agent/.env` and the pinned Laya bundle as described in [initial testing](docs/INITIAL-TESTING.md), then use `rtk proxy make mvp-start`. `mvp-status`, `mvp-stop` and `mvp-restart` manage the three application processes; stop retains PostgreSQL. The commands below manage PostgreSQL only.
 
 Run from the repository root with Docker running, Docker Compose, Go, Python 3 and `rtk` installed:
 

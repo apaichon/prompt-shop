@@ -16,3 +16,4 @@ docs/sdlc/_graph.mmd
 /tmp/
 *.test
 coverage.out
+__pycache__/
