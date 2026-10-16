@@ -1,6 +1,6 @@
 # prompt-shop
 
-A single hypermarket portal with an English-first Gemini Live 3.8 voice-to-voice item finder using Google ADK and Laya intent classification, shelf directions and a protected catalog backoffice. Extra languages, recipes and vector search follow the core prototype.
+A single hypermarket portal with an English-first Gemini Live voice assistant using Google ADK and advisory Laya intent classification. Talk naturally, ask for meal ideas, then find products and verified shelf directions in the same session. Catalog-backed meal planning, extra languages and vector search follow the prototype. A protected catalog backoffice shares the portal.
 
 ## Prototype plan
 

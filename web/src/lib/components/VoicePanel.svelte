@@ -4,13 +4,13 @@
   export let portal: Portal;
   export let prefix = 'desktop';
   const voice = portal.voice;
-  const labels = { idle: 'Ready when you are', connecting: 'Connecting', listening: 'Listening', thinking: 'Finding your item', speaking: 'Speaking', interrupted: 'Listening after interruption', error: 'Voice paused' };
+  const labels = { idle: 'Ready when you are', connecting: 'Connecting', listening: 'Listening', thinking: 'Thinking', speaking: 'Speaking', interrupted: 'Listening after interruption', error: 'Voice paused' };
   $: countdown = `${Math.floor($voice.remaining / 60)}:${String($voice.remaining % 60).padStart(2, '0')}`;
 </script>
 <section class="voice-panel" aria-labelledby={`${prefix}-voice-title`}>
   <div class="eyebrow">YOUR STORE ASSISTANT <span class="language">EN</span></div>
   <h2 id={`${prefix}-voice-title`}>Just ask.</h2>
-  <p class="voice-intro">Say what you’re looking for.<br />We’ll help you find its shelf.</p>
+  <p class="voice-intro">Say hello, plan a meal,<br />or ask where to find an item.</p>
   <div class="voice-orb" class:live={$voice.active} class:speaking={$voice.phase === 'speaking'} aria-hidden="true"><div><Icon name="mic" size={34} /></div><span></span><span></span></div>
   <div class="voice-status" role="status" aria-live="polite"><span class:active={$voice.active}></span>{labels[$voice.phase]}</div>
   {#if $voice.active}<p class="session-time">{$voice.micMuted ? 'Microphone muted' : 'Microphone on'} <span aria-hidden="true">·</span> <span aria-label={`${$voice.remaining} seconds remaining`}>{countdown} left</span></p>{/if}

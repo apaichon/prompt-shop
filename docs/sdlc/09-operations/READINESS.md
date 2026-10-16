@@ -20,7 +20,7 @@ Run this procedure against the exact candidate revision, then repeat the normal-
 
 ### Step 1 — Prepare the environment and evidence sheet
 
-1. Choose either local diagnosis or deployed acceptance. For local startup, follow [initial testing](../../INITIAL-TESTING.md); its `READINESS_MODE=foundation` checks only the database/schema/seed. For deployed acceptance, use the approved HTTPS origin and `READINESS_MODE=full`.
+1. Choose either local diagnosis or deployed acceptance. For local startup, follow [initial testing](../../INITIAL-TESTING.md): `make mvp-start` enables full dependency readiness; a separately started foundation-only server checks just the database/schema/seed. For deployed acceptance, use the approved HTTPS origin and `READINESS_MODE=full`.
 2. Record the date/time/timezone, tester, environment, exact URL/origin, source commit, serving revision, all three image digests, schema/seed/map versions, ADK dependency lock/bridge version, Laya checkpoint and provider model/voice. Record secret versions only.
 3. Confirm browser access through the actual reviewer access path, a working microphone/speaker, and the declared demo browser/device/network. Have a separate anonymous browser window and two maintainer sessions available.
 4. Obtain the approved maintainer login through the protected channel. DevOps must identify the known good revision and compatible database before restart, outage or rollback drills. Perform those drills in the designated test environment under the release runbook.
@@ -70,6 +70,7 @@ rtk proxy curl --silent --show-error --include --max-time 10 https://APPROVED_HO
 2. Say the frozen prompt `Where is the whole milk?` and listen to the complete reply. Confirm audible useful speech, a verified product card and a location that matches stored catalog facts. Filler speech and captions alone do not pass.
 3. Ask for `milk`, then choose one of the returned candidates by voice. Confirm the selected card, spoken directions and map agree. Ask to repeat the directions; then make an out-of-scope request and verify no catalog write or unrelated action occurs.
 4. Have the voice owner correlate safe counters/IDs to prove the actual native `gemini-3.8-live` session runs through ADK `Runner.run_live()`, real Laya `classify_intent`, and validated read-only catalog/route tools. Verify mono PCM16/16 kHz input and PCM/24 kHz output from configuration and safe runtime facts.
+5. In the same session say `Hello`, ask `What is two plus two?`, then `Suggest a simple egg dish for dinner`. Expect complete conversational audio replies. Follow with `Where is the whole milk?`; expect catalog-backed shelf/route facts. General chat and meal ideas must not trigger fabricated store matches or be silenced by an advisory classification abstention. Ingredients are suggestions until matched through store tools.
 
 **Expected:** the actual required model, ADK, classifier, tools, audible answer and UI work together. A model name in the UI, direct provider connection bypassing ADK, mock labels or typed-only success cannot pass. Preserve identity/counter evidence without recording audio, transcripts or tool bodies.
 

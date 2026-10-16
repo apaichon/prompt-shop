@@ -5,6 +5,23 @@ The default model is `gemini-3.8-live`. Go owns
 public admission, ticket consumption, turn epochs, candidate sets and factual UI
 events. Python owns native provider audio and three explicit BLOCKING tools.
 
+## Conversation and store tools
+
+The assistant supports general conversation, greetings and meal/recipe suggestions.
+For every user turn Gemini calls `classify_intent` with `text` and a `response_mode`:
+`conversation` for chat/meal ideas, or `catalog` for finding/matching store products,
+availability and shelf directions. Laya still runs once; its shopping labels and
+abstentions are advisory and do not silence a conversational reply. The selected
+mode is registered with the same current-turn attempt/ACK before audio is allowed.
+Older callers omitting mode keep the stricter catalog gate.
+
+Catalog mode requires search and, for a unique match, a verified route before location
+audio. Starting a catalog call closes any earlier conversational audio permission.
+Meal ingredients are suggestions, not promises that the store stocks them. The
+assistant offers to locate an ingredient; multiple ingredients are handled one at a
+time. No recipe database, inventory/price feed or vector search is implied. General
+speech remains model-generated, so actual speech grounding still needs QA.
+
 ## Configuration and launch
 
 Run from the repository's `agent/` directory. `uv.lock` pins ADK 2.11.0 and GenAI 2.30.1 plus

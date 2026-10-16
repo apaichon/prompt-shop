@@ -1,7 +1,8 @@
 {
-  "source": "TASK-0001 data/contracts local handoff, 2026-10-13; review pending",
+  "source": "TASK-0001 data/contracts local handoff, 2026-10-13; amended by GPT integration/TASK-0003 on 2026-10-16 with response_mode for user-authorized conversation routing; full acceptance pending",
+  "original_private_sha256": "a46b174c65e5a3412f826584a42bcd2cd36c7975e5ca23e66b1141d6e42f324b",
   "sha256": {
     "live.schema.json": "7bc0f19571d7c6d197b53e6db0fd04773773ccc572140482cf4b37c30c477109",
-    "private.schema.json": "a46b174c65e5a3412f826584a42bcd2cd36c7975e5ca23e66b1141d6e42f324b"
+    "private.schema.json": "68634347615070700c0d17bf61a3a663b0633f2ee1ac02bd06405766c247b004"
   }
 }

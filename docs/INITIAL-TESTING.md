@@ -17,6 +17,13 @@ Open **http://localhost:8080**, allow microphone access and choose **Start voice
 
 This local launcher explicitly enables HTTP only for the exact localhost origin; secure ticket cookies and exact Origin checks remain in place. `VOICE_ALLOW_LOCAL_HTTP` cannot be enabled on Cloud Run. Deployment still requires HTTPS and its own qualified three-container setup. The backoffice is optional and remains unavailable until its separate login/hash/origin settings are configured.
 
+In one voice session, say **Hello**, ask **What is two plus two?**, ask **Suggest a
+simple egg dish for dinner**, then **Where is the whole milk?**. Expect natural
+spoken replies for the first three, and a database-backed product/route for the
+last. Meal ideas and ingredient lists do not claim store availability; ask to find
+one ingredient when you want its actual location. Greeting/general-chat replies
+remain available when advisory Laya shopping classification abstains.
+
 ## Build and check the portal
 
 Run from the repository root with Node 22.17+ and the existing lockfile:
@@ -84,6 +91,6 @@ rtk proxy env -u GOROOT /opt/homebrew/bin/go test ./...
 
 These cover local contracts and controlled lifecycle/failure fixtures. DB tests skip without explicitly configured disposable test DBs; see the owning module instructions before enabling them. Passing offline checks does not mean actual model, public API, native voice or cloud acceptance passed.
 
-For actual Laya startup/download/env and evaluation, follow [intent/README.md](../intent/README.md). Its real 842 MB bundle is an ignored local asset, not in Git. The verified copy from Task 10 remains under `.worktrees/TASK-0010/intent/local/model-bundle`; you may set the server-only `LAYA_MODEL_PATH` to that absolute path rather than downloading it again. Set the same private LAYA_INTERNAL_TOKEN for ADK and Laya. Existing keys/env files were not copied, read or overwritten by the merge. For ADK native voice configuration, follow [agent/README.md](../agent/README.md); shared public Go wiring and real native provider testing are still required.
+For actual Laya startup/download/env and evaluation, follow [intent/README.md](../intent/README.md). Its real 842 MB bundle is an ignored local asset, not in Git. The verified copy from Task 10 remains under `.worktrees/TASK-0010/intent/local/model-bundle`; you may set the server-only `LAYA_MODEL_PATH` to that absolute path rather than downloading it again. Set the same private LAYA_INTERNAL_TOKEN for ADK and Laya. Existing keys/env files were not copied, read or overwritten by the merge. For ADK native voice configuration, follow [agent/README.md](../agent/README.md). Local Go wiring and native synthetic flows are covered by the linked diagnosis records; complete deployed voice/device/latency acceptance is still required.
 
 Proposal PPTX/PDF copies remain under the Task 7 worktree and are excluded from commits/pushes. Proposal sources and rehearsal instructions are in [docs/demo](demo/README.md). Cloud release tooling is in [deploy/RELEASE.md](../deploy/RELEASE.md), with acceptance guards preserved; initial local testing does not authorize cloud rollout.

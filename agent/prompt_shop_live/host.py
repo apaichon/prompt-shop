@@ -48,6 +48,9 @@ class ToolHost:
                 return tool_error("RATE_LIMITED")
             self.counts[name] = count + 1
             if name == "classify_intent":
+                response_mode = args.get("response_mode", "catalog")
+                if not isinstance(response_mode, str) or response_mode not in {"conversation", "catalog"}:
+                    return tool_error("INVALID_REQUEST")
                 self.attempt = secrets.token_urlsafe(24)
                 try:
                     async with asyncio.timeout(1.2):
@@ -59,17 +62,21 @@ class ToolHost:
                 if turn != self.turn:
                     return tool_error("STALE_SELECTION")
                 await self.send({"type": "classification_completed", "session_id": self.setup.session_id,
-                    "turn_id": turn, "classification_attempt_id": self.attempt, "result": result})
+                    "turn_id": turn, "classification_attempt_id": self.attempt,
+                    "response_mode": response_mode, "result": result})
                 # ACK is mandatory before crossing from WS metadata to HTTP callbacks.
                 async with asyncio.timeout(.75):
                     await self.ack.wait()
                 if turn != self.turn:
                     return tool_error("STALE_SELECTION")
                 self.classified = True
-                self.audio_allowed = result["intent"] == "out_of_scope" and not result["abstained"]
+                # Laya's four shopping labels are advisory, including abstention.
+                # A conversation has no store facts to verify before replying.
+                self.audio_allowed = response_mode == "conversation"
                 return result
             if not self.classified or not self.ack.is_set():
                 return tool_error("CLASSIFICATION_REQUIRED")
+            self.audio_allowed = False
             envelope = {"session_id": self.setup.session_id, "turn_id": turn,
                 "call_id": secrets.token_urlsafe(24), "classification_attempt_id": self.attempt, "args": args}
             async with asyncio.timeout(1.5):
