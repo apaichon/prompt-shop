@@ -2,6 +2,7 @@ import asyncio
 import base64
 import contextlib
 import json
+import time
 from pathlib import Path
 import jsonschema
 
@@ -87,6 +88,7 @@ class Bridge:
         self.output = []
         self.ready = asyncio.Event()
         self.closed = False
+        self.audio_times = []
 
     async def receive(self):
         return await self.incoming.get()
@@ -100,6 +102,7 @@ class Bridge:
 
     async def send_bytes(self, value):
         self.output.append(value)
+        self.audio_times.append((time.monotonic(), len(value)))
 
     async def close(self, **_):
         self.closed = True
@@ -229,6 +232,32 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
             "outputTranscription": {"text": "Aisle 2, Shelf 3", "finished": True}, "turnComplete": True}})
         await until(lambda: len([x for x in a.output if isinstance(x, bytes)]) == 2)
         assert not any(isinstance(x, bytes) for x in b.output)
+        # Real SDK/Runner receives two seconds of PCM immediately. Downstream
+        # must receive all of it at playback speed within the existing bounds.
+        await until(lambda: any(isinstance(x, dict) and x["type"] == "audio_end" for x in a.output))
+        before = len(a.audio_times)
+        for i in range(3):
+            sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+                {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 32000).decode()}}]},
+                "turnComplete": i == 2}})
+        await until(lambda: len(a.audio_times) == before + 6)
+        paced = a.audio_times[before:]
+        assert sum(size for _, size in paced) == 96000
+        assert all(size <= 16384 for _, size in paced)
+        assert all(now - prior >= size / 48000 * .95 for (prior, size), (now, _) in zip(paced, paced[1:]))
+        await until(lambda: len([x for x in a.output if isinstance(x, dict) and x["type"] == "audio_end"]) == 2)
+        # Barge-in during a paced multipart event must discard the rest and its
+        # obsolete completion without waiting for the entire response to drain.
+        before = len(a.audio_times)
+        completions = len([x for x in a.output if isinstance(x, dict) and x["type"] == "turn_complete"])
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 48000).decode()}}]},
+            "turnComplete": True}})
+        await until(lambda: len(a.audio_times) == before + 1)
+        a.control("begin_turn", turn_id="turn-2")
+        await asyncio.sleep(.5)
+        assert len(a.audio_times) == before + 1
+        assert len([x for x in a.output if isinstance(x, dict) and x["type"] == "turn_complete"]) == completions
         a.control("stop")
         await asyncio.wait_for(tasks[0], 5)
         assert runtime.active == 1
