@@ -132,6 +132,7 @@ class Runtime:
                                      live_request_queue=queue, run_config=run_config(self.settings))
             async for event in stream:
                 turn = host.turn
+                event_generation = generation
                 base = {"session_id": setup.session_id, "turn_id": turn, "generation_id": f"generation-{generation}"}
                 if event.error_code:
                     raise RuntimeError("provider failure")
@@ -144,6 +145,8 @@ class Runtime:
                     if transcript and transcript.text and (name == "input_transcript" or host.audio_allowed):
                         await send({"type": name, **{k: v for k, v in base.items() if k != "generation_id"}, "text": transcript.text[:4000], "final": bool(transcript.finished)})
                 for part in event.content.parts if event.content and event.content.parts else []:
+                    if generation != event_generation or host.turn != turn:
+                        break
                     blob = part.inline_data
                     if blob and blob.data:
                         if not blob.mime_type or not blob.mime_type.startswith("audio/pcm") or len(blob.data) % 2:
@@ -157,13 +160,26 @@ class Runtime:
                             await send({"type": "audio_start", **base})
                             audio_open = True
                         for offset in range(0, len(blob.data), 16384):
-                            await send(blob.data[offset:offset + 16384])
-                if event.turn_complete:
+                            if generation != event_generation or host.turn != turn:
+                                break
+                            chunk = blob.data[offset:offset + 16384]
+                            await send(chunk)
+                            # Native audio arrives faster than playback. Apply
+                            # backpressure here, keeping the one-second relay
+                            # and browser bounds rather than enlarging queues.
+                            # The independent reader still handles barge-in;
+                            # cancellation interrupts this wait immediately.
+                            await asyncio.sleep(len(chunk) / 48000)
+                if generation != event_generation or host.turn != turn:
+                    continue
+                # ADK may yield completion separately from the audio event.
+                # After barge-in the new turn has no validated tool result yet;
+                # an old completion must not be relabelled as its completion.
+                if event.turn_complete and host.audio_allowed:
                     if audio_open:
                         await send({"type": "audio_end", **base})
                     audio_open = False
-                    if host.audio_allowed:
-                        gate_since = None
+                    gate_since = None
                     await send({"type": "turn_complete", "session_id": setup.session_id, "turn_id": turn})
 
         async def timer():
