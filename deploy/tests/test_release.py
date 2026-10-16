@@ -26,7 +26,8 @@ def fixture():
     r.update(source_commit=lock["source_commit"], candidate_revision=c["service"]+"-"+c["revision_suffix"], approved_by="OFFLINE UNIT FIXTURE")
     r["known_good"] = {"revision": c["previous_revision"], "source_commit": "d"*40,
         "images": {role: value.replace("c"*64, "d"*64) for role, value in lock["images"].items()},
-        "secrets": copy.deepcopy(c["secrets"]), "model_revision": "e"*40}
+        "secrets": copy.deepcopy(c["secrets"]), "model_revision": "e"*40,
+        "gemini_model": c["gemini_model"], "gemini_voice": c["gemini_voice"]}
     for ref in r["known_good"]["secrets"].values(): ref["version"] = "2"
     service, _ = staging.render(c, lock)
     service["metadata"]["resourceVersion"] = "one"
@@ -64,6 +65,30 @@ def reviews(c, r, path):
 
 
 class Identities(unittest.TestCase):
+    def test_candidate_model_change_keeps_baseline_settings_for_recovery(self):
+        c, lock, r, captures = fixture()
+        c.update(gemini_model="gemini-configured-live", gemini_voice="Aoede")
+        row = next(x for x in captures["candidate"]["spec"]["containers"] if x["name"] == "adk")
+        for entry in row["env"]:
+            if entry["name"] == "GEMINI_MODEL": entry["value"] = c["gemini_model"]
+            if entry["name"] == "GEMINI_VOICE": entry["value"] = c["gemini_voice"]
+        ops.inspect(c, lock, r, captures, "promote")
+        captures["service"]["status"]["traffic"] = [{"revisionName":r["candidate_revision"], "percent":100}]
+        ops.inspect(c, lock, r, captures, "rollback")
+        baseline = next(x for x in captures["known_good"]["spec"]["containers"] if x["name"] == "adk")
+        next(x for x in baseline["env"] if x["name"] == "GEMINI_MODEL")["value"] = c["gemini_model"]
+        with self.assertRaises(ValueError):
+            ops.inspect(c, lock, r, captures, "rollback")
+
+    def test_unreviewed_gemini_model_or_voice_drift_is_rejected(self):
+        for name in ("GEMINI_MODEL", "GEMINI_VOICE"):
+            with self.subTest(name=name):
+                c, lock, r, captures = fixture()
+                row = next(x for x in captures["candidate"]["spec"]["containers"] if x["name"] == "adk")
+                next(x for x in row["env"] if x["name"] == name)["value"] = "unreviewed-change"
+                with self.assertRaises(ValueError):
+                    ops.inspect(c, lock, r, captures, "promote")
+
     def test_exact_revision_and_secret_bundle(self):
         c, lock, r, captures = fixture()
         view = ops.inspect(c, lock, r, captures, "promote")
@@ -260,6 +285,17 @@ class FakeCloud:
 
 
 class Execution(unittest.TestCase):
+    def test_rollback_restores_baseline_model_and_voice_after_candidate_change(self):
+        c, lock, r, captures = fixture()
+        c.update(gemini_model="gemini-configured-live", gemini_voice="Aoede")
+        captures["service"]["status"]["traffic"] = [{"revisionName":r["candidate_revision"], "percent":100}]
+        plan = {"operation": "rollback", "context_sha256": contracts.digest({"config": c, "images": lock, "release": r}),
+                "expected_state_sha256": contracts.digest(ops.inspect(c, lock, r, captures, "rollback"))}
+        cloud = FakeCloud(captures, r["known_good"]["revision"])
+        result = ops.execute(c, lock, r, plan, cloud, lambda value: cloud.recorded.append(copy.deepcopy(value)))
+        self.assertEqual(result["state"], "TRAFFIC_VERIFIED_SMOKE_PENDING")
+        self.assertEqual(result["target_revision"], r["known_good"]["revision"])
+
     def setup_plan(self):
         c, lock, r, captures = fixture()
         plan = {"operation": "promote", "context_sha256": contracts.digest({"config": c, "images": lock, "release": r}),

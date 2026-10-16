@@ -42,7 +42,8 @@ def inspect(c, lock, r, captures, operation):
     require(operation in ("promote", "rollback", "verify"), "snapshot operation invalid")
     service = service_view(c, captures["service"])
     baseline = r["known_good"]
-    good = revision_view(c, captures["known_good"], baseline["revision"], baseline["images"], baseline["secrets"])
+    good_config = dict(c, gemini_model=baseline["gemini_model"], gemini_voice=baseline["gemini_voice"])
+    good = revision_view(good_config, captures["known_good"], baseline["revision"], baseline["images"], baseline["secrets"])
     candidate = None
     if operation in ("promote", "verify"):
         require(service["ready"], "service is not Ready for promotion")
@@ -80,7 +81,8 @@ def execute(c, lock, r, plan, cloud=None, record=None):
         require(view["percentages"].get(target) == 100 and all(p == 0 for name, p in view["percentages"].items() if name != target), "effective traffic did not reach the exact target")
         bundle = r["known_good"] if operation == "rollback" else {"images": lock["images"], "secrets": c["secrets"]}
         target_export = after["known_good"] if operation == "rollback" else after["candidate"]
-        revision_view(c, target_export, target, bundle["images"], bundle["secrets"])
+        target_config = dict(c, gemini_model=bundle["gemini_model"], gemini_voice=bundle["gemini_voice"]) if operation == "rollback" else c
+        revision_view(target_config, target_export, target, bundle["images"], bundle["secrets"])
         receipt.update(state="TRAFFIC_VERIFIED_SMOKE_PENDING", after_state_sha256=digest(view), images=bundle["images"])
     except (ValueError, KeyError, TypeError, OSError, subprocess.SubprocessError):
         receipt["state"] = "CHANGE_ATTEMPTED_RESULT_UNVERIFIED"

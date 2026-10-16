@@ -7,7 +7,7 @@ import re
 import subprocess
 from urllib.parse import urlsplit
 
-from staging import SECRET_ENV, account, require, matches, secret_env, connection
+from staging import SECRET_ENV, account, require, matches, secret_env, gemini_env, validate_gemini, connection
 
 ROLES = {"go", "adk", "laya"}
 CHECKS = {"build_provenance", "baseline_qualification", "schema_compatibility", "same_origin_access",
@@ -66,6 +66,7 @@ def secrets(values):
 
 
 def validate_release(c, r):
+    validate_gemini(c)
     expected = {"schema_version", "git_tag", "source_commit", "candidate_revision", "approved_by",
                 "known_good", "qa_observations", "qa_http_run", "qa_artifacts", "checks"}
     require(isinstance(r, dict) and set(r) == expected and r["schema_version"] == "release-v1", "release schema differs")
@@ -73,7 +74,8 @@ def validate_release(c, r):
     require(isinstance(r["approved_by"], str) and r["approved_by"].strip(), "release operator approval record missing")
     revision_name(c, r["candidate_revision"])
     good = r["known_good"]
-    require(isinstance(good, dict) and set(good) == {"revision", "source_commit", "images", "secrets", "model_revision"}, "known-good bundle differs")
+    require(isinstance(good, dict) and set(good) == {"revision", "source_commit", "images", "secrets", "model_revision", "gemini_model", "gemini_voice"}, "known-good bundle differs")
+    validate_gemini(good)
     revision_name(c, good["revision"])
     require(good["revision"] != r["candidate_revision"] and c.get("previous_revision") == good["revision"], "distinct, configured rollback baseline required")
     require(matches(r"[0-9a-f]{40}", good["source_commit"]) and matches(r"[0-9a-f]{40}", good["model_revision"]), "baseline source/checkpoint identity missing")
@@ -150,6 +152,8 @@ def revision_view(c, value, name, bundle, secret_refs, *, must_be_ready=True):
         expected = {entry["name"]: entry for entry in secret_env(adjusted, role)}
         if role == "go":
             expected.update({key: {"name": key, "value": val} for key, val in {"READINESS_MODE": "full", "STATIC_DIR": "/app/web/build", "PUBLIC_ORIGIN": c["public_origin"], "VOICE_ENABLED": "true"}.items()})
+        elif role == "adk":
+            expected.update({entry["name"]: entry for entry in gemini_env(c)})
         env = row.get("env", [])
         require(isinstance(env, list) and all(isinstance(entry, dict) for entry in env), "environment objects required")
         require(len(env) == len(expected) and {entry["name"] for entry in env} == set(expected), "unexpected/missing runtime environment")

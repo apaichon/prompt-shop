@@ -31,6 +31,24 @@ def fixture():
 
 
 class Manifests(unittest.TestCase):
+    def test_gemini_settings_are_configurable_and_adk_only(self):
+        c, lock = fixture()
+        c.update(gemini_model="models/gemini-configured-live", gemini_voice="Aoede")
+        service, job = staging.render(c, lock)
+        for row in service["spec"]["template"]["spec"]["containers"]:
+            selected = {entry["name"]: entry["value"] for entry in row["env"] if entry["name"] in {"GEMINI_MODEL", "GEMINI_VOICE"}}
+            self.assertEqual(selected, {"GEMINI_MODEL": c["gemini_model"], "GEMINI_VOICE": "Aoede"} if row["name"] == "adk" else {})
+        self.assertNotIn("GEMINI_MODEL", json.dumps(job))
+
+    def test_gemini_settings_reject_malformed_values(self):
+        for field, value in [("gemini_model", ""), ("gemini_model", "https://example.test/model"),
+                             ("gemini_voice", None), ("gemini_voice", "Aoede\nInjected")]:
+            with self.subTest(field=field, value=value):
+                c, lock = fixture()
+                c[field] = value
+                with self.assertRaises(ValueError):
+                    staging.render(c, lock)
+
     def test_secret_isolation_and_migration_identity(self):
         c, lock = fixture()
         service, job = staging.render(c, lock)

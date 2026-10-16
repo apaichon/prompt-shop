@@ -137,9 +137,19 @@ async def until(predicate):
             await asyncio.sleep(.01)
 
 
-async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch):
+@pytest.mark.parametrize("selected_model,selected_voice", [
+    (None, None),
+    ("gemini-3.9-live-fixture", "Aoede"),
+    ("models/gemini-3.8-live-preview-fixture", "Kore"),
+])
+async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, selected_model, selected_voice):
     monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
     monkeypatch.setenv("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
+    for name, value in (("GEMINI_MODEL", selected_model), ("GEMINI_VOICE", selected_voice)):
+        if value is None:
+            monkeypatch.delenv(name, raising=False)
+        else:
+            monkeypatch.setenv(name, value)
     sockets = []
     @contextlib.asynccontextmanager
     async def connect(*args, **kwargs):
@@ -160,15 +170,27 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch):
     def clients(**kwargs):
         return httpx.AsyncClient(transport=httpx.MockTransport(tools), **kwargs)
     runtime = Runtime(classifier, client_factory=clients)
+    # An environment change cannot mix settings within the running process.
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-changed-after-startup")
+    monkeypatch.setenv("GEMINI_VOICE", "Puck")
     a, b = Bridge("session-a"), Bridge("session-b")
-    tasks = [asyncio.create_task(runtime.serve(a, setup(a.sid))), asyncio.create_task(runtime.serve(b, setup(b.sid)))]
+    tasks = [asyncio.create_task(runtime.serve(a, setup(a.sid)))]
     try:
-        await asyncio.wait_for(asyncio.gather(a.ready.wait(), b.ready.wait()), 10)
+        # Fix socket-to-bridge order while keeping both sessions active together.
+        await asyncio.wait_for(a.ready.wait(), 10)
+        tasks.append(asyncio.create_task(runtime.serve(b, setup(b.sid))))
+        await asyncio.wait_for(b.ready.wait(), 10)
         assert runtime.active == 2 and runtime.invocations == 2
         for socket in sockets:
             config = socket.sent[0]["setup"]
-            assert config["model"] == "models/gemini-3.8-live"
+            expected_model = selected_model or "gemini-3.8-live"
+            assert config["model"] == (expected_model if expected_model.startswith("models/") else "models/" + expected_model)
             assert config["generationConfig"]["responseModalities"] == ["AUDIO"]
+            if selected_voice is None:
+                assert "speechConfig" not in config["generationConfig"]
+            else:
+                # The pinned Developer API SDK preserves snake_case inside speechConfig.
+                assert config["generationConfig"]["speechConfig"] == {"voice_config": {"prebuilt_voice_config": {"voice_name": selected_voice}}}
             declarations = [d for t in config["tools"] for d in t["functionDeclarations"]]
             assert {d["name"] for d in declarations} == {"classify_intent", "search_catalog", "get_product_route"}
             assert all(d["behavior"] == "BLOCKING" for d in declarations)
@@ -182,7 +204,11 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch):
         a.control("activity_end", turn_id="turn-1")
         await until(lambda: any("realtime_input" in x for x in sockets[0].sent))
         sockets[0].push({"toolCall": {"functionCalls": [{"id": "classify-1", "name": "classify_intent", "args": {"text": "milk"}}]}})
-        await until(lambda: any("tool_response" in x for x in sockets[0].sent))
+        try:
+            await until(lambda: any("tool_response" in x for x in sockets[0].sent))
+        except TimeoutError:
+            pytest.fail(str({"provider_message_keys": [list(x) for x in sockets[0].sent],
+                             "bridge_events": [x.get("type") for x in a.output if isinstance(x, dict)]}))
         assert any(isinstance(x, dict) and x["type"] == "classification_completed" for x in a.output)
         # Input transcription and multiple audio parts must not drop one another;
         # audio before a successful required catalog sequence is deliberately suppressed.

@@ -18,6 +18,8 @@
   "public_origin": null,
   "revision_suffix": null,
   "previous_revision": null,
+  "gemini_model": "gemini-3.8-live",
+  "gemini_voice": "",
   "secrets": {
     "database": {
       "name": "prompt-shop-database",

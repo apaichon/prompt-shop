@@ -23,6 +23,8 @@ Follow [Task 5's build/provisioning runbook](README.md). Provide an authorized G
 
 Candidate browser testing must use exactly the configured `PUBLIC_ORIGIN`. A candidate tag URL is another origin, and changing origin/env after testing creates a different revision. Arrange and qualify the approved same-origin reviewer access path before collecting QA; do not bypass Origin/cookies, silently add origins or count a UI model label as provider identity. The controller requires the same-origin artifact plus native QA on that origin/revision. See [Cloud Run traffic tags and rollout guidance](https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration).
 
+Record the baseline's own `gemini_model` and `gemini_voice` in `release.json.known_good`, in addition to the Laya `model_revision`. The candidate takes its values from `staging.json`; rollback verifies/restores the baseline's separately pinned values even when the candidate changed models or voices. Add these fields to older local release files before use. A blank voice explicitly means the provider default; model/voice changes still require fresh native qualification and applicable acceptance evidence.
+
 Copy actual Task 6 observations, HTTP results and their redacted reviewed artifacts into an ignored evidence directory (for example `deploy/local/evidence`). Names are selected by `qa_observations`, `qa_http_run`, `qa_artifacts` in release.json. The controller recomputes the frozen 30/40-query gates; an old `BLOCK_RELEASE`, different source/revision/origin or unqualified real model/checkpoint cannot promote. HTTP request time or a traffic-command exit code cannot stand in for audible/rendered latency.
 
 ## Reviewed check artifacts
@@ -98,7 +100,7 @@ Then capture/plan/execute promotion again after full candidate gates, returning 
 
 Smoke artifacts use the envelope above with `check: native_release_smoke`; their `subject` instead contains exact project/region/service, target `revision`, target `source_commit`, origin and `operation_sha256` (SHA-256 of canonical sorted compact JSON of that operation receipt, as computed by `release_contracts.digest`). Facts must include exact `images`, `model_revision`, and all ten booleans:
 
-`https_ready`, `native_gemini_3_8_adk`, `real_laya`, `audible_grounded_answer`, `verified_card_and_route`, `spoken_selection`, `protected_backoffice`, `fresh_session_on_target`, `old_socket_restart`, `no_secret_or_content_logs`.
+`https_ready`, `native_gemini_adk`, `real_laya`, `audible_grounded_answer`, `verified_card_and_route`, `spoken_selection`, `protected_backoffice`, `fresh_session_on_target`, `old_socket_restart`, `no_secret_or_content_logs`.
 
 Create a smokes index with exactly `post_promotion`, `fault_injection`, `rollback`, `final_promotion`, each holding the same four-field status/reviewer/artifact/sha256 proof used for checks. Each observed_at is UTC completion after its traffic verification and before the next operation. Rollback smoke binds the baseline's own source/images/model, not the candidate bundle.
 
