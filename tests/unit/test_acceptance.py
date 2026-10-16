@@ -254,6 +254,17 @@ class MeasurementTests(unittest.TestCase):
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_model_evidence_must_match_the_operator_selected_model(self):
+        observations = template(FREEZE)
+        observations["candidate"].update(environment="deployed", origin="https://shop.example", commit="a"*40,
+            deployment_id="fixture", measured_at="2026-10-16", device="test", network="test",
+            native_model="gemini-3.9-live-fixture", laya_revision="b"*40)
+        provenance = "deployed candidate/model/checkpoint/device/network provenance missing"
+        selected = release_report(FREEZE, CATALOG, QUERIES, INTENTS, observations, expected_model="models/gemini-3.9-live-fixture")
+        self.assertNotIn(provenance, selected["blockers"])
+        self.assertEqual(selected["recommendation"], "BLOCK_RELEASE")  # Other missing gates stay required.
+        self.assertIn(provenance, release_report(FREEZE, CATALOG, QUERIES, INTENTS, observations)["blockers"])
+
     def test_nonobject_and_mixed_cold_evidence_rejected(self):
         with self.assertRaises(ValueError): measured_evidence([], QUERIES, INTENTS)
         observations = template(FREEZE)

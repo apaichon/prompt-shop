@@ -14,7 +14,7 @@ import wave
 import httpx
 
 from .app import quiet_dependencies
-from .protocol import MODEL, Setup
+from .protocol import Setup
 from .runtime import Runtime
 
 
@@ -117,7 +117,8 @@ async def run(args):
         if output:
             output.close()
     ok = not bridge.errors and bridge.audio_bytes > 0 and bridge.classifications == 1 and "get_product_route" in calls
-    print(json.dumps({"status": "transport_smoke_pass" if ok else "failed", "model": MODEL,
+    print(json.dumps({"status": "transport_smoke_pass" if ok else "failed", "model": runtime.settings.model,
+        "voice": runtime.settings.voice,
         "adk": importlib.metadata.version("google-adk"), "genai": importlib.metadata.version("google-genai"),
         "runner_invocations": runtime.invocations, "cleanups": runtime.cleanups, "active_sessions": runtime.active,
         "input_pcm_bytes": len(pcm), "output_pcm_bytes": bridge.audio_bytes, "classification_attempts": bridge.classifications,

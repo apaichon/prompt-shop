@@ -13,7 +13,9 @@
       "laya": null
     },
     "secrets": null,
-    "model_revision": null
+    "model_revision": null,
+    "gemini_model": null,
+    "gemini_voice": null
   },
   "qa_observations": "qa-observations.json",
   "qa_http_run": "qa-http.json",

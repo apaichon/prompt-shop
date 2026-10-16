@@ -1,20 +1,64 @@
 # TASK-0003 private Live runtime
 
-This package runs `gemini-3.8-live` through Google ADK `Runner.run_live`. Go owns
+This package runs the configured Gemini Live model through Google ADK `Runner.run_live`.
+The default model is `gemini-3.8-live`. Go owns
 public admission, ticket consumption, turn epochs, candidate sets and factual UI
 events. Python owns native provider audio and three explicit BLOCKING tools.
 
+## Conversation and store tools
+
+The assistant supports general conversation, greetings and meal/recipe suggestions.
+For every user turn Gemini calls `classify_intent` with `text` and a `response_mode`:
+`conversation` for chat/meal ideas, or `catalog` for finding/matching store products,
+availability and shelf directions. Laya still runs once; its shopping labels and
+abstentions are advisory and do not silence a conversational reply. The selected
+mode is registered with the same current-turn attempt/ACK before audio is allowed.
+Older callers omitting mode keep the stricter catalog gate.
+
+Catalog mode requires search and, for a unique match, a verified route before location
+audio. Starting a catalog call closes any earlier conversational audio permission.
+Meal ingredients are suggestions, not promises that the store stocks them. The
+assistant offers to locate an ingredient; multiple ingredients are handled one at a
+time. No recipe database, inventory/price feed or vector search is implied. General
+speech remains model-generated, so actual speech grounding still needs QA.
+
 ## Configuration and launch
 
-Use `.worktrees/TASK-0003/agent`. `uv.lock` pins ADK 2.11.0 and GenAI 2.30.1 plus
+Run from the repository's `agent/` directory. `uv.lock` pins ADK 2.11.0 and GenAI 2.30.1 plus
 transitive dependencies. Python 3.11–3.13 is supported.
 
 ```sh
 rtk proxy uv sync --locked
-# agent/.env already exists locally, is gitignored, and has owner-only permissions.
-# Set GOOGLE_API_KEY there. ADK_BRIDGE_SECRET must match the Go gateway secret.
+# Create .env from .env.example if absent; preserve an existing .env.
+rtk proxy cp -n .env.example .env
+rtk proxy chmod 600 .env
+# Set GOOGLE_API_KEY, GEMINI_MODEL and GEMINI_VOICE in this private file.
+# ADK_BRIDGE_SECRET must match the Go gateway secret.
 rtk proxy uv run --env-file .env uvicorn prompt_shop_live.app:app --host 0.0.0.0 --port 8001 --no-access-log --ws-max-size 65536 --ws-max-queue 1
 ```
+
+Configure these server-only settings in `agent/.env` locally or the ADK container's
+environment in deployment:
+
+```dotenv
+GOOGLE_API_KEY=your-key
+GEMINI_MODEL=gemini-3.8-live
+GEMINI_VOICE=Aoede
+```
+
+`GEMINI_MODEL` accepts a model ID with an optional `models/` prefix; an unset value
+keeps the default, while an explicitly empty/invalid ID prevents startup.
+`GEMINI_VOICE` selects a prebuilt voice; unset/empty preserves the provider default.
+Other malformed values prevent startup. The runtime captures both settings once;
+restart ADK and open a fresh voice session after changes. There is no automatic
+fallback to another model or voice on provider errors. Supported model/voice pairs
+depend on the provider/account and still need a real audio/tool smoke after changes.
+Model selection does not add SDK compatibility: a new model generation may also
+require a reviewed ADK/GenAI upgrade before its audio/tool protocol is supported.
+Voice selection is passed through ADK's `RunConfig.speech_config` to Gemini's
+`prebuilt_voice_config.voice_name`; see the [official Live voice configuration](https://ai.google.dev/gemini-api/docs/live-api/capabilities).
+The opt-in smoke reports the configured model/voice (null voice means provider default).
+The root `.env` and `make start` configure PostgreSQL, not this Python process.
 
 Only Go is public ingress. The private runtime requires a Bearer bridge secret,
 rejects query parameters and validates its setup message. `/healthz` returns 503

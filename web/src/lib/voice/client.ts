@@ -111,7 +111,7 @@ export class VoiceClient {
       }
       this.speakingInput = true; this.lastSpeech = now;
     } else if (this.speakingInput && now - this.lastSpeech >= 500) {
-      this.speakingInput = false; this.patch({ phase: 'thinking', message: 'Finding your item…' });
+      this.speakingInput = false; this.patch({ phase: 'thinking', message: 'Thinking…' });
     }
     try { this.socket.send(frame); } catch { this.fail('Voice disconnected. Restart voice or type an item.'); }
   }
@@ -136,12 +136,15 @@ export class VoiceClient {
         if (this.ready) { this.fail('Voice connection was reset. Please restart.'); return; }
         this.ready = true; this.expires = Math.min(Date.parse(event.expires_at), Date.now() + 300000);
         this.lastSpeech = this.lastPing = Date.now(); this.pongDeadline = 0; this.speakingInput = false;
-        this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say an item name. You can interrupt at any time.' }); break;
+        this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say hello, ask a question, or find an item. You can interrupt at any time.' }); break;
       case 'input_transcript': this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;
       case 'output_transcript': this.patch({ output: mergeTranscriptChunk(this.state.output, event.text).slice(-8000) }); break;
       case 'audio_start': this.audioFinished = false; break;
       case 'audio_end': this.audioFinished = true; if (this.audioDrained) this.patch({ phase: 'listening' }); break;
-      case 'interrupted': this.patch({ phase: 'interrupted', message: 'Response stopped. Listening to you…' }); break;
+      case 'interrupted':
+        this.patch(decision.newTurn
+          ? { phase: 'listening', message: 'Listening to you…' }
+          : { phase: 'interrupted', message: 'Response stopped. Listening to you…' }); break;
       case 'turn_complete': this.audioFinished = true; if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
       case 'error':
         if (['STALE_SELECTION', 'CLASSIFICATION_ABSTAINED', 'CLASSIFIER_TIMEOUT', 'CLASSIFIER_BUSY'].includes(event.code)) {

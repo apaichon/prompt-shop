@@ -43,6 +43,12 @@ setup/classification fixtures without changing public events.
 
 `classification_completed` must register in Go before its matching
 `classification_registered` ACK. Python waits for that ACK before callbacks.
+The completed event also carries `response_mode: "conversation" | "catalog"`.
+Conversation mode unlocks general speech after the recorded attempt even when
+Laya abstains; catalog mode (also the missing-mode default) keeps the search/route
+gate. Starting any catalog callback closes conversation permission, and each new
+turn resets it. Laya labels never grant access or supply store facts. This extends
+the private contract only; public events and least-privileged callbacks are unchanged.
 Callback bodies contain `{session_id,turn_id,call_id,classification_attempt_id,args}`
 with a per-connection capability in Authorization. Fixed loopback POST routes:
 `/internal/tools/search_catalog` and `/internal/tools/get_product_route` only.
@@ -52,5 +58,6 @@ ambiguous search requires a later shopper turn or explicit selection.
 
 Foundation contract snapshot source: TASK-0001's 2026-10-13 local handoff,
 `data/contracts/live.schema.json` and `private.schema.json`; hashes are recorded
-under `agent/tests/contracts/provenance.json`. Final foundation/Grok acceptance
+under `agent/tests/contracts/provenance.json`, including the 16 October response-mode
+amendment and its original handoff hash. Final foundation/Grok acceptance
 and a clean rebase remain integration gates.

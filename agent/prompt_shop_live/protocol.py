@@ -3,7 +3,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-MODEL = "gemini-3.8-live"
 APP = "prompt_shop"
 ID = re.compile(r"^[a-zA-Z0-9_-]{1,128}$")
 

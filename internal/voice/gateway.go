@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -23,6 +25,7 @@ const ticketCookie = "__Host-voice-ticket"
 type GatewayConfig struct {
 	Origin, BridgeSecret string
 	Enabled              bool
+	AllowLocalHTTP       bool
 }
 type Gateway struct {
 	config   GatewayConfig
@@ -40,7 +43,12 @@ type rateEntry struct {
 
 func NewGateway(config GatewayConfig, tickets TicketStore, catalog Catalog) (*Gateway, error) {
 	u, err := url.Parse(config.Origin)
-	if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" || len(config.BridgeSecret) < 32 || tickets == nil || catalog == nil {
+	localHTTP := false
+	if err == nil && config.AllowLocalHTTP && os.Getenv("K_SERVICE") == "" && u.Scheme == "http" {
+		ip := net.ParseIP(u.Hostname())
+		localHTTP = u.Hostname() == "localhost" || ip != nil && ip.IsLoopback()
+	}
+	if err != nil || (u.Scheme != "https" && !localHTTP) || u.Host == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" || len(config.BridgeSecret) < 32 || tickets == nil || catalog == nil {
 		return nil, errors.New("invalid voice configuration")
 	}
 	return &Gateway{config: config, tickets: tickets, catalog: catalog, Registry: NewRegistry(), rates: map[string]rateEntry{}}, nil
@@ -345,11 +353,11 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 				if json.Unmarshal(event["result"], &result) != nil {
 					return errors.New("INVALID_REQUEST")
 				}
-				intent := ""
-				if result.Intent != nil {
-					intent = *result.Intent
+				var responseMode string
+				if raw, present := event["response_mode"]; present && json.Unmarshal(raw, &responseMode) != nil {
+					return errors.New("INVALID_REQUEST")
 				}
-				if s.RegisterClassification(turn, attempt, intent, result.Abstained) != nil {
+				if s.RegisterClassification(turn, attempt, responseMode) != nil {
 					continue
 				}
 				if err = bridgeEvent(Event{"type": "classification_registered", "turn_id": turn, "classification_attempt_id": attempt}); err != nil {

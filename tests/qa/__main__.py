@@ -21,6 +21,7 @@ def main():
         if name == "report":
             command.add_argument("--http-run", type=Path)
             command.add_argument("--artifacts", type=Path)
+            command.add_argument("--expected-model", default="gemini-3.8-live")
         if name == "http":
             command.add_argument("--url", required=True)
             command.add_argument("--suite", choices=("all", "catalog", "routes", "anonymous"), default="all")
@@ -44,7 +45,7 @@ def main():
                 passed = all(r["status"] == "pass" for r in result.values())
             else:
                 http_run = json.loads(args.http_run.read_text()) if args.http_run else None
-                result = release_report(freeze, catalog, queries, intents, observations, http_run, args.artifacts)
+                result = release_report(freeze, catalog, queries, intents, observations, http_run, args.artifacts, expected_model=args.expected_model)
                 passed = result["recommendation"] == "READY_FOR_OWNER_REVIEW"
         else:
             client = Client(args.url, local=args.local, insecure_tls=args.insecure_local_tls, pace=args.pace)

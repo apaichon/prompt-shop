@@ -48,6 +48,7 @@
     "session_id": "fixture-session",
     "turn_id": "turn-1",
     "classification_attempt_id": "classification-1",
+    "response_mode": "catalog",
     "result": {
       "schema_version": "intent-v1",
       "intent": "find_item",

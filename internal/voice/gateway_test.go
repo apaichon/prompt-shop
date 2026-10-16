@@ -14,6 +14,27 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func TestHTTPVoiceOriginIsExplicitAndLoopbackOnly(t *testing.T) {
+	t.Setenv("K_SERVICE", "")
+	for _, test := range []struct {
+		origin      string
+		allow, want bool
+	}{
+		{"http://localhost:8080", false, false}, {"http://localhost:8080", true, true},
+		{"http://127.0.0.1:8080", true, true}, {"http://localhost.attacker.test", true, false},
+		{"http://example.test", true, false}, {"http://localhost:8080/path", true, false},
+	} {
+		_, err := NewGateway(GatewayConfig{Origin: test.origin, BridgeSecret: strings.Repeat("s", 43), Enabled: true, AllowLocalHTTP: test.allow}, &memoryTickets{}, &fixtureCatalog{})
+		if (err == nil) != test.want {
+			t.Fatalf("origin %s local flag %v accepted=%v", test.origin, test.allow, err == nil)
+		}
+	}
+	t.Setenv("K_SERVICE", "cloud-service")
+	if _, err := NewGateway(GatewayConfig{Origin: "http://localhost:8080", BridgeSecret: strings.Repeat("s", 43), Enabled: true, AllowLocalHTTP: true}, &memoryTickets{}, &fixtureCatalog{}); err == nil {
+		t.Fatal("cloud local HTTP bypass accepted")
+	}
+}
+
 func TestGatewayBridgeACKAndVerifiedEvents(t *testing.T) {
 	tickets := &memoryTickets{}
 	g, err := NewGateway(GatewayConfig{Origin: "https://shop.example", BridgeSecret: strings.Repeat("s", 43), Enabled: true}, tickets, &fixtureCatalog{products: []Product{{ID: "milk"}, {ID: "oat"}}})

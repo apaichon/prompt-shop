@@ -1,6 +1,6 @@
 # prompt-shop
 
-A single hypermarket portal with an English-first Gemini Live 3.8 voice-to-voice item finder using Google ADK and Laya intent classification, shelf directions and a protected catalog backoffice. Extra languages, recipes and vector search follow the core prototype.
+A single hypermarket portal with an English-first Gemini Live voice assistant using Google ADK and advisory Laya intent classification. Talk naturally, ask for meal ideas, then find products and verified shelf directions in the same session. Catalog-backed meal planning, extra languages and vector search follow the prototype. A protected catalog backoffice shares the portal.
 
 ## Prototype plan
 
@@ -10,7 +10,7 @@ Deploy to GCP by **16 October 2026**; rehearse on **17 October**; submit on **18
 - [Proposed SDLC review pack](docs/sdlc/REVIEW.md)
 - [Selected Monti Jarvis code and provenance](references/monti-jarvis/README.md)
 
-Current state: all ten tasks' current source snapshots are consolidated for initial local testing. The portal and protected backoffice are implemented; public shopper catalog/routes and Go voice registration remain incomplete, Laya accuracy qualification failed, and the candidate is not deployed. Start with [initial local testing](docs/INITIAL-TESTING.md); the [source consolidation record](docs/INTEGRATION-ALL-TASKS-2026-10-14.md) preserves acceptance blockers.
+Current state: all ten tasks' source is consolidated. Local typed search, map/routes and the native Gemini/ADK/Laya voice path are connected; use `rtk proxy make mvp-start` for the complete local stack. A synthetic browser voice request returned a real product/route and native audio. Laya accuracy qualification remains failed and the candidate is not deployed. Start with [initial local testing](docs/INITIAL-TESTING.md); [voice-start diagnosis](docs/VOICE-START-FIX-2026-10-16.md) records the fix and its limits.
 
 ## Tech stack
 
@@ -61,3 +61,20 @@ The [task allocation plan](docs/MODEL-ALLOCATION.md) assigns all ten tasks to GP
 TASK-0001 database/import and health setup is documented in [TASK-0001-HANDOFF.md](docs/TASK-0001-HANDOFF.md). That historical task handoff predates the consolidated portal, backoffice and classifier source; use the initial testing guide for the current combined checkout.
 
 Backoffice setup and verification: [internal/backoffice/README.md](internal/backoffice/README.md).
+
+## Local infrastructure commands
+
+For a functional voice MVP, configure `agent/.env` and the pinned Laya bundle as described in [initial testing](docs/INITIAL-TESTING.md), then use `rtk proxy make mvp-start`. `mvp-status`, `mvp-stop` and `mvp-restart` manage the three application processes; stop retains PostgreSQL. The commands below manage PostgreSQL only.
+
+Run from the repository root with Docker running, Docker Compose, Go, Python 3 and `rtk` installed:
+
+```sh
+rtk proxy make start
+rtk proxy make stop
+rtk proxy make restart
+rtk proxy make reset-data
+```
+
+`start` creates a private `.env` from `.env.example` only when missing, starts PostgreSQL, waits for readiness, applies migrations, imports the demo seed and grants the local read-only login. Repeated imports of the same seed are idempotent. `stop` and `restart` retain the database volume; `restart` does not reseed it. `reset-data` deletes this project's local database volume, then rebuilds the schema/seed/login. It removes custom data, maintainer sessions and extra database logins; recreate optional backoffice logins afterward. Stop any app using this database before resetting it.
+
+Use `rtk proxy make status`, `rtk proxy make logs` or `rtk proxy make help` for inspection. The aliases `infra-start`, `infra-stop`, `infra-restart` and `infra-reset-data` are also available. These commands manage the fixed `prompt-shop` Compose project and its PostgreSQL service, not the Go server, portal, ADK, Laya or GCP. Imports always use loopback and the local `POSTGRES_*` settings, ignoring a caller's `OPERATOR_DATABASE_URL`. If you customize `.env`, keep `DATABASE_URL` consistent with your local reader login; the supplied login script creates `prompt_shop_reader` with the development password from the template.
