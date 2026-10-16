@@ -81,6 +81,16 @@ rtk proxy curl --silent --show-error --include --max-time 10 https://APPROVED_HO
 3. Deny microphone permission in a fresh browser context. Confirm a clear recovery message and usable typing. Restore permission and deliberately start a new session. Separately test playback denial/unsupported capture as described in [TEST-0002](../07-tests/TEST-0002.md).
 4. Measure separate setup, idle and session-expiry cases: setup bounded by 30 seconds, idle by 60 seconds and application session by 300 seconds from ready; confirm the configured outer Cloud Run timeout is 360 seconds. Observe a visible expiry/restart state and release of provider/admission resources.
 
+5. During a complete reply, stay quiet and leave a short pause before the next
+   question. Quiet background input must not silently discard the reply. Ask a
+   follow-up without restarting and verify the microphone indicator stays active.
+6. In the fault harness, omit/delay the current turn's required tool result. A
+   recognized request gets at most one continuation attempt after eight seconds.
+   If it still cannot complete, expect “please ask again” with the session and
+   microphone still active, then ask a fresh question and verify an answer. The
+   expired turn's late audio/cards must be ignored. Actual provider/network failure
+   still uses explicit fresh-session restart; this turn timeout does not.
+
 **Expected:** each failure has bounded, explicit recovery with no stale results or leaked sessions. Keep these fault trials separate from normal warm timing samples.
 
 ### Step 7 — Test protected catalog maintenance

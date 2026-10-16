@@ -68,8 +68,8 @@ async def test_ack_must_match_before_catalog_dispatch_and_stale_calls_cancel():
         task = asyncio.create_task(host.call("classify_intent", {"text": "oats"}))
         await asyncio.sleep(.01)
         host.begin("turn-3")
-        with pytest.raises(asyncio.CancelledError):
-            await task
+        assert (await task)["error"]["code"] == "STALE_SELECTION"
+        assert not host.tasks
         await host.close()
 
 
@@ -397,3 +397,125 @@ async def test_all_exit_paths_delete_session_and_release_capacity(monkeypatch, m
     assert runtime.active == 0 and runtime.cleanups == 1
     assert await runtime.sessions.get_session(app_name=APP, user_id=bridge.sid, session_id=bridge.sid) is None
     assert "sensitive provider payload" not in repr(bridge.output)
+
+
+@pytest.mark.parametrize("recover_on_retry", [True, False])
+async def test_missing_turn_tools_retry_then_recover_without_closing_native_session(monkeypatch, recover_on_retry):
+    import prompt_shop_live.runtime as runtime_module
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
+    monkeypatch.setenv("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-3.8-live")
+    monkeypatch.setattr(runtime_module, "TURN_TOOL_TIMEOUT", .15)
+    sockets = []
+    @contextlib.asynccontextmanager
+    async def connect(*args, **kwargs):
+        socket = ProviderSocket()
+        sockets.append(socket)
+        yield socket
+    monkeypatch.setattr(live, "ws_connect", connect)
+    runtime = Runtime(classifier)
+    bridge = Bridge("turn-recovery")
+    task = asyncio.create_task(runtime.serve(bridge, setup(bridge.sid)))
+    async def classify(call_id):
+        sockets[0].push({"toolCall": {"functionCalls": [{"id": call_id, "name": "classify_intent", "args": {
+            "text": "Hello", "response_mode": "conversation"}}]}})
+    def reply():
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 3200).decode()}}]},
+            "outputTranscription": {"text": "Hello", "finished": True}, "turnComplete": True}})
+    try:
+        await asyncio.wait_for(bridge.ready.wait(), 5)
+        bridge.control("begin_turn", turn_id="turn-1")
+        bridge.control("activity_end", turn_id="turn-1")
+        sockets[0].push({"serverContent": {"inputTranscription": {"text": "Hello", "finished": True}}})
+        # The provider skips the required tool after interruption. Its ungrounded
+        # reply is suppressed, then one reminder is sent through actual ADK/SDK.
+        reply()
+        await until(lambda: any(x.get("realtime_input", {}).get("text") for x in sockets[0].sent))
+        assert not bridge.closed and not any(isinstance(x, bytes) for x in bridge.output)
+        if recover_on_retry:
+            await classify("recovered-1")
+            await until(lambda: any("tool_response" in x for x in sockets[0].sent))
+            reply()
+            await until(lambda: any(isinstance(x, dict) and x["type"] == "turn_complete" for x in bridge.output))
+            assert any(isinstance(x, bytes) for x in bridge.output) and not bridge.closed
+        else:
+            await until(lambda: any(isinstance(x, dict) and x.get("code") == "TURN_TIMEOUT" for x in bridge.output))
+            assert not bridge.closed and not any(isinstance(x, bytes) for x in bridge.output)
+        # Noise/empty activity must not replay the previous request or terminate
+        # the connection. A failed turn cannot later unlock audio or store tools.
+        bridge.control("begin_turn", turn_id="turn-2")
+        bridge.control("activity_end", turn_id="turn-2")
+        await until(lambda: any(isinstance(x, dict) and x.get("code") == "TURN_TIMEOUT" and x.get("turn_id") == "turn-2" for x in bridge.output))
+        assert not bridge.closed and runtime.active == 1
+        reminders = sum(bool(x.get("realtime_input", {}).get("text")) for x in sockets[0].sent)
+        assert reminders == 1
+        before = len(bridge.audio_times)
+        await classify("late-failed-2")
+        reply()
+        await asyncio.sleep(.1)
+        assert len(bridge.audio_times) == before
+        # A fresh spoken request uses the same provider/ADK session successfully.
+        bridge.control("begin_turn", turn_id="turn-3")
+        await asyncio.sleep(.02)
+        expected_responses = len([x for x in sockets[0].sent if "tool_response" in x]) + 1
+        await classify("fresh-3")
+        await until(lambda: len([x for x in sockets[0].sent if "tool_response" in x]) >= expected_responses)
+        reply()
+        await until(lambda: len(bridge.audio_times) == before + 1)
+        assert len(sockets) == 1 and not bridge.closed
+        bridge.control("stop")
+        await asyncio.wait_for(task, 5)
+        assert runtime.active == 0 and bridge.closed
+    finally:
+        task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
+
+
+@pytest.mark.parametrize("interrupt", ["new-turn", "stop"])
+async def test_barge_in_during_classification_keeps_actual_adk_runner_alive(monkeypatch, interrupt):
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
+    monkeypatch.setenv("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-3.8-live")
+    sockets = []
+    @contextlib.asynccontextmanager
+    async def connect(*args, **kwargs):
+        socket = ProviderSocket(); sockets.append(socket); yield socket
+    monkeypatch.setattr(live, "ws_connect", connect)
+    pending = asyncio.Event()
+    async def delayed_classifier(text):
+        if text == "pending":
+            pending.set()
+            await asyncio.Event().wait()
+        return await classifier(text)
+    runtime = Runtime(delayed_classifier)
+    bridge = Bridge("cancel-pending-classifier")
+    task = asyncio.create_task(runtime.serve(bridge, setup(bridge.sid)))
+    def classify_call(call_id, text):
+        sockets[0].push({"toolCall": {"functionCalls": [{"id": call_id, "name": "classify_intent", "args": {
+            "text": text, "response_mode": "conversation"}}]}})
+    try:
+        await asyncio.wait_for(bridge.ready.wait(), 5)
+        bridge.control("begin_turn", turn_id="turn-1")
+        await asyncio.sleep(.02)
+        classify_call("cancel-me", "pending")
+        await asyncio.wait_for(pending.wait(), 5)
+        if interrupt == "stop":
+            bridge.control("stop")
+            await asyncio.wait_for(task, 5)
+            assert bridge.closed and runtime.active == 0
+            return
+        bridge.control("begin_turn", turn_id="turn-2")
+        await asyncio.sleep(.05)
+        assert not bridge.closed and not task.done(), "cancelling one tool killed the ADK connection"
+        classify_call("fresh-call", "Hello")
+        await until(lambda: any("tool_response" in x and any(r.get("id") == "fresh-call" for r in x["tool_response"]["functionResponses"]) for x in sockets[0].sent))
+        sockets[0].push({"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 3200).decode()}}]}, "turnComplete": True}})
+        await until(lambda: len(bridge.audio_times) == 1)
+        assert not bridge.closed and len(sockets) == 1
+        bridge.control("stop")
+        await asyncio.wait_for(task, 5)
+    finally:
+        task.cancel()
+        await asyncio.gather(task, return_exceptions=True)

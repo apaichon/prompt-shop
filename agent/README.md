@@ -123,15 +123,22 @@ real Laya, integrated routing, or the 30-turn latency acceptance.
 ## Lifecycle and limits
 
 - Four runtime sessions; fresh in-memory session, queue, model client and tool host
-  per connection. Close/cancel/await runner, pending tools, provider/client and
+  per connection. Tool operations run in their own bounded shielded child tasks;
+  barge-in cancels a stale operation without cancelling the ADK runner. Actual
+  Stop/shutdown still cancels and joins that child. Close/cancel/await runner,
+  pending tools, provider/client and
   queue; delete the ADK session on every exit. No resumption/artifact service.
 - Pending ADK input is counted at enqueue/dequeue and capped at 32,000 PCM bytes
   plus 64 total queue entries. The pinned SDK socket uses one queued message and
   a 65,536-byte message cap; application output rejects >48,000-byte PCM parts and
   splits frames at 16,384 bytes. Slow writes time out after one second.
 - Setup 30 seconds, session 300 seconds from provider-ready, idle 60 seconds and
-  eight-second required-tool deadline. Go supplies explicit VAD boundaries from
-  a fixed RMS threshold; silence and pings do not refresh activity. Demo-device
+  an eight-second required-tool wait per attempt. A recognized request may get
+  one native ADK continuation reminder; a second expiry (or an empty/noise turn)
+  returns recoverable `TURN_TIMEOUT` and seals that turn without closing a healthy
+  provider connection. Late tools/audio cannot revive it; fresh speech starts a
+  new turn in the same session. Go and the browser use the same RMS 500 detector;
+  silence and pings do not refresh activity. Demo-device
   qualification of this threshold remains required.
 - Audio is suppressed until required tool state is satisfied; transcripts never
   become catalog facts. This is not proof that native model speech cannot invent

@@ -81,6 +81,7 @@ type Session struct {
 	turnCtx                  context.Context
 	cancelTurn               context.CancelFunc
 	closed                   bool
+	failed                   bool
 	classification           string
 	searches, routes         int
 	calls                    map[string]bool
@@ -118,13 +119,27 @@ func (s *Session) BeginTurn() Epoch {
 	s.routes = 0
 	s.calls = map[string]bool{}
 	s.audioAllowed = false
+	s.failed = false
 	return s.turn
 }
 func (s *Session) Turn() Epoch { s.mu.Lock(); defer s.mu.Unlock(); return s.turn }
 func (s *Session) AudioAllowed(turn Epoch) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return !s.closed && s.turn == turn && s.audioAllowed
+	return !s.closed && !s.failed && s.turn == turn && s.audioAllowed
+}
+
+// FailTurn seals late tools/audio while retaining the healthy connection.
+func (s *Session) FailTurn(turn Epoch) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed || s.turn != turn || s.failed {
+		return false
+	}
+	s.failed = true
+	s.audioAllowed = false
+	s.cancelTurn()
+	return true
 }
 func (s *Session) Close() {
 	s.mu.Lock()
@@ -143,7 +158,7 @@ func (s *Session) Authenticate(capability string) bool {
 func (s *Session) RegisterClassification(turn Epoch, attempt, responseMode string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.closed || s.turn != turn || turn == 0 || s.classification != "" || len(attempt) < 16 || len(attempt) > 128 {
+	if s.closed || s.failed || s.turn != turn || turn == 0 || s.classification != "" || len(attempt) < 16 || len(attempt) > 128 {
 		return ErrStale
 	}
 	if responseMode == "" {
@@ -159,7 +174,7 @@ func (s *Session) RegisterClassification(turn Epoch, attempt, responseMode strin
 func (s *Session) beginCall(call Call, name string) (context.Context, context.CancelFunc, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.closed || call.SessionID != s.ID || call.TurnID != s.turn || s.turn == 0 || len(call.CallID) < 16 || len(call.CallID) > 128 || s.calls[call.CallID] {
+	if s.closed || s.failed || call.SessionID != s.ID || call.TurnID != s.turn || s.turn == 0 || len(call.CallID) < 16 || len(call.CallID) > 128 || s.calls[call.CallID] {
 		return nil, nil, ErrStale
 	}
 	if s.classification == "" || call.ClassificationAttemptID != s.classification {
@@ -209,7 +224,7 @@ func (s *Session) Search(call Call, catalog Catalog) (SearchResult, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.closed || s.turn != call.TurnID {
+	if s.closed || s.failed || s.turn != call.TurnID {
 		return SearchResult{}, ErrStale
 	}
 	s.candidates = map[string]bool{}
@@ -253,7 +268,7 @@ func (s *Session) Route(call Call, catalog Catalog) (RouteResult, error) {
 }
 func (s *Session) route(ctx context.Context, turn Epoch, productID, searchID string, catalog Catalog) (RouteResult, error) {
 	s.mu.Lock()
-	valid := !s.closed && s.turn == turn && s.searchID == searchID && s.candidates[productID] && time.Now().Before(s.searchExpiry) && (!s.ambiguous || turn > s.searchTurn)
+	valid := !s.closed && !s.failed && s.turn == turn && s.searchID == searchID && s.candidates[productID] && time.Now().Before(s.searchExpiry) && (!s.ambiguous || turn > s.searchTurn)
 	s.mu.Unlock()
 	if !valid {
 		return RouteResult{}, ErrStale
@@ -270,7 +285,7 @@ func (s *Session) route(ctx context.Context, turn Epoch, productID, searchID str
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.closed || s.turn != turn || s.searchID != searchID || time.Now().After(s.searchExpiry) {
+	if s.closed || s.failed || s.turn != turn || s.searchID != searchID || time.Now().After(s.searchExpiry) {
 		return RouteResult{}, ErrStale
 	}
 	s.audioAllowed = true

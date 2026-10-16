@@ -118,6 +118,21 @@ function voiceFixture() {
 }
 afterEach(() => vi.useRealTimers());
 describe('voice lifecycle and bounded transport', () => {
+  it('keeps capture and socket alive after a failed turn and rejects its late output', async () => {
+    const {voice,audio,socket,callbacks,ready}=voiceFixture(); await voice.start(); ready();
+    socket.receive(event('audio_start')); socket.receive(new ArrayBuffer(3200));
+    socket.receive(event('error',{code:'TURN_TIMEOUT',message:'unsafe provider detail',retryable:true}));
+    expect(get(voice).active).toBe(true); expect(get(voice).phase).toBe('listening');
+    expect(get(voice).message).toContain('please ask again'); expect(get(voice).message).not.toContain('unsafe');
+    expect(audio.close).not.toHaveBeenCalled(); expect(socket.close).not.toHaveBeenCalled();
+    socket.receive(event('audio_start')); socket.receive(new ArrayBuffer(3200)); socket.receive(event('candidates'));
+    expect(audio.play).toHaveBeenCalledTimes(1); expect(callbacks.event).not.toHaveBeenCalled();
+    socket.receive(event('interrupted',{turn_id:'turn-2',generation_id:'generation-2'}));
+    socket.receive(event('audio_start',{turn_id:'turn-2',generation_id:'generation-2'})); socket.receive(new ArrayBuffer(3200));
+    expect(audio.play).toHaveBeenCalledTimes(2); expect(get(voice).phase).toBe('speaking');
+    voice.stop(); expect(audio.close).toHaveBeenCalledOnce();
+  });
+
   it('ignores an old playback-level callback after Stop', async () => {
     const f=voiceFixture(); let level: (value:number)=>void = () => {};
     f.audio.open.mockImplementationOnce(async (_frame, _drain, _failure, onLevel) => { level=onLevel ?? (() => {}); });

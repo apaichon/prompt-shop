@@ -387,6 +387,20 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 					return err
 				}
 			case "error":
+				var code string
+				_ = json.Unmarshal(event["code"], &code)
+				if code == "TURN_TIMEOUT" {
+					if !s.FailTurn(turn) {
+						continue
+					}
+					q.flush()
+					audioTurn = 0
+					if err = emit(Event{"type": "error", "session_id": s.ID, "turn_id": turn,
+						"code": "TURN_TIMEOUT", "message": "That reply timed out. Please ask again.", "retryable": true}); err != nil {
+						return err
+					}
+					continue
+				}
 				_ = emit(Event{"type": "error", "session_id": s.ID, "code": "DEPENDENCY_UNAVAILABLE", "message": "Voice ended; retry or use typed search.", "retryable": true})
 				return errors.New("provider ended")
 			default:
