@@ -1,0 +1,98 @@
+{
+  "input": "public WebSocket text controls; no browser microphone/playout",
+  "turns": [
+    {
+      "index": 1,
+      "first_audio_ms": 1160,
+      "route_ms": null,
+      "audio_bytes": 101760,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 2,
+      "first_audio_ms": 8198,
+      "route_ms": 7789,
+      "audio_bytes": 153600,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 3,
+      "first_audio_ms": null,
+      "route_ms": null,
+      "audio_bytes": 0,
+      "complete": false,
+      "errors": [
+        "TURN_TIMEOUT"
+      ],
+      "expected_route": false
+    },
+    {
+      "index": 4,
+      "first_audio_ms": 2237,
+      "route_ms": 1540,
+      "audio_bytes": 175680,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 5,
+      "first_audio_ms": 1952,
+      "route_ms": 1361,
+      "audio_bytes": 175680,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 6,
+      "first_audio_ms": 2004,
+      "route_ms": 1523,
+      "audio_bytes": 138240,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 7,
+      "first_audio_ms": 1338,
+      "route_ms": null,
+      "audio_bytes": 169920,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 8,
+      "first_audio_ms": 2058,
+      "route_ms": 1599,
+      "audio_bytes": 163200,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 9,
+      "first_audio_ms": 1121,
+      "route_ms": null,
+      "audio_bytes": 189120,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 10,
+      "first_audio_ms": 2261,
+      "route_ms": 1771,
+      "audio_bytes": 176642,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    }
+  ],
+  "closed": false
+}

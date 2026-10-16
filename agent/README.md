@@ -8,12 +8,22 @@ events. Python owns native provider audio and three explicit BLOCKING tools.
 ## Conversation and store tools
 
 The assistant supports general conversation, greetings and meal/recipe suggestions.
-For every user turn Gemini calls `classify_intent` with `text` and a `response_mode`:
-`conversation` for chat/meal ideas, or `catalog` for finding/matching store products,
-availability and shelf directions. Laya still runs once; its shopping labels and
-abstentions are advisory and do not silence a conversational reply. The selected
-mode is registered with the same current-turn attempt/ACK before audio is allowed.
-Older callers omitting mode keep the stricter catalog gate.
+For each user turn Gemini chooses one explicit `BLOCKING` flow:
+
+- `begin_conversation({text})`: run real advisory Laya classification and wait for
+  Go's current-turn ACK, then let Gemini answer greetings, general questions or recipes.
+- `find_product({text, query})`: classify, await ACK, search the published catalog and
+  automatically resolve the route only for a unique match. Return the combined
+  verified search/route in one model round trip. Ambiguity or no match returns
+  directly for clarification, without choosing a candidate.
+- `select_product({text, product_id, search_id})`: classify the later shopper choice,
+  await ACK and ask Go to validate/route the exact pending candidate IDs.
+
+Only one flow is accepted per turn. Private `classify_intent`, `search_catalog` and
+`get_product_route` adapters retain their argument checks, call budgets, timeouts,
+stale-turn cancellation and authority boundaries. The model no longer has to plan
+three consecutive tool calls before a simple location reply. Classification failures
+remain advisory abstentions, never a fabricated successful classification.
 
 Catalog mode requires search and, for a unique match, a verified route before location
 audio. Starting a catalog call closes any earlier conversational audio permission.
@@ -123,15 +133,24 @@ real Laya, integrated routing, or the 30-turn latency acceptance.
 ## Lifecycle and limits
 
 - Four runtime sessions; fresh in-memory session, queue, model client and tool host
-  per connection. Close/cancel/await runner, pending tools, provider/client and
+  per connection. Tool operations run in their own bounded shielded child tasks;
+  barge-in cancels a stale operation without cancelling the ADK runner. Actual
+  Stop/shutdown still cancels and joins that child. Close/cancel/await runner,
+  pending tools, provider/client and
   queue; delete the ADK session on every exit. No resumption/artifact service.
 - Pending ADK input is counted at enqueue/dequeue and capped at 32,000 PCM bytes
   plus 64 total queue entries. The pinned SDK socket uses one queued message and
   a 65,536-byte message cap; application output rejects >48,000-byte PCM parts and
   splits frames at 16,384 bytes. Slow writes time out after one second.
 - Setup 30 seconds, session 300 seconds from provider-ready, idle 60 seconds and
-  eight-second required-tool deadline. Go supplies explicit VAD boundaries from
-  a fixed RMS threshold; silence and pings do not refresh activity. Demo-device
+  an eight-second wait for first audio per attempt (including missing tools). A recognized request may get
+  one native ADK continuation reminder. A silent completed reply triggers it
+  immediately; if tools are already complete it reuses their current verified results
+  without another call. A second empty completion/expiry (or an empty/noise turn)
+  returns recoverable `TURN_TIMEOUT` and seals that turn without closing a healthy
+  provider connection. Late tools/audio cannot revive it; fresh speech starts a
+  new turn in the same session. Go and the browser use the same RMS 500 detector;
+  silence and pings do not refresh activity. Demo-device
   qualification of this threshold remains required.
 - Audio is suppressed until required tool state is satisfied; transcripts never
   become catalog facts. This is not proof that native model speech cannot invent
@@ -141,3 +160,31 @@ The transport queue controls use a version-qualified private GenAI attribute;
 upgrade ADK/GenAI only after rerunning the actual SDK wire tests. SDK/body logging
 is silenced and Uvicorn access logs should remain disabled. Original implementation;
 no Monti source was copied. Reference snapshots retain their original license.
+
+
+## English policy and failure diagnosis
+
+Spoken replies stay in English, including unclear input and requests to switch
+languages; silence/background noise does not choose a language. Native audio does
+not support forcing `speech_config.language_code`, so this policy lives in system
+instructions. Actual synthetic native caption checks are recorded with TASK-0012.
+
+Go/browser activity requires 80ms sustained RMS500 onset and 350ms silent PCM end.
+Go preserves the onset before forwarding speech, and does not forward idle PCM.
+Brief noises do not cancel playback; sustained noise/echo still needs device testing.
+`voice_runtime_failure reason=...` records allowlisted categories only; never log
+raw provider exceptions, credentials or transcripts. Go emits `voice_session_end`
+with a similarly bounded reason. Check these categories when a session disconnects.
+
+[Current Go/Python assessment](RUNTIME-ASSESSMENT.md): Go ADK supports RunLive now,
+but changing runtime has no demonstrated advantage for the reproduced detector bug.
+
+Text-only and clicked selections send text without empty audio activity markers.
+Audio activity starts only when the first PCM frame arrives; ending an unopened
+audio activity is suppressed. A native provider disconnect reproduced before this
+change, and the same three-turn silence/language/route probe passed afterward.
+One intermediate spoken required-tool timeout remains recorded in TASK-0012 evidence.
+
+Recoverable `voice_turn_timeout` entries record only whether classification/search/
+route were attempted and classification completed. These booleans help distinguish
+missing required model calls from tool failure without exposing a shopper request.

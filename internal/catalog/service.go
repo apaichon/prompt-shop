@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -20,6 +22,7 @@ import (
 const storeID = "demo-store"
 
 var productID = regexp.MustCompile(`^[a-z0-9-]{1,64}$`)
+var catalogPage = regexp.MustCompile(`^[1-9][0-9]{0,4}$`)
 
 type Point struct {
 	X float64 `json:"x"`
@@ -287,6 +290,65 @@ func (s *Service) Route(ctx context.Context, id string) (voice.RouteResult, erro
 	return result, nil
 }
 
+type CategoryCount struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+type ProductList struct {
+	CatalogVersion int64           `json:"catalog_version"`
+	Products       []Product       `json:"products"`
+	Total          int             `json:"total"`
+	Page           int             `json:"page"`
+	PageSize       int             `json:"page_size"`
+	Categories     []CategoryCount `json:"categories"`
+}
+
+func browse(v snapshot, category, shelf string, page, size int) ProductList {
+	result := ProductList{CatalogVersion: v.Version, Products: []Product{}, Page: page, PageSize: size, Categories: []CategoryCount{}}
+	counts := map[string]int{}
+	matches := []Product{}
+	for _, item := range v.Products {
+		p := item.Product
+		counts[p.Category]++
+		if (category == "" || category == p.Category) && (shelf == "" || shelf == p.Shelf.ID) {
+			matches = append(matches, p)
+		}
+	}
+	sort.Slice(matches, func(i, j int) bool {
+		if matches[i].Name == matches[j].Name {
+			return matches[i].ID < matches[j].ID
+		}
+		return matches[i].Name < matches[j].Name
+	})
+	for name, count := range counts {
+		result.Categories = append(result.Categories, CategoryCount{name, count})
+	}
+	sort.Slice(result.Categories, func(i, j int) bool { return result.Categories[i].Name < result.Categories[j].Name })
+	result.Total = len(matches)
+	start := (page - 1) * size
+	if start < len(matches) {
+		end := start + size
+		if end > len(matches) {
+			end = len(matches)
+		}
+		result.Products = matches[start:end]
+	}
+	return result
+}
+func pageNumber(raw string, fallback, maximum int) (int, error) {
+	if raw == "" {
+		return fallback, nil
+	}
+	if !catalogPage.MatchString(raw) {
+		return 0, invalidRequest("Invalid catalog page.")
+	}
+	n, err := strconv.Atoi(raw)
+	if err != nil || n > maximum {
+		return 0, invalidRequest("Invalid catalog page.")
+	}
+	return n, nil
+}
+
 func (s *Service) Register(r fiber.Router) {
 	fail := func(c *fiber.Ctx, err error) error {
 		var f Failure
@@ -299,6 +361,29 @@ func (s *Service) Register(r fiber.Router) {
 	limited := func(c *fiber.Ctx) error {
 		return writeFailure(c, Failure{Status: 429, Code: "RATE_LIMITED", Message: "Please wait before retrying.", Retryable: true})
 	}
+	r.Get("/api/products", func(c *fiber.Ctx) error {
+		if !admit(c) {
+			return limited(c)
+		}
+		page, err := pageNumber(c.Query("page"), 1, 10000)
+		if err != nil {
+			return fail(c, err)
+		}
+		size, err := pageNumber(c.Query("page_size"), 12, 24)
+		if err != nil {
+			return fail(c, err)
+		}
+		category, shelf := strings.TrimSpace(c.Query("category")), c.Query("shelf_id")
+		if !utf8.ValidString(category) || utf8.RuneCountInString(category) > 80 || (shelf != "" && !productID.MatchString(shelf)) {
+			return fail(c, invalidRequest("Invalid catalog filter."))
+		}
+		v, err := s.load(c.UserContext())
+		if err != nil {
+			return fail(c, err)
+		}
+		return c.JSON(browse(v, category, shelf, page, size))
+	})
+
 	r.Get("/api/store-map", func(c *fiber.Ctx) error {
 		if !admit(c) {
 			return limited(c)

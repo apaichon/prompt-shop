@@ -144,3 +144,22 @@ measured CPU/memory/latency and any shared-file requests for GPT review.
 ```
 
 After each handoff, take the next assigned task only when its dependencies are satisfied. Record repository edits, local tests and deployment only when the corresponding commands have actually run.
+
+
+## User-requested follow-up — TASK-0011
+
+GPT builds and separately reviews TASK-0011 (fast native voice and visual catalog)
+in sync mode with one worktree/builder. It serializes the existing integration,
+catalog, voice and frontend ownership handoffs; no parallel agent work is started.
+The same source-only/local-testing authorization applies; older task/test acceptance
+statuses and the frozen classifier failure remain unchanged.
+
+
+TASK-0012 is assigned to one GPT sync builder and a distinct GPT review pass.
+It owns the bounded voice English/noise/failure-observability follow-up and current
+Go/Python assessment. Shared surfaces are serialized; no parallel agent is active.
+
+
+TASK-0013 is assigned to one GPT sync builder and a distinct GPT review pass.
+Own the bounded shelf-request and repeated-conversation follow-up in one task
+worktree; serialize frontend and ADK changes, with no parallel agent work.

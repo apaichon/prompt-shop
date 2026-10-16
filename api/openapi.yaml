@@ -2359,6 +2359,153 @@
           }
         ]
       }
+    },
+    "/api/products": {
+      "get": {
+        "operationId": "get_api_products",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Server-generated correlation ID, unrelated to credentials",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "HTTP 400; see error model in DES-0001",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Server-generated correlation ID, unrelated to credentials",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "HTTP 429; see error model in DES-0001",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Server-generated correlation ID, unrelated to credentials",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "HTTP 503; see error model in DES-0001",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Server-generated correlation ID, unrelated to credentials",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "customer"
+        ],
+        "x-implementation-task": "TASK-0002",
+        "x-body-limit-bytes": 8192,
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          {
+            "name": "shelf_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,64}$"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 24,
+              "default": 12
+            }
+          }
+        ],
+        "description": "Published-only catalog browse. Exact category and shelf filters, deterministic name/ID ordering. Categories contain global published counts. No model-derived facts."
+      }
     }
   },
   "components": {
@@ -3040,6 +3187,68 @@
         ],
         "additionalProperties": false,
         "description": "Password length is additionally checked in UTF-8 bytes (16-72); exact Origin required."
+      },
+      "ProductList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "catalog_version",
+          "products",
+          "total",
+          "page",
+          "page_size",
+          "categories"
+        ],
+        "properties": {
+          "catalog_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "products": {
+            "type": "array",
+            "maxItems": 24,
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24
+          },
+          "categories": {
+            "type": "array",
+            "maxItems": 10000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "count"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        }
       }
     },
     "securitySchemes": {

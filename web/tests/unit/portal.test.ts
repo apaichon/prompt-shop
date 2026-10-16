@@ -100,7 +100,7 @@ describe('HTTP and asynchronous presentation', () => {
 class FakeAudio implements AudioEngine {
   frame?: (frame: ArrayBuffer, voiced: boolean) => void;
   drain?: () => void;
-  open = vi.fn(async (frame, drain) => { this.frame = frame; this.drain = drain; });
+  open = vi.fn<AudioEngine['open']>(async (frame, drain) => { this.frame = frame; this.drain = drain; });
   capture = vi.fn(); microphoneMuted = vi.fn(); speakerMuted = vi.fn(); play = vi.fn(); flush = vi.fn(); close = vi.fn();
 }
 class Socket {
@@ -118,6 +118,27 @@ function voiceFixture() {
 }
 afterEach(() => vi.useRealTimers());
 describe('voice lifecycle and bounded transport', () => {
+  it('keeps capture and socket alive after a failed turn and rejects its late output', async () => {
+    const {voice,audio,socket,callbacks,ready}=voiceFixture(); await voice.start(); ready();
+    socket.receive(event('audio_start')); socket.receive(new ArrayBuffer(3200));
+    socket.receive(event('error',{code:'TURN_TIMEOUT',message:'unsafe provider detail',retryable:true}));
+    expect(get(voice).active).toBe(true); expect(get(voice).phase).toBe('listening');
+    expect(get(voice).message).toContain('please ask again'); expect(get(voice).message).not.toContain('unsafe');
+    expect(audio.close).not.toHaveBeenCalled(); expect(socket.close).not.toHaveBeenCalled();
+    socket.receive(event('audio_start')); socket.receive(new ArrayBuffer(3200)); socket.receive(event('candidates'));
+    expect(audio.play).toHaveBeenCalledTimes(1); expect(callbacks.event).not.toHaveBeenCalled();
+    socket.receive(event('interrupted',{turn_id:'turn-2',generation_id:'generation-2'}));
+    socket.receive(event('audio_start',{turn_id:'turn-2',generation_id:'generation-2'})); socket.receive(new ArrayBuffer(3200));
+    expect(audio.play).toHaveBeenCalledTimes(2); expect(get(voice).phase).toBe('speaking');
+    voice.stop(); expect(audio.close).toHaveBeenCalledOnce();
+  });
+
+  it('ignores an old playback-level callback after Stop', async () => {
+    const f=voiceFixture(); let level: (value:number)=>void = () => {};
+    f.audio.open.mockImplementationOnce(async (_frame, _drain, _failure, onLevel) => { level=onLevel ?? (() => {}); });
+    await f.voice.start(); f.ready(); level(1); expect(get(f.voice).outputLevel).toBe(1);
+    f.voice.stop(); level(1); expect(get(f.voice).outputLevel).toBe(0);
+  });
   it('shows listening for a new utterance and interruption only for a stopped response', async () => {
     const { voice, socket, ready } = voiceFixture(); await voice.start(); ready();
     socket.receive(event('interrupted'));
@@ -167,7 +188,7 @@ describe('voice lifecycle and bounded transport', () => {
 });
 
 describe('real worklet PCM code', () => {
-  it.each([16000, 44100, 48000])('resamples %i Hz to bounded 100ms PCM16LE frames without drift', (sampleRate) => {
+  it.each([16000, 44100, 48000])('resamples %i Hz to bounded 20ms PCM16LE frames without drift', (sampleRate) => {
     let Processor: any; const frames: ArrayBuffer[] = [];
     class Base { port = { onmessage: null as any, postMessage: (frame: ArrayBuffer) => frames.push(frame) }; }
     vm.runInNewContext(readFileSync(new URL('../../static/pcm-capture.js', import.meta.url), 'utf8'), {
@@ -176,9 +197,9 @@ describe('real worklet PCM code', () => {
     const processor = new Processor(); processor.process([[new Float32Array(128).fill(.5)]]); expect(frames).toHaveLength(0);
     processor.port.onmessage({ data: 'start' });
     for (let offset = 0; offset < sampleRate; offset += 128) processor.process([[new Float32Array(Math.min(128, sampleRate - offset)).fill(.5)]]);
-    expect(frames).toHaveLength(10); expect(frames.every((f) => f.byteLength === 3200)).toBe(true);
+    expect(frames).toHaveLength(50); expect(frames.every((f) => f.byteLength === 640)).toBe(true);
     expect(new DataView(frames[0]).getInt16(0, true)).toBe(16384);
-    processor.port.onmessage({ data: 'stop' }); processor.process([[new Float32Array(128)]]); expect(frames).toHaveLength(10);
+    processor.port.onmessage({ data: 'stop' }); processor.process([[new Float32Array(128)]]); expect(frames).toHaveLength(50);
   });
 });
 
@@ -202,4 +223,18 @@ it('failed selection send reports failure and still releases microphone and sock
   expect(f.voice.select('search-1', 'milk-whole-1l')).toBe(false);
   expect(get(f.voice).phase).toBe('error'); expect(f.audio.close).toHaveBeenCalled();
   expect(f.socket.close).toHaveBeenCalled();
+});
+
+
+it('a single loud 20ms frame cannot cancel a reply; sustained speech can',async()=>{
+ const f=voiceFixture();await f.voice.start();f.ready();
+ f.socket.receive(event('audio_start'));f.socket.receive(new ArrayBuffer(3200));
+ const before=f.audio.flush.mock.calls.length;
+ f.audio.frame!(new ArrayBuffer(640),true);
+ expect(f.audio.flush.mock.calls.length).toBe(before);
+ f.audio.frame!(new ArrayBuffer(640),false);
+ expect(get(f.voice).phase).toBe('speaking');
+ for(let i=0;i<4;i++)f.audio.frame!(new ArrayBuffer(640),true);
+ expect(f.audio.flush.mock.calls.length).toBe(before+1);
+ expect(get(f.voice).phase).toBe('listening');f.voice.stop();
 });

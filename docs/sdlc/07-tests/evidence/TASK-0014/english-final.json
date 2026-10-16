@@ -1,0 +1,27 @@
+{
+  "quiet_start": true,
+  "turns": [
+    {
+      "completed": true,
+      "audio_bytes": 99360,
+      "thai_script": false,
+      "english_words": true
+    },
+    {
+      "completed": true,
+      "audio_bytes": 255362,
+      "thai_script": false,
+      "english_words": true
+    },
+    {
+      "completed": true,
+      "audio_bytes": 148802,
+      "thai_script": false,
+      "english_words": true
+    }
+  ],
+  "quiet_after_reply": true,
+  "route": true,
+  "error_codes": [],
+  "closed": false
+}

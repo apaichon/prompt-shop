@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"math"
 	"net"
 	"net/http"
@@ -387,6 +388,20 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 					return err
 				}
 			case "error":
+				var code string
+				_ = json.Unmarshal(event["code"], &code)
+				if code == "TURN_TIMEOUT" {
+					if !s.FailTurn(turn) {
+						continue
+					}
+					q.flush()
+					audioTurn = 0
+					if err = emit(Event{"type": "error", "session_id": s.ID, "turn_id": turn,
+						"code": "TURN_TIMEOUT", "message": "That reply timed out. Please ask again.", "retryable": true}); err != nil {
+						return err
+					}
+					continue
+				}
 				_ = emit(Event{"type": "error", "session_id": s.ID, "code": "DEPENDENCY_UNAVAILABLE", "message": "Voice ended; retry or use typed search.", "retryable": true})
 				return errors.New("provider ended")
 			default:
@@ -400,8 +415,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 		total := 0
 		controls := 0
 		window := time.Now()
-		speaking := false
-		lastVoiced := time.Now()
+		input := inputActivity{}
 		begin := func() error {
 			turn := s.BeginTurn()
 			q.flush()
@@ -427,24 +441,24 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 				if tokens < 0 || total > 10<<20 {
 					return ErrLimit
 				}
-				if voiced(data) {
-					activity.Store(now.UnixNano())
-					lastVoiced = now
-					if !speaking {
-						if err = begin(); err != nil {
-							return err
-						}
-						speaking = true
+				started, ended, frames := input.push(data)
+				if started {
+					if err = begin(); err != nil {
+						return err
 					}
 				}
-				if speaking && !voiced(data) && now.Sub(lastVoiced) >= 500*time.Millisecond {
+				if len(frames) > 0 && voiced(data) {
+					activity.Store(now.UnixNano())
+				}
+				for _, pcm := range frames {
+					if err = bridgeSend(kind, pcm); err != nil {
+						return err
+					}
+				}
+				if ended {
 					if err = bridgeEvent(Event{"type": "activity_end", "turn_id": s.Turn()}); err != nil {
 						return err
 					}
-					speaking = false
-				}
-				if err = bridgeSend(kind, data); err != nil {
-					return err
 				}
 				continue
 			}
@@ -490,7 +504,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 				if err = begin(); err != nil {
 					return err
 				}
-				speaking = false
+				input.reset()
 				if err = bridgeEvent(Event{"type": "text", "turn_id": s.Turn(), "text": event.Text}); err != nil {
 					return err
 				}
@@ -502,6 +516,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket) {
 				if err = begin(); err != nil {
 					return err
 				}
+				input.reset()
 				result, e := s.Select(ctx, s.Turn(), event.ProductID, event.SearchID, g.catalog)
 				if e != nil {
 					_ = emit(Event{"type": "error", "session_id": s.ID, "code": "STALE_SELECTION", "message": "Select from a fresh search.", "retryable": true})
@@ -574,6 +589,7 @@ func voiced(pcm []byte) bool {
 func closeCode(endings <-chan error) int {
 	select {
 	case err := <-endings:
+		slog.Info("voice_session_end", "reason", sessionEndReason(err))
 		if err == nil {
 			return websocket.CloseNormalClosure
 		}
@@ -592,4 +608,20 @@ func closeCode(endings <-chan error) int {
 	default:
 		return websocket.CloseInternalServerErr
 	}
+}
+
+// Do not log err.Error(): provider/transport errors may contain sensitive data.
+func sessionEndReason(err error) string {
+	if err == nil {
+		return "client_stop"
+	}
+	switch err.Error() {
+	case "INVALID_AUDIO", "INVALID_REQUEST", "RATE_LIMITED", "SETUP_TIMEOUT", "SESSION_EXPIRED", "CLIENT_TOO_SLOW":
+		return err.Error()
+	case "provider ended":
+		return "provider_ended"
+	case "transport timeout":
+		return "transport_timeout"
+	}
+	return "transport_failure"
 }

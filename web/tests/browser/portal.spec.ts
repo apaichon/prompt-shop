@@ -27,6 +27,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
       createBufferSource() { return Object.assign(new Node(), { buffer: null, onended: null, start() { metrics.played++; }, stop() { metrics.flushed++; } }); }
     };
     (window as any).AudioWorkletNode = class extends Node {
+      constructor(){super();(window as any).__captureNode=this;}
       port = { onmessage: null, postMessage(value: string) { metrics.capture = value === 'start'; }, close() {} };
     };
   }, { denied: options.denied ?? false });
@@ -34,7 +35,8 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
     const path = new URL(request.request().url()).pathname;
     if(path.startsWith('/api/backoffice/')){await request.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Log in',retryable:false},request_id:'fixture'}});return}
     let body: unknown;
-    if (path === '/api/store-map') body = map;
+    if (path === '/api/products') body = {catalog_version:1,products:[],total:0,page:1,page_size:12,categories:[]};
+    else if (path === '/api/store-map') body = map;
     else if (path === '/api/search') { searches++; body = search; }
     else if (path === '/api/routes') body = route;
     else if (path === '/api/voice/sessions') { tickets++; body = { session_id: 'fixture-session', ticket_expires_at: new Date(Date.now() + 30000).toISOString(), ws_path: '/ws/voice' }; }
@@ -57,9 +59,11 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
   };
 }
 
-for (const width of [320, 768, 1280]) test(`typed flow, map and accessibility at ${width}px`, async ({ page }) => {
+for (const width of [320, 390, 768, 1280, 1440]) test(`typed flow, map and accessibility at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   const f = await fixture(page);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({path:`test-results/idle-${width}.png`,fullPage:true});
   expect(f.tickets()).toBe(0);
   await page.getByRole('textbox', { name: 'Item name' }).fill('milk');
   await page.getByRole('textbox', { name: 'Item name' }).press('Enter');
@@ -119,7 +123,7 @@ test('clicked voice choice sends identity and focuses verified directions', asyn
 
 test('mobile modal traps keyboard focus, restores launcher and stops capture on Escape', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 }); await page.emulateMedia({ reducedMotion: 'reduce' });
-  const f = await fixture(page); const launcher = page.getByRole('button', { name: 'Rather ask? Open voice assistant' });
+  const f = await fixture(page); const launcher = page.getByRole('button', { name: 'Open voice assistant', exact: true });
   await launcher.click(); const dialog = page.getByRole('dialog'); await f.start(dialog);
   for (let n = 0; n < 10; n++) { await page.keyboard.press('Tab'); expect(await page.evaluate(() => !!document.activeElement?.closest('dialog'))).toBe(true); }
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -152,7 +156,235 @@ test('real Chromium worklet captures bounded PCM only after ready and stops on E
   const page = await context.newPage(); const f = await fixture(page, { realAudio: true });
   await f.start();
   await expect.poll(() => f.messages.filter(Buffer.isBuffer).length).toBeGreaterThan(2);
-  expect(f.messages.filter(Buffer.isBuffer).every((m) => m.length === 3200)).toBe(true);
+  expect(f.messages.filter(Buffer.isBuffer).every((m) => m.length === 640)).toBe(true);
   await page.getByRole('button', { name: 'End voice' }).click();
   await context.close();
+});
+
+test('mobile minimize and desktop resize retain one voice controller; Close ends it', async ({page}) => {
+  await page.setViewportSize({width:390,height:900});
+  const f=await fixture(page); const launcher=page.getByRole('button',{name:'Open voice assistant',exact:true});
+  await launcher.click(); const dialog=page.getByRole('dialog'); await f.start(dialog);
+  await dialog.getByRole('button',{name:'Minimize'}).click();
+  await expect(dialog).not.toBeVisible(); await expect(launcher).toBeFocused();
+  await expect(page.locator('.mobile-voice-dock')).toContainText('Mic on');
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(true);
+  await launcher.click(); await expect(dialog.getByRole('button',{name:'End voice',exact:true})).toBeVisible();
+  await page.setViewportSize({width:1280,height:900}); await expect(dialog).not.toBeVisible();
+  await expect(page.locator('.desktop-voice').getByRole('button',{name:'End voice',exact:true})).toBeFocused();
+  expect(f.tickets()).toBe(1); expect(await page.evaluate(()=>(window as any).__audio.opened)).toBe(1);
+  await page.locator('.desktop-voice').getByRole('button',{name:'End voice',exact:true}).click();
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);
+});
+
+test('missing avatar falls back without stopping microphone or typed lookup',async({page})=>{
+  await page.route('**/avatar/monti/atlas.webp',r=>r.abort());
+  const f=await fixture(page); await expect(page.locator('.desktop-voice .avatar-fallback')).toBeVisible();
+  expect(f.tickets()).toBe(0); await f.start();
+  await page.getByRole('button',{name:'End voice',exact:true}).click();
+  await page.getByRole('button',{name:'Milk',exact:true}).click();
+  await expect(page.locator('.product-card')).toHaveCount(1);
+});
+
+test('mobile selection moves the chosen match first while directions keep focus',async({page})=>{
+  await page.setViewportSize({width:390,height:900}); await fixture(page);
+  await page.route('**/api/search',r=>r.fulfill({json:{...search,ambiguous:true,candidates:[
+    {...search.candidates[0],id:'milk-oat-fixture',name:'Oat milk fixture'},
+    {...search.candidates[0],id:'milk-skim-fixture',name:'Skim milk fixture'},
+    search.candidates[0]]}}));
+  await page.getByRole('button',{name:'Milk',exact:true}).click();
+  await expect(page.locator('.product-card').first()).toContainText('Oat milk fixture');
+  await page.getByRole('button',{name:'Show route to Whole milk 1 L'}).click();
+  await expect(page.locator('.product-card').first()).toContainText('Whole milk 1 L');
+  await expect(page.locator('#route-heading')).toBeFocused();
+  await expect(page.getByRole('button',{name:'Show route to Oat milk fixture'})).not.toBeVisible();
+  await page.getByRole('button',{name:'Show all 3 matches'}).click();
+  await expect(page.getByRole('button',{name:'Show route to Oat milk fixture'})).toBeVisible();
+});
+
+test('mobile voice controls clear the virtual keyboard and retain 44px targets',async({page})=>{
+  await page.setViewportSize({width:320,height:900});
+  await page.addInitScript(()=>{
+    const viewport=Object.assign(new EventTarget(),{height:900,scale:1,offsetTop:0});
+    Object.defineProperty(window,'visualViewport',{value:viewport,configurable:true});
+    (window as any).__keyboard=(height:number)=>{viewport.height=height;viewport.dispatchEvent(new Event('resize'));};
+  });
+  await fixture(page); await page.getByRole('textbox',{name:'Item name'}).focus();
+  await page.evaluate(()=>(window as any).__keyboard(600));
+  await expect(page.locator('.mobile-voice-dock')).toHaveCSS('bottom','300px');
+  for(const button of await page.locator('.mobile-voice-dock button').all()){
+    const bounds=await button.boundingBox(); expect(bounds!.width).toBeGreaterThanOrEqual(44); expect(bounds!.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
+
+test('one timed-out voice turn keeps the microphone and session usable',async({page})=>{
+  const f=await fixture(page); await f.start();
+  f.send('interrupted');
+  f.send('error',{turn_id:'turn-1',code:'TURN_TIMEOUT',message:'private detail must not render',retryable:true});
+  await expect(page.locator('.desktop-voice')).toContainText('please ask again');
+  await expect(page.getByRole('button',{name:'End voice',exact:true})).toBeVisible();
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(true);
+  f.send('candidates');
+  await expect(page.locator('.product-card')).toHaveCount(0);
+  f.send('interrupted',{turn_id:'turn-2',generation_id:'generation-2'});
+  f.send('candidates',{turn_id:'turn-2'});f.send('route',{turn_id:'turn-2'});
+  await expect(page.locator('.verified-location')).toContainText('Route found');
+  expect(f.tickets()).toBe(1);expect(await page.evaluate(()=>(window as any).__audio.opened)).toBe(1);
+  await page.getByRole('button',{name:'End voice',exact:true}).click();
+  expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);
+});
+
+
+test('quiet microphone PCM cannot discard a reply without a server turn change',async({page})=>{
+  const f=await fixture(page);await f.start();f.send('interrupted');
+  f.send('audio_start');f.binary();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(1);
+  await page.evaluate(()=>{
+    const quiet=new Int16Array(1600).fill(400);
+    (window as any).__captureNode.port.onmessage({data:quiet.buffer});
+  });
+  f.binary();f.send('output_transcript',{text:'The reply is still playing.',final:true});
+  await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(2);
+  await expect(page.locator('.desktop-voice')).toContainText('The reply is still playing.');
+  await page.getByRole('button',{name:'End voice',exact:true}).click();
+});
+
+
+test('published gallery filters, locates, shows same-shelf imagery and falls back on missing artwork',async({page})=>{
+ await fixture(page);
+ const milk=route.product;
+ const almond={...milk,id:'almond-milk-1l',name:'Almond milk 1 L'};
+ const calls:string[]=[];
+ await page.route('**/api/products?**',async r=>{
+  const url=new URL(r.request().url());calls.push(url.search);
+  const shelf=url.searchParams.get('shelf_id');const category=url.searchParams.get('category');
+  await r.fulfill({json:{catalog_version:1,products:shelf?[milk,almond]:category==='Produce'?[]:[milk],total:category==='Produce'&&!shelf?0:shelf?2:1,page:1,page_size:shelf?24:12,categories:[{name:'Dairy',count:1},{name:'Produce',count:1}]}});
+ });
+ await page.reload();
+ const gallery=page.locator('.catalog-browser');
+ await expect(gallery.getByRole('heading',{name:milk.name})).toBeVisible();
+ await expect(gallery.locator('.product-packshot')).toHaveCount(1);
+ await gallery.getByRole('button',{name:'Produce (1 products)',exact:true}).click();
+ await expect(gallery.getByText('No products in this category.')).toBeVisible();
+ await gallery.getByRole('button',{name:'Dairy (1 products)',exact:true}).click();
+ await gallery.getByRole('button',{name:`Show route to ${milk.name}`,exact:true}).click();
+ await expect(page.getByTestId('route-path')).toBeVisible();
+ const shelf=page.locator('.shelf-display');
+ await expect(shelf.getByRole('button',{name:`Show route to ${milk.name}`,exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(shelf.getByRole('button',{name:`Show route to ${almond.name}`,exact:true})).toBeVisible();
+ for(const width of [320,390,768,1280,1440]){
+  await page.setViewportSize({width,height:900});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+
+ expect(calls.some(c=>c.includes('shelf_id='+milk.shelf.id))).toBe(true);
+ await page.route('**/products/*.webp',r=>r.abort());await page.reload();
+ await expect(gallery.locator('.product-packshot')).toHaveCount(0);
+ await expect(gallery.getByText('Category illustration')).toBeVisible();
+});
+
+test('late shelf responses cannot replace a newer selection',async({page})=>{
+ await fixture(page);
+ const milk=route.product;
+ const other={...milk,id:'almond-milk-1l',name:'Almond milk 1 L',shelf:{id:'a02-s01',label:'Shelf 1'}};
+ let oldRequest:import('@playwright/test').Route|undefined;
+ await page.route('**/api/products?**',async r=>{
+  const url=new URL(r.request().url());const shelf=url.searchParams.get('shelf_id');
+  if(shelf===milk.shelf.id){oldRequest=r;return;}
+  await r.fulfill({json:{catalog_version:1,products:shelf?[other]:[milk,other],total:shelf?1:2,page:1,page_size:shelf?24:12,categories:[{name:'Dairy',count:2}]}});
+ });
+ await page.route('**/api/routes',async r=>{const id=r.request().postDataJSON().product_id;await r.fulfill({json:{...route,product:id===other.id?other:milk}});});
+ await page.reload();const gallery=page.locator('.catalog-browser');
+ await gallery.getByRole('button',{name:`Show route to ${milk.name}`,exact:true}).click();
+ await expect.poll(()=>!!oldRequest).toBe(true);
+ await gallery.getByRole('button',{name:`Show route to ${other.name}`,exact:true}).click();
+ await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
+ await oldRequest!.fulfill({json:{catalog_version:1,products:[milk],total:1,page:1,page_size:24,categories:[{name:'Dairy',count:2}]}}).catch(()=>{});
+ await expect(page.locator('.shelf-display')).toContainText(other.name);
+ await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
+});
+
+
+test('brief loud capture noise cannot stop playback while sustained speech can',async({page})=>{
+ const f=await fixture(page);await f.start();f.send('audio_start');f.binary();
+ await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(1);
+ const before=await page.evaluate(()=>(window as any).__audio.flushed);
+ await page.evaluate(()=>{const pcm=new Int16Array(320).fill(1000);(window as any).__captureNode.port.onmessage({data:pcm.buffer});});
+ await expect(page.locator('.desktop-voice').getByText('Speaking',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>(window as any).__audio.flushed)).toBe(before);
+ await page.evaluate(()=>{const send=(n:number)=>{const pcm=new Int16Array(320).fill(n);(window as any).__captureNode.port.onmessage({data:pcm.buffer});};send(0);for(let i=0;i<4;i++)send(1000);});
+ await expect.poll(()=>page.evaluate(()=>(window as any).__audio.flushed)).toBe(before+1);
+ await expect(page.locator('.desktop-voice').getByText('Listening',{exact:true})).toBeVisible();
+});
+
+
+test('voice updates never reload or abort an unchanged pending shelf',async({page})=>{
+ const f=await fixture(page);let calls=0;let pending:import('@playwright/test').Route|undefined;
+ await page.route('**/api/products?**',async r=>{
+  if(new URL(r.request().url()).searchParams.has('shelf_id')){calls++;pending=r;return;}
+  await r.fallback();
+ });
+ await f.start();f.send('candidates');f.send('route');
+ await expect.poll(()=>calls).toBe(1);
+ // New-turn invalidation retains the selected product but dirties object props.
+ // Captions and the countdown continue while this shelf response is pending.
+ for(let i=0;i<12;i++){
+  f.send('interrupted',{turn_id:'turn-'+(i+2),generation_id:'generation-'+(i+2)});
+  f.send('output_transcript',{turn_id:'turn-'+(i+2),text:'Directions continue. ',final:false});
+  await page.waitForTimeout(100);
+ }
+ expect(calls).toBe(1);
+ await pending!.fulfill({json:{catalog_version:1,products:[route.product],total:1,page:1,page_size:24,categories:[]}});
+ await expect(page.locator('.shelf-display .shelf-facing')).toHaveCount(1);
+ await page.waitForTimeout(1100);
+ expect(calls).toBe(1);
+ await page.getByRole('button',{name:'End voice',exact:true}).click();
+});
+
+
+test('speaker mode blocks feedback PCM, offers Interrupt, and retains the choice after End', async ({page}) => {
+  const f = await fixture(page);
+  const panel = page.locator('.desktop-voice');
+  await panel.getByRole('button', {name:'Speaker mode off',exact:true}).click();
+  await f.start(); f.send('audio_start'); f.binary();
+  await expect(panel).toContainText('Mic paused for speakers');
+  await page.evaluate(() => (window as any).__captureNode.port.onmessage({data:new Int16Array(1280).fill(2000).buffer}));
+  await expect.poll(() => f.messages.filter(Buffer.isBuffer).length).toBe(1);
+  expect(f.messages.filter(Buffer.isBuffer)[0].every(n => n === 0)).toBe(true);
+  expect(await page.evaluate(() => (window as any).__audio.flushed)).toBe(0);
+  await panel.getByRole('button',{name:'Interrupt',exact:true}).click();
+  await expect.poll(() => page.evaluate(() => (window as any).__audio.flushed)).toBe(1);
+  f.binary(); await expect.poll(() => page.evaluate(() => (window as any).__audio.played)).toBe(1);
+  await expect(panel).toContainText('Microphone on');
+  await panel.getByRole('button',{name:'End voice',exact:true}).click();
+  await expect(panel.getByRole('button',{name:'Speaker mode on',exact:true})).toHaveAttribute('aria-pressed','true');
+});
+
+test('mobile speaker mode has a reachable Interrupt in the minimized dock and shares desktop state', async ({page}) => {
+  await page.setViewportSize({width:320,height:900}); const f = await fixture(page);
+  await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button',{name:'Speaker mode off',exact:true}).click();
+  await f.start(dialog); f.send('audio_start'); f.binary();
+  await expect(dialog).toContainText('Mic paused for speakers');
+  await dialog.getByRole('button',{name:'Minimize'}).click();
+  const dock = page.locator('.mobile-voice-dock');
+  await expect(dock).toContainText('Mic paused');
+  for (const width of [320,390,768,1100]) {
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    for (const button of await dock.getByRole('button').all()) {
+      const box = await button.boundingBox(); expect(box!.width).toBeGreaterThanOrEqual(44); expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
+  }
+  expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+  await page.setViewportSize({width:390,height:900});
+  await page.screenshot({path:'test-results/mobile-speaker-mode.png',fullPage:true});
+  await dock.getByRole('button',{name:'Interrupt',exact:true}).click();
+  await expect(dock).toContainText('Mic on');
+  await page.setViewportSize({width:1280,height:900});
+  await expect(page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode on',exact:true})).toBeVisible();
+  expect(f.tickets()).toBe(1);
 });

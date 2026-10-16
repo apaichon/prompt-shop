@@ -1,0 +1,602 @@
+{
+  "red-apples": {
+    "atlas": 1,
+    "cell": 0,
+    "name": "Red apples"
+  },
+  "bananas": {
+    "atlas": 1,
+    "cell": 1,
+    "name": "Bananas"
+  },
+  "oranges": {
+    "atlas": 1,
+    "cell": 2,
+    "name": "Oranges"
+  },
+  "carrots": {
+    "atlas": 1,
+    "cell": 3,
+    "name": "Carrots"
+  },
+  "potatoes": {
+    "atlas": 1,
+    "cell": 4,
+    "name": "Potatoes"
+  },
+  "tomatoes": {
+    "atlas": 1,
+    "cell": 5,
+    "name": "Tomatoes"
+  },
+  "onions": {
+    "atlas": 1,
+    "cell": 6,
+    "name": "Onions"
+  },
+  "lettuce": {
+    "atlas": 1,
+    "cell": 7,
+    "name": "Lettuce"
+  },
+  "milk-low-fat-1l": {
+    "atlas": 1,
+    "cell": 8,
+    "name": "Low-fat milk 1 L"
+  },
+  "milk-oat-1l": {
+    "atlas": 1,
+    "cell": 9,
+    "name": "Oat milk 1 L"
+  },
+  "milk-whole-1l": {
+    "atlas": 1,
+    "cell": 10,
+    "name": "Whole milk 1 L"
+  },
+  "greek-yogurt": {
+    "atlas": 1,
+    "cell": 11,
+    "name": "Greek yogurt"
+  },
+  "cheddar-cheese": {
+    "atlas": 1,
+    "cell": 12,
+    "name": "Cheddar cheese"
+  },
+  "butter": {
+    "atlas": 1,
+    "cell": 13,
+    "name": "Butter"
+  },
+  "eggs-12-pack": {
+    "atlas": 1,
+    "cell": 14,
+    "name": "Eggs 12 pack"
+  },
+  "milk-soy-1l": {
+    "atlas": 1,
+    "cell": 15,
+    "name": "Soy milk 1 L"
+  },
+  "white-bread": {
+    "atlas": 1,
+    "cell": 16,
+    "name": "White bread"
+  },
+  "whole-wheat-bread": {
+    "atlas": 1,
+    "cell": 17,
+    "name": "Whole wheat bread"
+  },
+  "baguette": {
+    "atlas": 1,
+    "cell": 18,
+    "name": "Baguette"
+  },
+  "croissants": {
+    "atlas": 1,
+    "cell": 19,
+    "name": "Croissants"
+  },
+  "bagels": {
+    "atlas": 1,
+    "cell": 20,
+    "name": "Bagels"
+  },
+  "burger-buns": {
+    "atlas": 1,
+    "cell": 21,
+    "name": "Burger buns"
+  },
+  "tortillas": {
+    "atlas": 1,
+    "cell": 22,
+    "name": "Tortillas"
+  },
+  "blueberry-muffins": {
+    "atlas": 1,
+    "cell": 23,
+    "name": "Blueberry muffins"
+  },
+  "chicken-breast": {
+    "atlas": 2,
+    "cell": 0,
+    "name": "Chicken breast"
+  },
+  "ground-beef": {
+    "atlas": 2,
+    "cell": 1,
+    "name": "Ground beef"
+  },
+  "pork-chops": {
+    "atlas": 2,
+    "cell": 2,
+    "name": "Pork chops"
+  },
+  "salmon-fillet": {
+    "atlas": 2,
+    "cell": 3,
+    "name": "Salmon fillet"
+  },
+  "shrimp": {
+    "atlas": 2,
+    "cell": 4,
+    "name": "Shrimp"
+  },
+  "bacon": {
+    "atlas": 2,
+    "cell": 5,
+    "name": "Bacon"
+  },
+  "tofu": {
+    "atlas": 2,
+    "cell": 6,
+    "name": "Tofu"
+  },
+  "fish-fingers": {
+    "atlas": 2,
+    "cell": 7,
+    "name": "Fish fingers"
+  },
+  "jasmine-rice": {
+    "atlas": 2,
+    "cell": 8,
+    "name": "Jasmine rice"
+  },
+  "brown-rice": {
+    "atlas": 2,
+    "cell": 9,
+    "name": "Brown rice"
+  },
+  "spaghetti": {
+    "atlas": 2,
+    "cell": 10,
+    "name": "Spaghetti"
+  },
+  "flour": {
+    "atlas": 2,
+    "cell": 11,
+    "name": "Flour"
+  },
+  "sugar": {
+    "atlas": 2,
+    "cell": 12,
+    "name": "Sugar"
+  },
+  "salt": {
+    "atlas": 2,
+    "cell": 13,
+    "name": "Salt"
+  },
+  "olive-oil": {
+    "atlas": 2,
+    "cell": 14,
+    "name": "Olive oil"
+  },
+  "canned-tuna": {
+    "atlas": 2,
+    "cell": 15,
+    "name": "Canned tuna"
+  },
+  "baked-beans": {
+    "atlas": 2,
+    "cell": 16,
+    "name": "Baked beans"
+  },
+  "tomato-sauce": {
+    "atlas": 2,
+    "cell": 17,
+    "name": "Tomato sauce"
+  },
+  "soy-sauce": {
+    "atlas": 2,
+    "cell": 18,
+    "name": "Soy sauce"
+  },
+  "ketchup": {
+    "atlas": 2,
+    "cell": 19,
+    "name": "Ketchup"
+  },
+  "peanut-butter": {
+    "atlas": 2,
+    "cell": 20,
+    "name": "Peanut butter"
+  },
+  "strawberry-jam": {
+    "atlas": 2,
+    "cell": 21,
+    "name": "Strawberry jam"
+  },
+  "drinking-water": {
+    "atlas": 2,
+    "cell": 22,
+    "name": "Drinking water"
+  },
+  "orange-juice": {
+    "atlas": 2,
+    "cell": 23,
+    "name": "Orange juice"
+  },
+  "cola": {
+    "atlas": 3,
+    "cell": 0,
+    "name": "Cola"
+  },
+  "green-tea": {
+    "atlas": 3,
+    "cell": 1,
+    "name": "Green tea"
+  },
+  "ground-coffee": {
+    "atlas": 3,
+    "cell": 2,
+    "name": "Ground coffee"
+  },
+  "potato-chips": {
+    "atlas": 3,
+    "cell": 3,
+    "name": "Potato chips"
+  },
+  "chocolate-bar": {
+    "atlas": 3,
+    "cell": 4,
+    "name": "Chocolate bar"
+  },
+  "dish-soap": {
+    "atlas": 3,
+    "cell": 5,
+    "name": "Dish soap"
+  },
+  "laundry-detergent": {
+    "atlas": 3,
+    "cell": 6,
+    "name": "Laundry detergent"
+  },
+  "toilet-paper": {
+    "atlas": 3,
+    "cell": 7,
+    "name": "Toilet paper"
+  },
+  "paper-towels": {
+    "atlas": 3,
+    "cell": 8,
+    "name": "Paper towels"
+  },
+  "trash-bags": {
+    "atlas": 3,
+    "cell": 9,
+    "name": "Trash bags"
+  },
+  "toothpaste": {
+    "atlas": 3,
+    "cell": 10,
+    "name": "Toothpaste"
+  },
+  "shampoo": {
+    "atlas": 3,
+    "cell": 11,
+    "name": "Shampoo"
+  },
+  "avocados": {
+    "atlas": 3,
+    "cell": 12,
+    "name": "Avocados"
+  },
+  "broccoli": {
+    "atlas": 3,
+    "cell": 13,
+    "name": "Broccoli"
+  },
+  "cucumber": {
+    "atlas": 3,
+    "cell": 14,
+    "name": "Cucumber"
+  },
+  "spinach": {
+    "atlas": 3,
+    "cell": 15,
+    "name": "Spinach"
+  },
+  "strawberries": {
+    "atlas": 3,
+    "cell": 16,
+    "name": "Strawberries"
+  },
+  "grapes": {
+    "atlas": 3,
+    "cell": 17,
+    "name": "Grapes"
+  },
+  "lemons": {
+    "atlas": 3,
+    "cell": 18,
+    "name": "Lemons"
+  },
+  "mushrooms": {
+    "atlas": 3,
+    "cell": 19,
+    "name": "Mushrooms"
+  },
+  "almond-milk-1l": {
+    "atlas": 3,
+    "cell": 20,
+    "name": "Almond milk 1 L"
+  },
+  "unsweetened-oat-milk-1l": {
+    "atlas": 3,
+    "cell": 21,
+    "name": "Unsweetened oat milk 1 L"
+  },
+  "coconut-milk-1l": {
+    "atlas": 3,
+    "cell": 22,
+    "name": "Coconut milk 1 L"
+  },
+  "mozzarella": {
+    "atlas": 3,
+    "cell": 23,
+    "name": "Mozzarella"
+  },
+  "double-cream": {
+    "atlas": 4,
+    "cell": 0,
+    "name": "Double cream"
+  },
+  "cream-cheese": {
+    "atlas": 4,
+    "cell": 1,
+    "name": "Cream cheese"
+  },
+  "parmesan": {
+    "atlas": 4,
+    "cell": 2,
+    "name": "Parmesan"
+  },
+  "chocolate-milk-1l": {
+    "atlas": 4,
+    "cell": 3,
+    "name": "Chocolate milk 1 L"
+  },
+  "sourdough-bread": {
+    "atlas": 4,
+    "cell": 4,
+    "name": "Sourdough bread"
+  },
+  "rye-bread": {
+    "atlas": 4,
+    "cell": 5,
+    "name": "Rye bread"
+  },
+  "pita-bread": {
+    "atlas": 4,
+    "cell": 6,
+    "name": "Pita bread"
+  },
+  "dinner-rolls": {
+    "atlas": 4,
+    "cell": 7,
+    "name": "Dinner rolls"
+  },
+  "cinnamon-rolls": {
+    "atlas": 4,
+    "cell": 8,
+    "name": "Cinnamon rolls"
+  },
+  "english-muffins": {
+    "atlas": 4,
+    "cell": 9,
+    "name": "English muffins"
+  },
+  "chocolate-cake": {
+    "atlas": 4,
+    "cell": 10,
+    "name": "Chocolate cake"
+  },
+  "chicken-thighs": {
+    "atlas": 4,
+    "cell": 11,
+    "name": "Chicken thighs"
+  },
+  "turkey-breast": {
+    "atlas": 4,
+    "cell": 12,
+    "name": "Turkey breast"
+  },
+  "beef-steak": {
+    "atlas": 4,
+    "cell": 13,
+    "name": "Beef steak"
+  },
+  "tuna-steak": {
+    "atlas": 4,
+    "cell": 14,
+    "name": "Tuna steak"
+  },
+  "white-fish-fillet": {
+    "atlas": 4,
+    "cell": 15,
+    "name": "White fish fillet"
+  },
+  "meatballs": {
+    "atlas": 4,
+    "cell": 16,
+    "name": "Meatballs"
+  },
+  "tempeh": {
+    "atlas": 4,
+    "cell": 17,
+    "name": "Tempeh"
+  },
+  "basmati-rice": {
+    "atlas": 4,
+    "cell": 18,
+    "name": "Basmati rice"
+  },
+  "quinoa": {
+    "atlas": 4,
+    "cell": 19,
+    "name": "Quinoa"
+  },
+  "rolled-oats": {
+    "atlas": 4,
+    "cell": 20,
+    "name": "Rolled oats"
+  },
+  "penne-pasta": {
+    "atlas": 4,
+    "cell": 21,
+    "name": "Penne pasta"
+  },
+  "rice-noodles": {
+    "atlas": 4,
+    "cell": 22,
+    "name": "Rice noodles"
+  },
+  "couscous": {
+    "atlas": 4,
+    "cell": 23,
+    "name": "Couscous"
+  },
+  "cornstarch": {
+    "atlas": 5,
+    "cell": 0,
+    "name": "Cornstarch"
+  },
+  "baking-powder": {
+    "atlas": 5,
+    "cell": 1,
+    "name": "Baking powder"
+  },
+  "canned-chickpeas": {
+    "atlas": 5,
+    "cell": 2,
+    "name": "Canned chickpeas"
+  },
+  "canned-kidney-beans": {
+    "atlas": 5,
+    "cell": 3,
+    "name": "Canned kidney beans"
+  },
+  "coconut-cream": {
+    "atlas": 5,
+    "cell": 4,
+    "name": "Coconut cream"
+  },
+  "mayonnaise": {
+    "atlas": 5,
+    "cell": 5,
+    "name": "Mayonnaise"
+  },
+  "mustard": {
+    "atlas": 5,
+    "cell": 6,
+    "name": "Mustard"
+  },
+  "hot-sauce": {
+    "atlas": 5,
+    "cell": 7,
+    "name": "Hot sauce"
+  },
+  "honey": {
+    "atlas": 5,
+    "cell": 8,
+    "name": "Honey"
+  },
+  "red-curry-paste": {
+    "atlas": 5,
+    "cell": 9,
+    "name": "Red curry paste"
+  },
+  "apple-juice": {
+    "atlas": 5,
+    "cell": 10,
+    "name": "Apple juice"
+  },
+  "sparkling-water": {
+    "atlas": 5,
+    "cell": 11,
+    "name": "Sparkling water"
+  },
+  "black-tea": {
+    "atlas": 5,
+    "cell": 12,
+    "name": "Black tea"
+  },
+  "instant-coffee": {
+    "atlas": 5,
+    "cell": 13,
+    "name": "Instant coffee"
+  },
+  "orange-soda": {
+    "atlas": 5,
+    "cell": 14,
+    "name": "Orange soda"
+  },
+  "mixed-nuts": {
+    "atlas": 5,
+    "cell": 15,
+    "name": "Mixed nuts"
+  },
+  "granola": {
+    "atlas": 5,
+    "cell": 16,
+    "name": "Granola"
+  },
+  "dark-chocolate": {
+    "atlas": 5,
+    "cell": 17,
+    "name": "Dark chocolate"
+  },
+  "hand-soap": {
+    "atlas": 5,
+    "cell": 18,
+    "name": "Hand soap"
+  },
+  "body-wash": {
+    "atlas": 5,
+    "cell": 19,
+    "name": "Body wash"
+  },
+  "conditioner": {
+    "atlas": 5,
+    "cell": 20,
+    "name": "Conditioner"
+  },
+  "toothbrushes": {
+    "atlas": 5,
+    "cell": 21,
+    "name": "Toothbrushes"
+  },
+  "facial-tissues": {
+    "atlas": 5,
+    "cell": 22,
+    "name": "Facial tissues"
+  },
+  "kitchen-sponges": {
+    "atlas": 5,
+    "cell": 23,
+    "name": "Kitchen sponges"
+  }
+}

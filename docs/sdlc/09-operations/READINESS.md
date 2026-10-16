@@ -81,6 +81,16 @@ rtk proxy curl --silent --show-error --include --max-time 10 https://APPROVED_HO
 3. Deny microphone permission in a fresh browser context. Confirm a clear recovery message and usable typing. Restore permission and deliberately start a new session. Separately test playback denial/unsupported capture as described in [TEST-0002](../07-tests/TEST-0002.md).
 4. Measure separate setup, idle and session-expiry cases: setup bounded by 30 seconds, idle by 60 seconds and application session by 300 seconds from ready; confirm the configured outer Cloud Run timeout is 360 seconds. Observe a visible expiry/restart state and release of provider/admission resources.
 
+5. During a complete reply, stay quiet and leave a short pause before the next
+   question. Quiet background input must not silently discard the reply. Ask a
+   follow-up without restarting and verify the microphone indicator stays active.
+6. In the fault harness, omit/delay the current turn's required tool result. A
+   recognized request gets at most one continuation attempt after eight seconds.
+   If it still cannot complete, expect “please ask again” with the session and
+   microphone still active, then ask a fresh question and verify an answer. The
+   expired turn's late audio/cards must be ignored. Actual provider/network failure
+   still uses explicit fresh-session restart; this turn timeout does not.
+
 **Expected:** each failure has bounded, explicit recovery with no stale results or leaked sessions. Keep these fault trials separate from normal warm timing samples.
 
 ### Step 7 — Test protected catalog maintenance
@@ -244,3 +254,94 @@ After submission, retain or remove cloud resources on the owner's agreed date. T
 ## Dated verification gates
 
 Early 14 October cloud staging uses TEST-0010 with ADK/Gemini audio/tools and real Laya classification. Integrated acceptance on 15 October uses TEST-0001/0002/0003/0005 and required TEST-0012. Final 16 October promotion adds TEST-0004 release/rollback evidence. The 17 October package is TEST-0011 and does not block the 16 October deployment. See TASK-0005, TASK-0006, TASK-0008 and TASK-0007 respectively.
+
+
+## Visual catalog and smoother voice check (TASK-0011)
+
+1. Run `rtk proxy make mvp-restart`, then open `http://localhost:8080` and reload.
+   Startup imports the base and additive batches without resetting existing edits.
+2. Confirm **Explore your store** shows **120 products** on an unchanged demo DB
+   (custom published products can increase the count). Browse all eight categories
+   and use Next/Previous. Expect distinct sample packshots and no inactive fixtures.
+3. Choose **Locate item** on Almond milk, avocado or another new item. Confirm the
+   selected card, highlighted walking route and shelf heading agree on stored labels.
+   The colorful shelf panel must show the selected product and published neighbors.
+4. At phone width, confirm two product columns, horizontally scrollable categories
+   and shelf facings, no page overflow, a visible voice dock, and usable Locate buttons.
+   Shelf pictures are illustrations, not physical tier/stock/packaging evidence.
+5. Start voice and say **Hello**, ask a general question, then a meal idea. Expect
+   spoken replies and captions in the same session. Ask **Where is whole milk?** and
+   confirm the spoken/visible aisle and shelf match the stored route.
+6. Interrupt a reply with a new question; confirm old audio stops and the new reply
+   completes without pausing/disconnecting. End voice and confirm the mic stops.
+   Listen for gaps with your actual browser/headset. The four-turn synthetic timing
+   sample improved, but physical-device and 30-trial performance acceptance remain open.
+
+Evidence and remaining limitations: [TASK-0011](../07-tests/evidence/TASK-0011/README.md).
+
+
+## English and interruption regression check (TASK-0012)
+
+1. Refresh after `rtk proxy make mvp-restart`. Start voice, stay quiet for eight
+   seconds, then say Hello. Expect quiet waiting followed by an English reply.
+2. Ask a normal question; during playback make a brief click/noise. A short impulse
+   should not stop it. Speak a new request normally; expect interruption and recovery.
+3. Ask for another language. The current English-only store should reply in English.
+4. Find milk by voice, then click a current match while voice is active. Expect a
+   spoken grounded confirmation without disconnecting from an empty audio activity.
+5. If it still disconnects, inspect allowlisted `voice_runtime_failure reason=`
+   and `voice_session_end reason=` entries in tmp/run. Do not share provider keys,
+   raw exception payloads, shopper audio or transcripts. Required-tool timeouts and
+   sustained noise/echo still need qualification; a runtime language rewrite has
+   no measured stability benefit in this app.
+
+
+### Repeated conversation and shelf-request check (TASK-0013)
+
+1. Refresh the portal after `make mvp-restart`. In DevTools Network, filter
+   `api/products`; clear the list. Start voice and say “Where is whole milk?”
+2. Wait for the verified route and shelf images. One shelf preview request is
+   expected for this selection; a separate category browse request is normal.
+3. Ask a general question while the shelf stays visible. Watch through Listening,
+   Thinking, Speaking and the countdown. Those changes must not refetch the shelf.
+4. Ask “Repeat those directions”, then “Where is jasmine rice?”, repeat its
+   directions, and ask for toothpaste. Each fresh search/route selection may fetch
+   its shelf once; it must settle rather than repeatedly cancel/restart requests.
+5. Continue with “Thank you”, whole milk again, “What is two plus two?” and jasmine
+   rice again in the same voice session. Check audible complete replies, English
+   captions, and agreement between the spoken and displayed aisle/shelf.
+6. Under network throttling, a pending shelf request must survive unrelated voice
+   updates. Select a different shelf and confirm a late old response cannot replace
+   it. If loading fails, Retry shelf should issue one deliberate new request.
+7. Confirm End voice stops capture/playback. Five-minute session and one-minute
+   inactivity limits still apply; this test does not promise unlimited sessions.
+
+Native opt-in probes are `web/tests/native/conversation.cjs` (set
+`NATIVE_VOICE_TEST=1`, public text controls) and `conversation-audio.cjs` (set
+`NATIVE_VOICE_WAV` to a synthetic ten-utterance file). They call the configured real
+provider; optional `NATIVE_REPORT_PATH` writes only counts/timings/booleans, never
+transcripts or audio. Use the TASK-0013 evidence for the exact input schedule and
+limitations; no shopper recording is needed.
+
+
+## Computer-speaker check (TASK-0015)
+
+1. Refresh `http://localhost:8080`. In the assistant panel (open the assistant on
+   mobile), click **Speaker mode off** so it reads **Speaker mode on**.
+2. Start voice and say “Hello”. Expect an English reply and **Mic paused for
+   speakers** during playback. Speech during that pause is deliberately ignored.
+3. Wait for **Microphone on**, then ask “Where is whole milk?” and check the spoken
+   answer, item and route. Repeat with rice and toothpaste for ten turns.
+4. During a reply, click **Interrupt**. Expect the old audio to stop, then the mic
+   to resume after the short acoustic tail. Say a new request and check that its
+   reply and verified route replace the old turn. On mobile, minimize the panel
+   and repeat using Interrupt in the bottom dock.
+5. Test Mute sound, Mute mic, End and Start. Mic mute must remain independent;
+   End stops capture. Speaker mode remains selected until page reload.
+6. Turn Speaker mode off to restore interruption by speaking. Compare with
+   headphones. Record hardware/browser, reply completion, any error status and
+   delays without saving private shopper audio or transcripts.
+
+A speaker-mode pass does not certify native-provider latency or all disconnect
+causes. The initial Laya check was fast for one caller, while a separate 10-turn
+text run still had one 8-second reply. See TASK-0015 evidence for retained results.
