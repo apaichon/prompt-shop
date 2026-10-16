@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import { Api, ApiError, errorMessage, recovery } from '../api';
 import { eventSchema, type VoiceEvent } from '../contracts';
 import { BrowserAudio, type AudioEngine } from './audio';
+import { InputActivity } from './activity';
 import { EventGate } from './gate';
 import { mergeTranscriptChunk } from './transcript';
 
@@ -23,7 +24,7 @@ export class VoiceClient {
   private timer?: ReturnType<typeof setInterval>;
   private ready = false;
   private lastSpeech = 0;
-  private speakingInput = false;
+  private inputActivity = new InputActivity();
   private expires = 0;
   private setupDeadline = 0;
   private lastPing = 0;
@@ -75,7 +76,7 @@ export class VoiceClient {
   stop(message = '') {
     // Invalidate the identity before any transport callback or asynchronous cleanup.
     const session = this.gate.session;
-    this.audioFinished = false; this.audioDrained = true;
+    this.audioFinished = false; this.audioDrained = true; this.inputActivity.reset();
     this.nonce++; this.gate.stop(); this.ready = false; this.callbacks.turn();
     this.abort?.abort(); this.abort = undefined;
     if (this.timer) clearInterval(this.timer); this.timer = undefined;
@@ -93,7 +94,7 @@ export class VoiceClient {
   muteSpeaker() { const muted = !this.state.soundMuted; this.audio?.speakerMuted(muted); if (muted) this.audioDrained = true; this.patch({ soundMuted: muted, ...(muted && this.state.phase === 'speaking' ? { phase: 'listening' as const } : {}) }); }
   select(search_id: string, product_id: string): boolean {
     if (!this.ready || this.socket?.readyState !== 1) return false;
-    this.audio?.flush(); this.gate.anticipateTurn(); this.lastSpeech = Date.now();
+    this.inputActivity.reset(); this.audio?.flush(); this.gate.anticipateTurn(); this.lastSpeech = Date.now();
     this.callbacks.turn(); this.patch({ phase: 'thinking', message: 'Finding directions…', input: '', output: '' });
     return this.send({ type: 'select', search_id, product_id });
   }
@@ -105,15 +106,14 @@ export class VoiceClient {
     if (!this.ready || this.socket?.readyState !== 1) return;
     if (frame.byteLength > 6400 || frame.byteLength % 2 || this.socket.bufferedAmount + frame.byteLength > 32000) { this.fail(recovery.CLIENT_TOO_SLOW); return; }
     const now = Date.now();
-    if (voiced && !this.state.micMuted) {
-      if (!this.speakingInput) {
-        this.audio?.flush(); this.gate.anticipateTurn(); this.callbacks.turn();
-        this.patch({ phase: 'listening', input: '', output: '', message: 'Listening to you…' });
-      }
-      this.speakingInput = true; this.lastSpeech = now;
-    } else if (this.speakingInput && now - this.lastSpeech >= 350) {
-      this.speakingInput = false; this.patch({ phase: 'thinking', message: 'Thinking…' });
+    const speech = voiced && !this.state.micMuted;
+    const activity = this.inputActivity.push(frame.byteLength, speech);
+    if (activity.started) {
+      this.audio?.flush(); this.gate.anticipateTurn(); this.callbacks.turn();
+      this.patch({ phase: 'listening', input: '', output: '', message: 'Listening to you…' });
     }
+    if (this.inputActivity.active && speech) this.lastSpeech = now;
+    if (activity.ended) this.patch({ phase: 'thinking', message: 'Thinking…' });
     try { this.socket.send(frame); } catch { this.fail('Voice disconnected. Restart voice or type an item.'); }
   }
   private receive(data: unknown) {
@@ -136,7 +136,7 @@ export class VoiceClient {
       case 'ready':
         if (this.ready) { this.fail('Voice connection was reset. Please restart.'); return; }
         this.ready = true; this.expires = Math.min(Date.parse(event.expires_at), Date.now() + 300000);
-        this.lastSpeech = this.lastPing = Date.now(); this.pongDeadline = 0; this.speakingInput = false;
+        this.lastSpeech = this.lastPing = Date.now(); this.pongDeadline = 0; this.inputActivity.reset();
         this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say hello, ask a question, or find an item. You can interrupt at any time.' }); break;
       case 'input_transcript': this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;
       case 'output_transcript': this.patch({ output: mergeTranscriptChunk(this.state.output, event.text).slice(-8000) }); break;

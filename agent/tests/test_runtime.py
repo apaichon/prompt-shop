@@ -245,6 +245,9 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
             assert set(classification["parameters"]["required"]) == {"text", "response_mode"}
             assert "inputAudioTranscription" in config and "outputAudioTranscription" in config
             wire = json.dumps(config)
+            assert "Always speak English" in wire
+            assert "After answering, wait for a new shopper request" in wire
+            assert "languageCode" not in wire and "language_code" not in wire
             for forbidden in ("thinkingConfig", "enableAffectiveDialog", "proactiveAudio", "sessionResumption"):
                 assert forbidden not in wire
             assert "capability" not in wire and "x" * 43 not in wire
@@ -524,3 +527,32 @@ async def test_barge_in_during_classification_keeps_actual_adk_runner_alive(monk
     finally:
         task.cancel()
         await asyncio.gather(task, return_exceptions=True)
+
+
+def test_diagnostic_reason_never_includes_error_text():
+    from prompt_shop_live.diagnostics import failure_reason
+    assert failure_reason(ValueError("private transcript key=secret")) == "invalid_stream"
+    assert failure_reason(Exception("private transcript key=secret")) == "internal_error"
+    assert failure_reason(QueueOverflow("private details")) == "input_backlog"
+
+
+async def test_text_selection_turn_has_no_empty_audio_activity(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
+    socket = ProviderSocket()
+    @contextlib.asynccontextmanager
+    async def connect(*args, **kwargs):
+        yield socket
+    monkeypatch.setattr(live, "ws_connect", connect)
+    runtime = Runtime(classifier)
+    bridge = Bridge("text-session")
+    task = asyncio.create_task(runtime.serve(bridge, setup(bridge.sid)))
+    try:
+        await asyncio.wait_for(bridge.ready.wait(), 5)
+        bridge.control("begin_turn", turn_id="turn-1")
+        bridge.control("text", turn_id="turn-1", text="Hello")
+        await until(lambda: any(x.get("realtime_input", {}).get("text") for x in socket.sent))
+        inputs = [x["realtime_input"] for x in socket.sent if "realtime_input" in x]
+        assert not any(any(k in x for k in ("activity_start", "activity_end", "activityStart", "activityEnd")) for x in inputs)
+    finally:
+        bridge.control("stop")
+        await asyncio.wait_for(task, 5)

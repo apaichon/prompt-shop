@@ -224,3 +224,17 @@ it('failed selection send reports failure and still releases microphone and sock
   expect(get(f.voice).phase).toBe('error'); expect(f.audio.close).toHaveBeenCalled();
   expect(f.socket.close).toHaveBeenCalled();
 });
+
+
+it('a single loud 20ms frame cannot cancel a reply; sustained speech can',async()=>{
+ const f=voiceFixture();await f.voice.start();f.ready();
+ f.socket.receive(event('audio_start'));f.socket.receive(new ArrayBuffer(3200));
+ const before=f.audio.flush.mock.calls.length;
+ f.audio.frame!(new ArrayBuffer(640),true);
+ expect(f.audio.flush.mock.calls.length).toBe(before);
+ f.audio.frame!(new ArrayBuffer(640),false);
+ expect(get(f.voice).phase).toBe('speaking');
+ for(let i=0;i<4;i++)f.audio.frame!(new ArrayBuffer(640),true);
+ expect(f.audio.flush.mock.calls.length).toBe(before+1);
+ expect(get(f.voice).phase).toBe('listening');f.voice.stop();
+});
