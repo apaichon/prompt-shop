@@ -61,3 +61,18 @@ The [task allocation plan](docs/MODEL-ALLOCATION.md) assigns all ten tasks to GP
 TASK-0001 database/import and health setup is documented in [TASK-0001-HANDOFF.md](docs/TASK-0001-HANDOFF.md). That historical task handoff predates the consolidated portal, backoffice and classifier source; use the initial testing guide for the current combined checkout.
 
 Backoffice setup and verification: [internal/backoffice/README.md](internal/backoffice/README.md).
+
+## Local infrastructure commands
+
+Run from the repository root with Docker running, Docker Compose, Go, Python 3 and `rtk` installed:
+
+```sh
+rtk proxy make start
+rtk proxy make stop
+rtk proxy make restart
+rtk proxy make reset-data
+```
+
+`start` creates a private `.env` from `.env.example` only when missing, starts PostgreSQL, waits for readiness, applies migrations, imports the demo seed and grants the local read-only login. Repeated imports of the same seed are idempotent. `stop` and `restart` retain the database volume; `restart` does not reseed it. `reset-data` deletes this project's local database volume, then rebuilds the schema/seed/login. It removes custom data, maintainer sessions and extra database logins; recreate optional backoffice logins afterward. Stop any app using this database before resetting it.
+
+Use `rtk proxy make status`, `rtk proxy make logs` or `rtk proxy make help` for inspection. The aliases `infra-start`, `infra-stop`, `infra-restart` and `infra-reset-data` are also available. These commands manage the fixed `prompt-shop` Compose project and its PostgreSQL service, not the Go server, portal, ADK, Laya or GCP. Imports always use loopback and the local `POSTGRES_*` settings, ignoring a caller's `OPERATOR_DATABASE_URL`. If you customize `.env`, keep `DATABASE_URL` consistent with your local reader login; the supplied login script creates `prompt_shop_reader` with the development password from the template.
