@@ -556,3 +556,47 @@ async def test_text_selection_turn_has_no_empty_audio_activity(monkeypatch):
     finally:
         bridge.control("stop")
         await asyncio.wait_for(task, 5)
+
+
+@pytest.mark.parametrize("with_audio", [True, False])
+@pytest.mark.parametrize("chunks", [("Where is", "whole milk?"), ("Where is", "Where is whole milk?")])
+async def test_withheld_completed_reply_recovers_promptly_with_whole_request(monkeypatch, chunks, with_audio):
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
+    socket = ProviderSocket()
+    @contextlib.asynccontextmanager
+    async def connect(*args, **kwargs):
+        yield socket
+    monkeypatch.setattr(live, "ws_connect", connect)
+    runtime = Runtime(classifier)
+    bridge = Bridge("prompt-recovery")
+    task = asyncio.create_task(runtime.serve(bridge, setup(bridge.sid)))
+    def reminders():
+        return [x["realtime_input"]["text"] for x in socket.sent if x.get("realtime_input", {}).get("text")]
+    try:
+        await asyncio.wait_for(bridge.ready.wait(), 5)
+        bridge.control("begin_turn", turn_id="turn-1")
+        # A delayed old completion during a new request cannot trigger a retry.
+        socket.push({"serverContent": {"turnComplete": True}})
+        await asyncio.sleep(.05)
+        assert reminders() == []
+        bridge.control("activity_end", turn_id="turn-1")
+        await asyncio.sleep(.02)
+        for text in chunks:
+            socket.push({"serverContent": {"inputTranscription": {"text": text, "finished": text.endswith("?")}}})
+        # A completed model response skipped required tools: do not wait eight
+        # seconds to discover it, and never retry only the last transcript chunk.
+        reply = {"serverContent": {"modelTurn": {"role": "model", "parts": [
+            {"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": base64.b64encode(b"\0" * 3200).decode()}}]}, "turnComplete": True}}
+        if not with_audio:
+            reply = {"serverContent": {"turnComplete": True}}
+        socket.push(reply)
+        await asyncio.wait_for(until(lambda: bool(reminders())), 1)
+        assert "Where is whole milk?" in reminders()[0]
+        assert not bridge.closed and bridge.audio_times == []
+        socket.push(reply)
+        await asyncio.sleep(.1)
+        assert len(reminders()) == 1
+        assert not any(isinstance(x, dict) and x.get("type") == "turn_complete" for x in bridge.output)
+    finally:
+        bridge.control("stop")
+        await asyncio.wait_for(task, 5)

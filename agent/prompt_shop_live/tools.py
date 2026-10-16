@@ -10,7 +10,7 @@ SCHEMAS = {
         "response_mode": "conversation for general chat, greetings or meal ideas; catalog for product matching, store availability, ingredients to locate or shelf directions.",
     },
     "search_catalog": {"query": "Single item to find, at most 200 characters."},
-    "get_product_route": {"product_id": "An ID from the current candidate set.", "search_id": "The current server search ID."},
+    "get_product_route": {"product_id": "An ID from the current candidate set.", "search_id": "Copy exactly from the applicable search_catalog response; never invent or reconstruct this ID."},
 }
 
 

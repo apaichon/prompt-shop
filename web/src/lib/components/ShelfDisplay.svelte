@@ -13,7 +13,10 @@
   catch(error){if(alive&&key===epoch&&!abort.signal.aborted)message=errorMessage(error);}
   finally{if(alive&&key===epoch)loading=false;}
  }
- $: void load(product.shelf.id);
+ // Portal updates also invalidate object props during unrelated voice turns.
+ // Only a changed shelf identity should cancel/reload this request.
+ $: shelfID=product.shelf.id;
+ $: void load(shelfID);
  onDestroy(()=>{alive=false;epoch++;request?.abort();});
 </script>
 <section class="shelf-display" aria-label="Products at the selected shelf" aria-busy={loading}>

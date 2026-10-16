@@ -294,3 +294,31 @@ Evidence and remaining limitations: [TASK-0011](../07-tests/evidence/TASK-0011/R
    raw exception payloads, shopper audio or transcripts. Required-tool timeouts and
    sustained noise/echo still need qualification; a runtime language rewrite has
    no measured stability benefit in this app.
+
+
+### Repeated conversation and shelf-request check (TASK-0013)
+
+1. Refresh the portal after `make mvp-restart`. In DevTools Network, filter
+   `api/products`; clear the list. Start voice and say “Where is whole milk?”
+2. Wait for the verified route and shelf images. One shelf preview request is
+   expected for this selection; a separate category browse request is normal.
+3. Ask a general question while the shelf stays visible. Watch through Listening,
+   Thinking, Speaking and the countdown. Those changes must not refetch the shelf.
+4. Ask “Repeat those directions”, then “Where is jasmine rice?”, repeat its
+   directions, and ask for toothpaste. Each fresh search/route selection may fetch
+   its shelf once; it must settle rather than repeatedly cancel/restart requests.
+5. Continue with “Thank you”, whole milk again, “What is two plus two?” and jasmine
+   rice again in the same voice session. Check audible complete replies, English
+   captions, and agreement between the spoken and displayed aisle/shelf.
+6. Under network throttling, a pending shelf request must survive unrelated voice
+   updates. Select a different shelf and confirm a late old response cannot replace
+   it. If loading fails, Retry shelf should issue one deliberate new request.
+7. Confirm End voice stops capture/playback. Five-minute session and one-minute
+   inactivity limits still apply; this test does not promise unlimited sessions.
+
+Native opt-in probes are `web/tests/native/conversation.cjs` (set
+`NATIVE_VOICE_TEST=1`, public text controls) and `conversation-audio.cjs` (set
+`NATIVE_VOICE_WAV` to a synthetic ten-utterance file). They call the configured real
+provider; optional `NATIVE_REPORT_PATH` writes only counts/timings/booleans, never
+transcripts or audio. Use the TASK-0013 evidence for the exact input schedule and
+limitations; no shopper recording is needed.
