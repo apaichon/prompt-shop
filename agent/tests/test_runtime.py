@@ -194,6 +194,7 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
             declarations = [d for t in config["tools"] for d in t["functionDeclarations"]]
             assert {d["name"] for d in declarations} == {"classify_intent", "search_catalog", "get_product_route"}
             assert all(d["behavior"] == "BLOCKING" for d in declarations)
+            assert all("additional_properties" not in d["parameters"] and "additionalProperties" not in d["parameters"] for d in declarations)
             assert "inputAudioTranscription" in config and "outputAudioTranscription" in config
             wire = json.dumps(config)
             for forbidden in ("thinkingConfig", "enableAffectiveDialog", "proactiveAudio", "sessionResumption"):

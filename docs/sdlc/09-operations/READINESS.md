@@ -16,7 +16,7 @@ This is a planning checklist, not an incident or evidence of a running system. A
 
 Run this procedure against the exact candidate revision, then repeat the normal-URL smoke after promotion. It is a test procedure, not an execution record. Record each step as **PASS**, **FAIL**, **BLOCKED** (a prerequisite is missing), or **NOT RUN**, with an evidence reference. A page loading or a green health probe alone cannot establish release readiness.
 
-**Source baseline when this procedure was written, 16 October:** [initial testing](../../INITIAL-TESTING.md) records incomplete public catalog/route and Go voice registration; [TEST-0012](../07-tests/TEST-0012.md) records actual Laya accuracy of 19/40 against the required 36/40. Deployment acceptance is unverified. Recheck these against the candidate; do not assume the steps below already pass or substitute fixtures for missing features.
+**Source baseline, updated 16 October:** the later [voice-start fix](../../VOICE-START-FIX-2026-10-16.md) connects local catalog/routes, map and the Go/ADK/Laya voice path and records one real synthetic browser lookup/route/audio check. [TEST-0012](../07-tests/TEST-0012.md) still records Laya accuracy of 19/40 against the required 36/40; complete deployment acceptance remains unverified. Recheck the exact candidate; do not infer that every checklist step passes from this local smoke.
 
 ### Step 1 — Prepare the environment and evidence sheet
 

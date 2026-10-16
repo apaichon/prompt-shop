@@ -25,7 +25,9 @@ class BlockingTool(BaseTool):
             name=self.name, description=self.description, behavior=types.Behavior.BLOCKING,
             parameters=types.Schema(type=types.Type.OBJECT,
                 properties={key: types.Schema(type=types.Type.STRING, description=desc) for key, desc in SCHEMAS[self.name].items()},
-                required=list(SCHEMAS[self.name]), additional_properties=False),
+                # Live's parameter-schema subset rejects additional_properties.
+                # text_arg still rejects every unknown argument before dispatch.
+                required=list(SCHEMAS[self.name])),
         )
 
     async def run_async(self, *, args, tool_context):

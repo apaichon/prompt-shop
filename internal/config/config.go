@@ -6,7 +6,11 @@ import (
 	"strconv"
 )
 
-type Config struct{ DatabaseURL, ListenAddress, ReadinessMode, BackofficeDatabaseURL, PortalOrigin, MaintainerHash, StaticDir string }
+type Config struct {
+	DatabaseURL, ListenAddress, ReadinessMode, BackofficeDatabaseURL, PortalOrigin, MaintainerHash, StaticDir string
+	TicketDatabaseURL, BridgeSecret                                                                           string
+	VoiceEnabled, VoiceAllowLocalHTTP                                                                         bool
+}
 
 func Load() (Config, error) {
 	c := Config{DatabaseURL: os.Getenv("DATABASE_URL"), ReadinessMode: os.Getenv("READINESS_MODE")}
@@ -14,6 +18,27 @@ func Load() (Config, error) {
 	c.PortalOrigin = os.Getenv("PUBLIC_ORIGIN")
 	c.MaintainerHash = os.Getenv("ADMIN_PASSWORD_HASH")
 	c.StaticDir = os.Getenv("STATIC_DIR")
+	c.TicketDatabaseURL = os.Getenv("TICKET_DATABASE_URL")
+	c.BridgeSecret = os.Getenv("ADK_BRIDGE_SECRET")
+	var err error
+	if value := os.Getenv("VOICE_ENABLED"); value != "" {
+		c.VoiceEnabled, err = strconv.ParseBool(value)
+		if err != nil {
+			return c, fmt.Errorf("invalid VOICE_ENABLED")
+		}
+	}
+	if value := os.Getenv("VOICE_ALLOW_LOCAL_HTTP"); value != "" {
+		c.VoiceAllowLocalHTTP, err = strconv.ParseBool(value)
+		if err != nil {
+			return c, fmt.Errorf("invalid VOICE_ALLOW_LOCAL_HTTP")
+		}
+	}
+	if c.VoiceEnabled && (c.TicketDatabaseURL == "" || c.PortalOrigin == "" || len(c.BridgeSecret) < 32) {
+		return c, fmt.Errorf("voice requires TICKET_DATABASE_URL, PUBLIC_ORIGIN and ADK_BRIDGE_SECRET")
+	}
+	if c.VoiceAllowLocalHTTP && os.Getenv("K_SERVICE") != "" {
+		return c, fmt.Errorf("HTTP voice development is local-only")
+	}
 	if (c.BackofficeDatabaseURL != "" || c.MaintainerHash != "") && (c.BackofficeDatabaseURL == "" || c.PortalOrigin == "" || c.MaintainerHash == "") {
 		return c, fmt.Errorf("backoffice requires BACKOFFICE_DATABASE_URL, PUBLIC_ORIGIN and ADMIN_PASSWORD_HASH")
 	}
