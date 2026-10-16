@@ -188,7 +188,7 @@ describe('voice lifecycle and bounded transport', () => {
 });
 
 describe('real worklet PCM code', () => {
-  it.each([16000, 44100, 48000])('resamples %i Hz to bounded 100ms PCM16LE frames without drift', (sampleRate) => {
+  it.each([16000, 44100, 48000])('resamples %i Hz to bounded 20ms PCM16LE frames without drift', (sampleRate) => {
     let Processor: any; const frames: ArrayBuffer[] = [];
     class Base { port = { onmessage: null as any, postMessage: (frame: ArrayBuffer) => frames.push(frame) }; }
     vm.runInNewContext(readFileSync(new URL('../../static/pcm-capture.js', import.meta.url), 'utf8'), {
@@ -197,9 +197,9 @@ describe('real worklet PCM code', () => {
     const processor = new Processor(); processor.process([[new Float32Array(128).fill(.5)]]); expect(frames).toHaveLength(0);
     processor.port.onmessage({ data: 'start' });
     for (let offset = 0; offset < sampleRate; offset += 128) processor.process([[new Float32Array(Math.min(128, sampleRate - offset)).fill(.5)]]);
-    expect(frames).toHaveLength(10); expect(frames.every((f) => f.byteLength === 3200)).toBe(true);
+    expect(frames).toHaveLength(50); expect(frames.every((f) => f.byteLength === 640)).toBe(true);
     expect(new DataView(frames[0]).getInt16(0, true)).toBe(16384);
-    processor.port.onmessage({ data: 'stop' }); processor.process([[new Float32Array(128)]]); expect(frames).toHaveLength(10);
+    processor.port.onmessage({ data: 'stop' }); processor.process([[new Float32Array(128)]]); expect(frames).toHaveLength(50);
   });
 });
 

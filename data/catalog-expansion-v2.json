@@ -1,0 +1,807 @@
+{
+  "schema_version": 1,
+  "store_id": "demo-store",
+  "import_version": "visual-catalog-v2",
+  "products": [
+    {
+      "id": "avocados",
+      "name": "Avocados",
+      "category": "Produce",
+      "shelf_id": "a01-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Avocados"
+        }
+      ]
+    },
+    {
+      "id": "broccoli",
+      "name": "Broccoli",
+      "category": "Produce",
+      "shelf_id": "a01-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Broccoli"
+        }
+      ]
+    },
+    {
+      "id": "cucumber",
+      "name": "Cucumber",
+      "category": "Produce",
+      "shelf_id": "a01-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Cucumber"
+        }
+      ]
+    },
+    {
+      "id": "spinach",
+      "name": "Spinach",
+      "category": "Produce",
+      "shelf_id": "a01-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Spinach"
+        }
+      ]
+    },
+    {
+      "id": "strawberries",
+      "name": "Strawberries",
+      "category": "Produce",
+      "shelf_id": "a01-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Strawberries"
+        }
+      ]
+    },
+    {
+      "id": "grapes",
+      "name": "Grapes",
+      "category": "Produce",
+      "shelf_id": "a01-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Grapes"
+        }
+      ]
+    },
+    {
+      "id": "lemons",
+      "name": "Lemons",
+      "category": "Produce",
+      "shelf_id": "a01-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Lemons"
+        }
+      ]
+    },
+    {
+      "id": "mushrooms",
+      "name": "Mushrooms",
+      "category": "Produce",
+      "shelf_id": "a01-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Mushrooms"
+        }
+      ]
+    },
+    {
+      "id": "almond-milk-1l",
+      "name": "Almond milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Almond milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "Almond milk"
+        }
+      ]
+    },
+    {
+      "id": "unsweetened-oat-milk-1l",
+      "name": "Unsweetened oat milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Unsweetened oat milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "unsweetened oat milk"
+        },
+        {
+          "language": "en-US",
+          "text": "oat milk unsweetened"
+        }
+      ]
+    },
+    {
+      "id": "coconut-milk-1l",
+      "name": "Coconut milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Coconut milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "Coconut milk"
+        }
+      ]
+    },
+    {
+      "id": "mozzarella",
+      "name": "Mozzarella",
+      "category": "Dairy",
+      "shelf_id": "a02-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Mozzarella"
+        }
+      ]
+    },
+    {
+      "id": "double-cream",
+      "name": "Double cream",
+      "category": "Dairy",
+      "shelf_id": "a02-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Double cream"
+        }
+      ]
+    },
+    {
+      "id": "cream-cheese",
+      "name": "Cream cheese",
+      "category": "Dairy",
+      "shelf_id": "a02-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Cream cheese"
+        }
+      ]
+    },
+    {
+      "id": "parmesan",
+      "name": "Parmesan",
+      "category": "Dairy",
+      "shelf_id": "a02-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Parmesan"
+        }
+      ]
+    },
+    {
+      "id": "chocolate-milk-1l",
+      "name": "Chocolate milk 1 L",
+      "category": "Dairy",
+      "shelf_id": "a02-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Chocolate milk 1 L"
+        },
+        {
+          "language": "en-US",
+          "text": "Chocolate milk"
+        }
+      ]
+    },
+    {
+      "id": "sourdough-bread",
+      "name": "Sourdough bread",
+      "category": "Bakery",
+      "shelf_id": "a03-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Sourdough bread"
+        }
+      ]
+    },
+    {
+      "id": "rye-bread",
+      "name": "Rye bread",
+      "category": "Bakery",
+      "shelf_id": "a03-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Rye bread"
+        }
+      ]
+    },
+    {
+      "id": "pita-bread",
+      "name": "Pita bread",
+      "category": "Bakery",
+      "shelf_id": "a03-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Pita bread"
+        }
+      ]
+    },
+    {
+      "id": "dinner-rolls",
+      "name": "Dinner rolls",
+      "category": "Bakery",
+      "shelf_id": "a03-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Dinner rolls"
+        }
+      ]
+    },
+    {
+      "id": "cinnamon-rolls",
+      "name": "Cinnamon rolls",
+      "category": "Bakery",
+      "shelf_id": "a03-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Cinnamon rolls"
+        }
+      ]
+    },
+    {
+      "id": "english-muffins",
+      "name": "English muffins",
+      "category": "Bakery",
+      "shelf_id": "a03-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "English muffins"
+        }
+      ]
+    },
+    {
+      "id": "chocolate-cake",
+      "name": "Chocolate cake",
+      "category": "Bakery",
+      "shelf_id": "a03-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Chocolate cake"
+        }
+      ]
+    },
+    {
+      "id": "chicken-thighs",
+      "name": "Chicken thighs",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Chicken thighs"
+        }
+      ]
+    },
+    {
+      "id": "turkey-breast",
+      "name": "Turkey breast",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Turkey breast"
+        }
+      ]
+    },
+    {
+      "id": "beef-steak",
+      "name": "Beef steak",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Beef steak"
+        }
+      ]
+    },
+    {
+      "id": "tuna-steak",
+      "name": "Tuna steak",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Tuna steak"
+        }
+      ]
+    },
+    {
+      "id": "white-fish-fillet",
+      "name": "White fish fillet",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "White fish fillet"
+        }
+      ]
+    },
+    {
+      "id": "meatballs",
+      "name": "Meatballs",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Meatballs"
+        }
+      ]
+    },
+    {
+      "id": "tempeh",
+      "name": "Tempeh",
+      "category": "Meat and seafood",
+      "shelf_id": "a04-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Tempeh"
+        }
+      ]
+    },
+    {
+      "id": "basmati-rice",
+      "name": "Basmati rice",
+      "category": "Pantry",
+      "shelf_id": "a05-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Basmati rice"
+        }
+      ]
+    },
+    {
+      "id": "quinoa",
+      "name": "Quinoa",
+      "category": "Pantry",
+      "shelf_id": "a05-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Quinoa"
+        }
+      ]
+    },
+    {
+      "id": "rolled-oats",
+      "name": "Rolled oats",
+      "category": "Pantry",
+      "shelf_id": "a05-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Rolled oats"
+        }
+      ]
+    },
+    {
+      "id": "penne-pasta",
+      "name": "Penne pasta",
+      "category": "Pantry",
+      "shelf_id": "a05-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Penne pasta"
+        }
+      ]
+    },
+    {
+      "id": "rice-noodles",
+      "name": "Rice noodles",
+      "category": "Pantry",
+      "shelf_id": "a05-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Rice noodles"
+        }
+      ]
+    },
+    {
+      "id": "couscous",
+      "name": "Couscous",
+      "category": "Pantry",
+      "shelf_id": "a05-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Couscous"
+        }
+      ]
+    },
+    {
+      "id": "cornstarch",
+      "name": "Cornstarch",
+      "category": "Pantry",
+      "shelf_id": "a05-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Cornstarch"
+        }
+      ]
+    },
+    {
+      "id": "baking-powder",
+      "name": "Baking powder",
+      "category": "Pantry",
+      "shelf_id": "a05-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Baking powder"
+        }
+      ]
+    },
+    {
+      "id": "canned-chickpeas",
+      "name": "Canned chickpeas",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Canned chickpeas"
+        }
+      ]
+    },
+    {
+      "id": "canned-kidney-beans",
+      "name": "Canned kidney beans",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Canned kidney beans"
+        }
+      ]
+    },
+    {
+      "id": "coconut-cream",
+      "name": "Coconut cream",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Coconut cream"
+        }
+      ]
+    },
+    {
+      "id": "mayonnaise",
+      "name": "Mayonnaise",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Mayonnaise"
+        }
+      ]
+    },
+    {
+      "id": "mustard",
+      "name": "Mustard",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Mustard"
+        }
+      ]
+    },
+    {
+      "id": "hot-sauce",
+      "name": "Hot sauce",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Hot sauce"
+        }
+      ]
+    },
+    {
+      "id": "honey",
+      "name": "Honey",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Honey"
+        }
+      ]
+    },
+    {
+      "id": "red-curry-paste",
+      "name": "Red curry paste",
+      "category": "Canned and condiments",
+      "shelf_id": "a06-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Red curry paste"
+        }
+      ]
+    },
+    {
+      "id": "apple-juice",
+      "name": "Apple juice",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Apple juice"
+        }
+      ]
+    },
+    {
+      "id": "sparkling-water",
+      "name": "Sparkling water",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Sparkling water"
+        }
+      ]
+    },
+    {
+      "id": "black-tea",
+      "name": "Black tea",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Black tea"
+        }
+      ]
+    },
+    {
+      "id": "instant-coffee",
+      "name": "Instant coffee",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Instant coffee"
+        }
+      ]
+    },
+    {
+      "id": "orange-soda",
+      "name": "Orange soda",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Orange soda"
+        }
+      ]
+    },
+    {
+      "id": "mixed-nuts",
+      "name": "Mixed nuts",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Mixed nuts"
+        }
+      ]
+    },
+    {
+      "id": "granola",
+      "name": "Granola",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Granola"
+        }
+      ]
+    },
+    {
+      "id": "dark-chocolate",
+      "name": "Dark chocolate",
+      "category": "Drinks and snacks",
+      "shelf_id": "a07-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Dark chocolate"
+        }
+      ]
+    },
+    {
+      "id": "hand-soap",
+      "name": "Hand soap",
+      "category": "Household",
+      "shelf_id": "a08-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Hand soap"
+        }
+      ]
+    },
+    {
+      "id": "body-wash",
+      "name": "Body wash",
+      "category": "Household",
+      "shelf_id": "a08-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Body wash"
+        }
+      ]
+    },
+    {
+      "id": "conditioner",
+      "name": "Conditioner",
+      "category": "Household",
+      "shelf_id": "a08-s03",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Conditioner"
+        }
+      ]
+    },
+    {
+      "id": "toothbrushes",
+      "name": "Toothbrushes",
+      "category": "Household",
+      "shelf_id": "a08-s04",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Toothbrushes"
+        }
+      ]
+    },
+    {
+      "id": "facial-tissues",
+      "name": "Facial tissues",
+      "category": "Household",
+      "shelf_id": "a08-s01",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Facial tissues"
+        }
+      ]
+    },
+    {
+      "id": "kitchen-sponges",
+      "name": "Kitchen sponges",
+      "category": "Household",
+      "shelf_id": "a08-s02",
+      "state": "published",
+      "aliases": [
+        {
+          "language": "en-US",
+          "text": "Kitchen sponges"
+        }
+      ]
+    }
+  ]
+}

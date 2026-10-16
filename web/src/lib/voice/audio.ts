@@ -74,7 +74,8 @@ export class BrowserAudio implements AudioEngine {
     if (this.closed || this.muted) return;
     if (!context || context.state !== 'running' || !frame.byteLength || frame.byteLength > 16384 || frame.byteLength % 2) throw new Error('Invalid audio output');
     const duration = frame.byteLength / 48000;
-    this.nextAt = Math.max(context.currentTime, this.nextAt);
+    // One small jitter buffer per uninterrupted playout, never per frame.
+    this.nextAt = Math.max(context.currentTime + (this.sources.size ? 0 : .06), this.nextAt);
     if (this.nextAt - context.currentTime + duration > 1) throw new Error('Audio backlog');
     const buffer = context.createBuffer(1, frame.byteLength / 2, 24000);
     const channel = buffer.getChannelData(0), view = new DataView(frame);

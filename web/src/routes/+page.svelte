@@ -5,6 +5,8 @@
   import VoicePanel from '#lib/components/VoicePanel.svelte';
   import AssistantAvatar from '#lib/components/AssistantAvatar.svelte';
   import ProductCard from '#lib/components/ProductCard.svelte';
+  import CatalogBrowser from '#lib/components/CatalogBrowser.svelte';
+  import ShelfDisplay from '#lib/components/ShelfDisplay.svelte';
   import LocationDetail from '#lib/components/LocationDetail.svelte';
   import StoreMap from '#lib/components/StoreMap.svelte';
   import { shopBrand } from '#lib/ui-config.ts';
@@ -75,10 +77,10 @@
           {#if $portal.location && $portal.candidates.length > 1}<button class="other-matches" onclick={() => showAllMatches = !showAllMatches}>{showAllMatches ? 'Show selected item' : `Show all ${$portal.candidates.length} matches`}<Icon name="chevron" size={14} /></button>{/if}
           {#if $portal.loading && !$portal.candidates.length}<div class="loading-cards" aria-hidden="true">{#each [1,2,3] as n}<div class="skeleton-card"><span></span><i></i><i></i></div>{/each}</div>{/if}
         </section>
-      {:else}
-        <section class="discovery-card" aria-labelledby="discovery-title"><div class="discovery-copy"><span class="discovery-tag"><Icon name="sparkle" size={14} />A FRIENDLY VOICE, A HELPING PAW</span><h2 id="discovery-title">A dinner idea.<br />A hard-to-find item.<br /><span>You’re in the right place.</span></h2><p>Chat with Monti, get inspired, then find the ingredients on your way.</p><button class="discovery-action" onclick={() => {query='milk';search();}}>Explore the store <Icon name="arrow" size={17} /></button></div><div class="discovery-art" aria-hidden="true"><div class="discovery-orbit"></div><AssistantAvatar size={240} /><span class="hello-sticker">Hello there! <span>✦</span></span></div></section>
       {/if}
+      {#if $portal.location}<ShelfDisplay product={$portal.location} choose={(product)=>{void portal.chooseBrowse(product);}} />{/if}
       <LocationDetail product={$portal.location} route={$portal.route} />
+      <CatalogBrowser selectedID={$portal.location?.id} choose={(product)=>{void portal.chooseBrowse(product);}} />
       <p class="finder-footnote"><Icon name="check" size={13} />Locations from the store catalog. Directions from the entrance.</p>
     </div>
     <aside class="assistant-rail desktop-voice" aria-label="Monti assistant and store map"><VoicePanel {portal}>

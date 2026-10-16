@@ -80,6 +80,13 @@ export class Portal {
       await this.commitRoute(route, key, abort, true);
     } catch (error) { this.routeError(error, key, product); }
   }
+  async chooseBrowse(product: Product) {
+    // Only called by the published browse/shelf components, with parsed DTOs.
+    // An explicit click starts a typed route; it is never a voice search selection.
+    this.stopVoice();
+    this.patch({candidates:[product], searched:true, source:'typed', searchID:null, query:product.name, message:'Selected from the store catalog.'});
+    return this.choose(product);
+  }
   private current(key: number) { return this.alive && key === this.epoch; }
   private routeError(error: unknown, key: number, product: Product) {
     if (!this.current(key)) return;
