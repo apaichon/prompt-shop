@@ -31,7 +31,10 @@ const {chromium}=require('@playwright/test');
   });
   await page.waitForFunction(()=>window.__probe.session);
   const selection=process.env.NATIVE_VOICE_SCENARIO==='selection';
-  const steps=selection
+  const bakery=process.env.NATIVE_VOICE_SCENARIO==='bakery';
+  const steps=bakery
+   ? [['Where is a bagel?','bagels'],['Where is a blueberry muffin?','blueberry-muffins'],['Find a burger bun.','burger-buns'],['Where is a cinnamon roll?','cinnamon-rolls'],['Where is a croissant?','croissants'],['Where is chocolate cake?','chocolate-cake']]
+   : selection
    ? [['Hello.',null],['Where is milk?',null],[null,null]]
    : [['Hello.',null],['Where is whole milk?','milk-whole-1l'],['Repeat those directions.','milk-whole-1l'],['Where is jasmine rice?','jasmine-rice'],['Repeat those directions.','jasmine-rice'],['Where is toothpaste?','toothpaste'],['Thank you.',null],['Where is whole milk?','milk-whole-1l'],['What is two plus two?',null],['Where is jasmine rice?','jasmine-rice']];
   for(let [text,id] of steps){
@@ -48,7 +51,7 @@ const {chromium}=require('@playwright/test');
    results.push(result);current=null;
    if(closed)break;
   }
-  const report={input:'public WebSocket text controls; no browser microphone/playout',scenario:selection?'ambiguous selection':'repeated conversation',turns:results,closed};
+  const report={input:'public WebSocket text controls; no browser microphone/playout',scenario:bakery?'bakery word forms':selection?'ambiguous selection':'repeated conversation',turns:results,closed};
   console.log(JSON.stringify(report));
   if(process.env.NATIVE_REPORT_PATH)require('node:fs').writeFileSync(process.env.NATIVE_REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   if(results.length!==steps.length||(selection&&results[1]?.candidate_count<2)||closed||results.some(r=>!r.complete||!r.audio_bytes||!r.expected_route||r.errors.length))process.exitCode=1;

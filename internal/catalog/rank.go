@@ -1,13 +1,10 @@
 package catalog
 
-import (
-	"strings"
-
-	"github.com/apaichon/prompt-shop/internal/platform/importer"
-)
+import "strings"
 
 // Rank orders published products by exact name/alias, then bounded prefix,
-// then coverage of every content token. Ties break by product ID. At most
+// then coverage of every content token, known noun forms, and exact categories.
+// Ties break by product ID. At most
 // three products are returned. ambiguous is true when more than one product matched.
 func Rank(query string, items []Indexed) ([]Product, bool) {
 	full := NormalizeQuery(query)
@@ -80,16 +77,38 @@ func bestTier(full, phrase string, tokens []string, item Indexed) (int, bool) {
 			return 2, true
 		}
 	}
+	// A bounded vocabulary handles spoken singular/plural forms without stemming
+	// arbitrary words or dropping unsupported modifiers from the request.
+	for _, name := range names {
+		set := make(map[string]struct{})
+		for _, word := range strings.Fields(name) {
+			set[nounForm(word)] = struct{}{}
+		}
+		all := true
+		for _, word := range tokens {
+			if _, ok := set[nounForm(word)]; !ok {
+				all = false
+				break
+			}
+		}
+		if all {
+			return 3, true
+		}
+	}
+	category := NormalizeQuery(item.Product.Category)
+	if category != "" && (category == full || category == phrase) {
+		return 4, true
+	}
 	return 0, false
 }
 
 func forms(item Indexed) []string {
 	out := make([]string, 0, 1+len(item.Aliases))
-	if name := importer.Normalize(item.Product.Name); name != "" {
+	if name := NormalizeQuery(item.Product.Name); name != "" {
 		out = append(out, name)
 	}
 	for _, alias := range item.Aliases {
-		if name := importer.Normalize(alias); name != "" {
+		if name := NormalizeQuery(alias); name != "" {
 			out = append(out, name)
 		}
 	}
@@ -109,4 +128,27 @@ func tokenSet(normalized string) map[string]struct{} {
 		set[field] = struct{}{}
 	}
 	return set
+}
+
+// Known product nouns only. New or irregular names remain exact-match/alias
+// searchable; operators can add aliases without changing their display names.
+var pluralNouns = map[string]string{
+	"bagels": "bagel", "baguettes": "baguette", "muffins": "muffin", "buns": "bun",
+	"rolls": "roll", "croissants": "croissant", "tortillas": "tortilla", "cakes": "cake",
+	"breads": "bread", "loaves": "loaf", "sandwiches": "sandwich",
+	"apples": "apple", "bananas": "banana", "oranges": "orange", "carrots": "carrot",
+	"potatoes": "potato", "tomatoes": "tomato", "onions": "onion", "avocados": "avocado",
+	"strawberries": "strawberry", "grapes": "grape", "lemons": "lemon", "mushrooms": "mushroom",
+	"eggs": "egg", "chops": "chop", "fillets": "fillet", "fingers": "finger", "thighs": "thigh",
+	"steaks": "steak", "meatballs": "meatball", "beans": "bean", "chickpeas": "chickpea",
+	"noodles": "noodle", "nuts": "nut", "chips": "chip", "bars": "bar", "oats": "oat",
+	"towels": "towel", "bags": "bag", "toothbrushes": "toothbrush", "tissues": "tissue",
+	"sponges": "sponge",
+}
+
+func nounForm(word string) string {
+	if singular, ok := pluralNouns[word]; ok {
+		return singular
+	}
+	return word
 }

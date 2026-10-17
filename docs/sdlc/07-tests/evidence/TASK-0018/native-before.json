@@ -1,0 +1,67 @@
+{
+  "input": "public WebSocket text controls; no browser microphone/playout",
+  "scenario": "bakery word forms",
+  "turns": [
+    {
+      "index": 1,
+      "first_audio_ms": 941,
+      "route_ms": null,
+      "audio_bytes": 243842,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 0,
+      "expected_route": false
+    },
+    {
+      "index": 2,
+      "first_audio_ms": 1121,
+      "route_ms": null,
+      "audio_bytes": 271682,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 0,
+      "expected_route": false
+    },
+    {
+      "index": 3,
+      "first_audio_ms": 1008,
+      "route_ms": null,
+      "audio_bytes": 230882,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 0,
+      "expected_route": false
+    },
+    {
+      "index": 4,
+      "first_audio_ms": 991,
+      "route_ms": null,
+      "audio_bytes": 272642,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 0,
+      "expected_route": false
+    },
+    {
+      "index": 5,
+      "first_audio_ms": 1214,
+      "route_ms": null,
+      "audio_bytes": 249122,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 0,
+      "expected_route": false
+    },
+    {
+      "index": 6,
+      "first_audio_ms": 1405,
+      "route_ms": 753,
+      "audio_bytes": 174720,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 1,
+      "expected_route": true
+    }
+  ],
+  "closed": false
+}

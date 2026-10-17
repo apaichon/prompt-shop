@@ -1,0 +1,30 @@
+{
+  "ui_status": "Listening",
+  "ui_notice": "You can ask another question.",
+  "transport_errors": [],
+  "candidate_static_assets": false,
+  "speaker_mode": true,
+  "synthetic_feedback": false,
+  "feedback": {
+    "injected_frames": 0,
+    "leaked_frames": 0
+  },
+  "input": "synthetic spoken microphone; actual Chromium capture/playout",
+  "turns": [
+    {
+      "index": 1,
+      "complete": true,
+      "audio_bytes": 160320,
+      "expected_route": true
+    }
+  ],
+  "closed": false,
+  "error_codes": [],
+  "shelf_requests": 1,
+  "playout": [
+    {
+      "first_playout_ms": 1699.599999994039,
+      "max_gap_ms": 0
+    }
+  ]
+}
