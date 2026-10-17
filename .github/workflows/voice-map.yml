@@ -34,8 +34,8 @@ jobs:
       - name: Frontend checks and build
         run: |
           npm --prefix web ci
-          npm --prefix web test
           npm --prefix web run check
+          npm --prefix web test
           npm --prefix web run build
       - name: Browser regression
         working-directory: web
