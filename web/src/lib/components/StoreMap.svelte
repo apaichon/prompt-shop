@@ -1,7 +1,9 @@
 <script lang="ts">
-  import type { StoreMap, Route } from '#lib/contracts.ts';
+  import type { StoreMap, Route, Product } from '#lib/contracts.ts';
   export let map: StoreMap;
   export let route: Route | null = null;
+  export let product: Product | null = null;
+  $: selected = route?.product ?? product;
   $: nodes = new Map(map.nodes.map((node) => [node.id, node]));
   $: entrance = nodes.get(map.origin_node_id);
   $: destination = route?.points.at(-1);
@@ -12,7 +14,7 @@
 <div class="map-canvas">
   <svg viewBox={`-4 -6 ${map.width + 8} ${map.height + 16}`} role="img" aria-labelledby="map-title map-description">
     <title id="map-title">{map.name} floor map</title>
-    <desc id="map-description">{route ? `Walking route from the entrance to ${route.product.aisle.label}, ${route.product.shelf.label}. Text directions follow below.` : 'Select an item to see its walking route from the entrance. Aisles and paths come from the store map.'}</desc>
+    <desc id="map-description">{route ? `Walking route from the entrance to ${route.product.aisle.label}, ${route.product.shelf.label}. Text directions follow below.` : selected ? `${selected.name}: ${selected.aisle.label}, ${selected.shelf.label}. Only the aisle is highlighted; no walking route is available yet.` : 'Select an item to see its walking route from the entrance. Aisles and paths come from the store map.'}</desc>
     <rect x="0" y="0" width={map.width} height={map.height} rx="4" class="map-floor" />
     {#each map.edges as edge}
       {@const from = nodes.get(edge.from)}{@const to = nodes.get(edge.to)}
@@ -20,7 +22,7 @@
     {/each}
     {#each map.aisles as aisle}
       {@const middle = center(aisle.polygon)}
-      <polygon points={aisle.polygon.map((p) => `${p.x},${p.y}`).join(' ')} class="aisle" class:selected={route?.product.aisle.id === aisle.id} />
+      <polygon points={aisle.polygon.map((p) => `${p.x},${p.y}`).join(' ')} class="aisle" class:selected={selected?.aisle.id === aisle.id} />
       <text x={middle.x} y={middle.y} class="aisle-label" transform={`rotate(-90 ${middle.x} ${middle.y})`}>{aisle.label}</text>
     {/each}
     {#if route}

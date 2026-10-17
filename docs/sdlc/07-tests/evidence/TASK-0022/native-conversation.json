@@ -1,0 +1,102 @@
+{
+  "input": "public WebSocket text controls; no browser microphone/playout",
+  "scenario": "repeated conversation",
+  "turns": [
+    {
+      "index": 1,
+      "first_audio_ms": 1605,
+      "route_ms": null,
+      "audio_bytes": 108000,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 2,
+      "first_audio_ms": 1462,
+      "route_ms": 996,
+      "audio_bytes": 151200,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 1,
+      "expected_route": true
+    },
+    {
+      "index": 3,
+      "first_audio_ms": 1461,
+      "route_ms": 975,
+      "audio_bytes": 346562,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 4,
+      "first_audio_ms": 1995,
+      "route_ms": 1434,
+      "audio_bytes": 157442,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 1,
+      "expected_route": true
+    },
+    {
+      "index": 5,
+      "first_audio_ms": 1667,
+      "route_ms": 1116,
+      "audio_bytes": 333120,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 6,
+      "first_audio_ms": 1541,
+      "route_ms": 1082,
+      "audio_bytes": 138722,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 1,
+      "expected_route": true
+    },
+    {
+      "index": 7,
+      "first_audio_ms": 1783,
+      "route_ms": null,
+      "audio_bytes": 168962,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 8,
+      "first_audio_ms": 1788,
+      "route_ms": 1438,
+      "audio_bytes": 130562,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 1,
+      "expected_route": true
+    },
+    {
+      "index": 9,
+      "first_audio_ms": 1533,
+      "route_ms": null,
+      "audio_bytes": 173762,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 10,
+      "first_audio_ms": 1660,
+      "route_ms": 1089,
+      "audio_bytes": 160802,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 1,
+      "expected_route": true
+    }
+  ],
+  "closed": false
+}

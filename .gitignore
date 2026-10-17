@@ -17,3 +17,7 @@ docs/sdlc/_graph.mmd
 *.test
 coverage.out
 __pycache__/
+
+# Dependency symlinks used by isolated task checkouts.
+agent/.venv
+web/node_modules

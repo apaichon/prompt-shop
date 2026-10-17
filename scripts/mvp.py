@@ -1,4 +1,4 @@
-"""Local-only supervisor for the real portal, ADK and offline Laya services."""
+"""Local-only supervisor for the portal and ADK. Intent uses Gemini Embedding 2."""
 import os
 from pathlib import Path
 import secrets
@@ -17,10 +17,11 @@ RUN = ROOT / "tmp/run"
 SECRETS = {"GOOGLE_API_KEY", "ADK_BRIDGE_SECRET", "LAYA_INTERNAL_TOKEN", "DATABASE_URL",
            "OPERATOR_DATABASE_URL", "BACKOFFICE_DATABASE_URL", "TICKET_DATABASE_URL", "ADMIN_PASSWORD_HASH"}
 PORTS = {"go": 8080, "adk": 8001, "laya": 8003}
+STOP_ORDER = ("go", "adk", "laya")
 ENV_KEYS = {
     "go": {"DATABASE_URL", "BACKOFFICE_DATABASE_URL", "PUBLIC_ORIGIN", "ADMIN_PASSWORD_HASH", "STATIC_DIR",
-           "SHOPPER_AUTH_ENABLED", "SHOPPER_ACCOUNTS_FILE", "PORT", "READINESS_MODE", "VOICE_ENABLED", "VOICE_ALLOW_LOCAL_HTTP", "TICKET_DATABASE_URL", "ADK_BRIDGE_SECRET"},
-    "adk": {"GOOGLE_API_KEY", "GEMINI_MODEL", "GEMINI_VOICE", "ADK_BRIDGE_SECRET", "LAYA_INTERNAL_TOKEN"},
+           "SHOPPER_AUTH_ENABLED", "SHOPPER_ACCOUNTS_FILE", "PORT", "READINESS_MODE", "VOICE_ENABLED", "VOICE_ALLOW_LOCAL_HTTP", "TICKET_DATABASE_URL", "ADK_BRIDGE_SECRET", "INTENT_BACKEND"},
+    "adk": {"GOOGLE_API_KEY", "GEMINI_MODEL", "GEMINI_VOICE", "ADK_BRIDGE_SECRET", "LAYA_INTERNAL_TOKEN", "INTENT_BACKEND"},
     "laya": {"LAYA_MODEL_PATH", "LAYA_INTERNAL_TOKEN"},
 }
 
@@ -42,8 +43,13 @@ def health(name):
         return False
 
 
+def listening(port):
+    with socket.socket() as probe:
+        return probe.connect_ex(("127.0.0.1", port)) == 0
+
+
 def stop():
-    for name in ("go", "adk", "laya"):
+    for name in STOP_ORDER:
         file = RUN / f"{name}.pid"
         if not file.exists():
             continue
@@ -70,7 +76,11 @@ def stop():
 
 def service_env(name, values, module_path=None):
     env = base_env()
+    env.pop("INTENT_BACKEND", None)
     env.update({k: v for k, v in values.items() if k in ENV_KEYS[name] and v is not None})
+    # A saved INTENT_BACKEND wins. The local launcher fills embedding only when the file leaves it empty.
+    if name in {"adk", "go"} and not env.get("INTENT_BACKEND"):
+        env["INTENT_BACKEND"] = "embedding"
     if module_path:
         env["PYTHONPATH"] = str(module_path)
     return env
@@ -110,12 +120,15 @@ def configure():
     origin = values.get("PUBLIC_ORIGIN") or "http://localhost:8080"
     if origin != "http://localhost:8080":
         raise RuntimeError("This local MVP launcher requires PUBLIC_ORIGIN=http://localhost:8080")
+    backend = (agent.get("INTENT_BACKEND") or "embedding").strip()
+    backend_services(backend)
     bridge = agent.get("ADK_BRIDGE_SECRET") or ""
     if len(bridge) < 32:
         bridge = secrets.token_urlsafe(32)
     token = agent.get("LAYA_INTERNAL_TOKEN") or secrets.token_urlsafe(32)
     for key, value in {"ADK_BRIDGE_SECRET": bridge, "LAYA_INTERNAL_TOKEN": token}.items():
         set_key(agent_file, key, value)
+    set_key(agent_file, "INTENT_BACKEND", backend)
     agent_file.chmod(0o600)
     database = quote(values.get("POSTGRES_DB") or "prompt_shop", safe="")
     port = int(values.get("POSTGRES_PORT") or "55432")
@@ -125,6 +138,8 @@ def configure():
     for key, value in {"ADK_BRIDGE_SECRET": bridge, "VOICE_ENABLED": "true", "VOICE_ALLOW_LOCAL_HTTP": "true",
                        "PUBLIC_ORIGIN": origin, "READINESS_MODE": "full", "TICKET_DATABASE_URL": ticket}.items():
         set_key(file, key, value)
+    # Agent config is the single source for runtime and Go readiness.
+    set_key(file, "INTENT_BACKEND", backend)
     intent_file = ROOT / "intent/local/.env"
     model = dotenv_values(intent_file).get("LAYA_MODEL_PATH")
     if not model:
@@ -135,11 +150,12 @@ def configure():
     if not model.is_absolute():
         model = ROOT / "intent" / model
     model = model.resolve()
-    if not (model / "model.safetensors").is_file():
-        raise RuntimeError("Prepare the pinned Laya bundle using intent/README.md; no model is downloaded at startup")
     intent_file.parent.mkdir(parents=True, exist_ok=True)
     intent_file.touch(mode=0o600, exist_ok=True)
-    set_key(intent_file, "LAYA_MODEL_PATH", str(model))
+    # The local voice path no longer loads Laya. Keep a saved bundle path only
+    # when one is already present so a later rollback can find it.
+    if (model / "model.safetensors").is_file():
+        set_key(intent_file, "LAYA_MODEL_PATH", str(model))
     set_key(intent_file, "LAYA_INTERNAL_TOKEN", token)
     intent_file.chmod(0o600)
     if (values.get("SHOPPER_AUTH_ENABLED") or "true").lower() == "true":
@@ -155,28 +171,39 @@ def configure():
     return dotenv_values(file), dotenv_values(agent_file), dotenv_values(intent_file)
 
 
+def backend_services(backend):
+    if backend not in {"embedding", "laya"}:
+        raise RuntimeError("INTENT_BACKEND must be embedding or laya")
+    return ("adk", "go") if backend == "embedding" else ("laya", "adk", "go")
+
+
 def start():
-    if all(health(name) for name in PORTS) and all((RUN / f"{name}.pid").exists() for name in PORTS):
+    backend = (dotenv_values(ROOT / "agent/.env").get("INTENT_BACKEND") or "embedding").strip()
+    names = backend_services(backend)
+    if ((RUN / "backend").exists() and (RUN / "backend").read_text().strip() == backend
+            and all(health(name) for name in names) and all((RUN / f"{name}.pid").exists() for name in names)
+            and (backend == "laya" or not listening(8003))):
         print("MVP already running; use make mvp-restart to apply code/configuration changes")
         return
     values, agent, intent = configure()
+    if backend == "laya" and not Path(intent.get("LAYA_MODEL_PATH") or "").joinpath("model.safetensors").is_file():
+        raise RuntimeError("Laya rollback requires a configured local model bundle")
     stop()
     run("make", "start")
-    run("uv", "sync", "--project", "intent", "--frozen", "--python", "3.11")
-    run("python3", "deploy/verify_model.py", intent["LAYA_MODEL_PATH"])
     run("npm", "--prefix", "web", "ci")
     run("npm", "--prefix", "web", "run", "build")
     binary = ROOT / "bin/prompt-shop"
     binary.parent.mkdir(exist_ok=True)
     run("go", "build", "-o", binary, "./cmd/server")
-    launch("laya", [ROOT / "intent/.venv/bin/python", "-m", "uvicorn", "intent_service.app:app",
-        "--app-dir", ROOT / "intent", "--host", "127.0.0.1", "--port", "8003", "--workers", "1",
-        "--no-access-log", "--timeout-graceful-shutdown", "7"], intent, ROOT / "intent")
+    if backend == "laya":
+        launch("laya", [ROOT / "intent/.venv/bin/python", "-m", "uvicorn", "intent_service.app:app",
+            "--app-dir", ROOT / "intent", "--host", "127.0.0.1", "--port", "8003", "--no-access-log"], intent, ROOT / "intent")
     launch("adk", [sys.executable, "-m", "uvicorn", "prompt_shop_live.app:app", "--app-dir", ROOT / "agent",
         "--host", "127.0.0.1", "--port", "8001", "--no-access-log", "--ws-max-size", "65536",
         "--ws-max-queue", "1", "--timeout-graceful-shutdown", "7"], agent, ROOT / "agent")
     launch("go", [binary], values)
-    print("Open http://localhost:8080. Sign in for Monti’s welcome; choose Start voice to use your microphone. Logs: tmp/run/.")
+    (RUN / "backend").write_text(backend + "\n")
+    print(f"Open http://localhost:8080. Intent backend: {backend}. Logs: tmp/run/.")
 
 
 def main():
@@ -186,8 +213,9 @@ def main():
     RUN.chmod(0o700)
     action = sys.argv[1]
     if action == "mvp-status":
-        for name in PORTS:
+        for name in ("go", "adk"):
             print(f"{name}: {'ready' if health(name) else 'unavailable'}")
+        print(f"laya: {'still listening' if listening(8003) else 'stopped'}")
     elif action == "mvp-stop":
         stop()
         print("MVP application services stopped; PostgreSQL data and service retained")

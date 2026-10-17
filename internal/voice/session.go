@@ -175,6 +175,19 @@ func (s *Session) RegisterClassification(turn Epoch, attempt, responseMode strin
 	s.audioAllowed = responseMode == "conversation"
 	return nil
 }
+
+// AllowResponse releases a clarification or failure reply from the authenticated
+// ADK bridge only after classification. It cannot revive failed or stale turns.
+func (s *Session) AllowResponse(turn Epoch, attempt string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed || s.failed || turn == 0 || s.turn != turn || s.classification == "" || s.classification != attempt {
+		return ErrStale
+	}
+	s.audioAllowed = true
+	return nil
+}
+
 func (s *Session) beginCall(call Call, name string) (context.Context, context.CancelFunc, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

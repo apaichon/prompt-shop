@@ -38,6 +38,7 @@ export class VoiceClient {
   private greetingComplete = false;
   private greetingHeard = false;
   private playingReply = false;
+  private awaitingReply = false;
   private speakerTailUntil = 0;
   private completedReply = false;
   private quietSince = 0;
@@ -52,14 +53,17 @@ export class VoiceClient {
     if (!this.ready || this.socket?.readyState !== 1 || this.greeting) return false;
     this.completedReply = false; this.quietSince = 0; this.offerSent = true;
     this.flushAudio(); this.gate.anticipateTurn(); this.inputActivity.reset(); this.callbacks.turn();
+    this.awaitingReply = true; this.updateSpeakerHold();
     this.patch({phase:'thinking',input:'',output:'',summaryOffer:false,message:'Thinking…'});
     return this.send({type:'text',text});
   }
 
+  // Protect tool/response latency as well as playback: background noise after
+  // the request must not erase a verified result before its first spoken reply.
   // Network completion and local playout are independent. A gap between PCM
   // chunks must not reopen the microphone while the provider is still speaking.
   private updateSpeakerHold() {
-    const micHeld = this.state.speakerMode && (this.playingReply || Date.now() < this.speakerTailUntil);
+    const micHeld = this.state.speakerMode && (this.awaitingReply || this.playingReply || Date.now() < this.speakerTailUntil);
     if (micHeld !== this.state.micHeld) this.patch({ micHeld });
     return micHeld;
   }
@@ -85,6 +89,7 @@ export class VoiceClient {
   interrupt() {
     if (!this.ready || !this.state.speakerMode || !this.state.micHeld) return;
     this.completedReply=false; this.quietSince=0; this.dismissSummaryOffer();
+    this.awaitingReply = false;
     this.flushAudio(); this.gate.anticipateTurn(); this.inputActivity.reset();
     this.lastSpeech = Date.now(); this.callbacks.turn();
     this.patch({ phase: 'listening', outputLevel: 0, message: 'Reply stopped. Speak when the microphone resumes.' });
@@ -135,7 +140,7 @@ export class VoiceClient {
   stop(message = '') {
     // Invalidate the identity before any transport callback or asynchronous cleanup.
     const session = this.gate.session;
-    this.audioFinished = false; this.audioDrained = true; this.playingReply = false; this.speakerTailUntil = 0; this.inputActivity.reset();
+    this.audioFinished = false; this.audioDrained = true; this.playingReply = this.awaitingReply = false; this.speakerTailUntil = 0; this.inputActivity.reset();
     this.greeting = this.greetingComplete = this.greetingHeard = false;
     this.completedReply=false; this.quietSince=0; this.offerSent=false; this.hasRequests=false;
     this.nonce++; this.gate.stop(); this.ready = false; this.callbacks.turn();
@@ -154,7 +159,7 @@ export class VoiceClient {
   muteMicrophone() { const muted = !this.state.micMuted; this.audio?.microphoneMuted(muted); this.patch({ micMuted: muted }); this.quietSince=0; if(!muted)this.armSummaryQuiet(); }
   muteSpeaker() {
     const muted = !this.state.soundMuted;
-    if (muted) this.flushAudio();
+    if (muted) { this.awaitingReply = false; this.flushAudio(); }
     this.audio?.speakerMuted(muted);
     this.patch({ soundMuted: muted, ...(muted && this.state.phase === 'speaking' ? { phase: 'listening' as const } : {}) });
     this.quietSince=0; if(!muted)this.armSummaryQuiet();
@@ -163,6 +168,7 @@ export class VoiceClient {
     if (!this.ready || this.socket?.readyState !== 1) return false;
     this.completedReply=false; this.quietSince=0; this.offerSent=true;
     this.inputActivity.reset(); this.flushAudio(); this.gate.anticipateTurn(); this.lastSpeech = Date.now();
+    this.awaitingReply = true; this.updateSpeakerHold();
     this.callbacks.turn(); this.patch({ phase: 'thinking', message: 'Finding directions…', input: '', output: '' });
     return this.send({ type: 'select', search_id, product_id });
   }
@@ -182,12 +188,16 @@ export class VoiceClient {
     const activity = this.inputActivity.push(frame.byteLength, speech);
     if (speech && this.completedReply) this.quietSince = now;
     if (activity.started) {
+      this.awaitingReply = false;
       this.completedReply=false; this.quietSince=0; this.patch({summaryOffer:false});
       this.flushAudio(); this.gate.anticipateTurn(); this.callbacks.turn();
       this.patch({ phase: 'listening', input: '', output: '', message: 'Listening to you…' });
     }
     if (this.inputActivity.active && speech) this.lastSpeech = now;
-    if (activity.ended) this.patch({ phase: 'thinking', message: 'Thinking…' });
+    if (activity.ended) {
+      this.awaitingReply = !this.state.soundMuted; this.updateSpeakerHold();
+      this.patch({ phase: 'thinking', message: 'Thinking…' });
+    }
     try { this.socket.send(frame); } catch { this.fail('Voice disconnected. Restart voice or type an item.'); }
   }
   private receive(data: unknown) {
@@ -197,7 +207,7 @@ export class VoiceClient {
         // A sound mute may have flushed an earlier chunk of this generation.
         // Fresh PCM must wait for completion again, even without a new audio_start.
         this.audioFinished = false; this.audioDrained = this.state.soundMuted;
-        this.audio?.play(data); this.greetingHeard = true;
+        this.audio?.play(data); this.greetingHeard = true; this.awaitingReply = false;
         if (!this.state.soundMuted) {
           this.playingReply = true; this.updateSpeakerHold(); this.patch({ phase: 'speaking' });
         }
@@ -229,15 +239,17 @@ export class VoiceClient {
       case 'input_transcript': this.completedReply=false; this.quietSince=0; this.patch({summaryOffer:false}); this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;
       case 'output_transcript': this.patch({ output: mergeTranscriptChunk(this.state.output, event.text).slice(-8000) }); break;
       case 'audio_start': this.audioFinished = false; break;
-      case 'audio_end': this.audioFinished = true; this.finishPlayout(); if (this.audioDrained) this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
+      case 'audio_end': this.awaitingReply = false; this.audioFinished = true; this.finishPlayout(); if (this.audioDrained) this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
       case 'interrupted':
         this.patch(decision.newTurn
           ? { phase: 'listening', message: 'Listening to you…' }
           : { phase: 'interrupted', message: 'Response stopped. Listening to you…' }); break;
       case 'turn_complete':
+        this.awaitingReply = false;
         if (this.greeting) { this.greetingComplete = true; this.audioFinished = true; this.finishPlayout(); break; }
         this.completedReply=true; this.audioFinished = true; this.finishPlayout(); if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
       case 'error':
+        this.awaitingReply = false;
         this.completedReply=false; this.quietSince=0; this.dismissSummaryOffer();
         if (this.greeting) { this.fail('Tap Play welcome to hear Monti.'); break; }
         if (event.code === 'TURN_TIMEOUT') {
@@ -252,7 +264,14 @@ export class VoiceClient {
         break;
       case 'session_ending': this.fail(recovery[event.reason] ?? 'Voice session ended. Restart voice or type an item.'); break;
       case 'pong': this.pongDeadline = 0; break;
-      default: if (event.type==='summary') { this.hasRequests=event.entries.length>0; if(!event.requested)this.offerSent=false; else this.dismissSummaryOffer(); } this.callbacks.event(event);
+      default:
+        // A verified lookup also ends listening when steady background noise
+        // prevents the local silence detector from finding an utterance end.
+        if (event.type === 'candidates' || event.type === 'route') {
+          this.awaitingReply = !this.state.soundMuted; this.updateSpeakerHold();
+          if (this.state.phase !== 'speaking') this.patch({phase:'thinking',message:'Preparing your reply…'});
+        }
+        if (event.type==='summary') { this.hasRequests=event.entries.length>0; if(!event.requested)this.offerSent=false; else this.dismissSummaryOffer(); } this.callbacks.event(event);
     }
   }
   private tick() {

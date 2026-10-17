@@ -3,6 +3,7 @@ import { get } from 'svelte/store';
 import { VoiceClient } from '../../src/lib/voice/client';
 import type { AudioEngine } from '../../src/lib/voice/audio';
 import type { Api } from '../../src/lib/api';
+import events from '../fixtures/live-events.json';
 
 let clients: VoiceClient[] = [];
 beforeEach(() => vi.useFakeTimers());
@@ -26,10 +27,56 @@ async function session(speakerMode = true) {
   const binary = () => socket.onmessage({ data: new ArrayBuffer(640) });
   const reply = (turn = 1) => { event('audio_start', { turn_id: `turn-${turn}`, generation_id: `generation-${turn}` }); binary(); };
   const lastPCM = () => new Int16Array(socket.send.mock.calls.filter(([v]) => v instanceof ArrayBuffer).at(-1)![0]);
-  return { client, audio, socket, event, ready, pcm, binary, reply, drain: () => drain(), lastPCM };
+  const silence=()=>{for(let i=0;i<18;i++)capture(new ArrayBuffer(640),false);};
+  return { client, audio, socket, event, ready, pcm, silence, binary, reply, drain: () => drain(), lastPCM };
 }
 
 describe('speaker mode microphone guard', () => {
+  it('protects a pending lookup from noise before the first reply audio', async () => {
+    const s=await session();s.pcm();
+    s.event('interrupted');
+    s.event('input_transcript',{turn_id:'turn-1',text:'Where is beef?',final:true});
+    s.silence();
+    const flushes=vi.mocked(s.audio.flush).mock.calls.length;
+    s.pcm();
+    expect(s.lastPCM()[0]).toBe(0);
+    expect(s.audio.flush).toHaveBeenCalledTimes(flushes);
+    expect(get(s.client)).toMatchObject({input:'Where is beef?',micHeld:true,phase:'thinking'});
+    s.reply();expect(s.audio.play).toHaveBeenCalledOnce();
+    s.event('turn_complete');s.drain();vi.advanceTimersByTime(250);
+    s.pcm();expect(s.lastPCM()[0]).toBe(2000);
+  });
+
+  it('ends noisy listening when the verified item results arrive', async () => {
+    const s=await session();s.pcm();s.event('interrupted');
+    s.event('candidates',{...events.find(e=>e.type==='candidates'),session_id:'test'});
+    expect(get(s.client)).toMatchObject({phase:'thinking',micHeld:true});
+    // Sustained non-speech input becomes silence on the wire so Go also ends
+    // its active capture; the upcoming reply retains the same turn identity.
+    for(let i=0;i<5;i++)s.pcm();
+    expect(s.lastPCM()[0]).toBe(0);
+    s.reply();expect(s.audio.play).toHaveBeenCalledOnce();
+  });
+  it.each(['interrupt','timeout','stop'])('releases the pending-reply hold on %s', async action => {
+    const s=await session();s.pcm();s.event('interrupted');s.silence();
+    expect(get(s.client).micHeld).toBe(true);
+    if(action==='interrupt')s.client.interrupt();
+    else if(action==='timeout')s.event('error',{code:'TURN_TIMEOUT',message:'timeout',retryable:true});
+    else {s.client.stop();await s.client.start();s.ready();}
+    vi.advanceTimersByTime(250);s.pcm();
+    expect(s.lastPCM()[0]).toBe(2000);
+    expect(get(s.client).micHeld).toBe(false);
+  });
+  it('protects a clicked choice while its route is loading and releases on a stale choice', async () => {
+    const s=await session();expect(s.client.select('search-1','beef-steak')).toBe(true);
+    s.pcm();expect(s.lastPCM()[0]).toBe(0);
+    s.event('error',{code:'STALE_SELECTION',message:'stale',retryable:true});
+    s.pcm();expect(s.lastPCM()[0]).toBe(2000);expect(get(s.client).micHeld).toBe(false);
+  });
+  it('speaker mode off allows another utterance during response preparation', async () => {
+    const s=await session(false);s.pcm();s.event('interrupted');s.silence();s.pcm();
+    expect(s.lastPCM()[0]).toBe(2000);expect(get(s.client).micHeld).toBe(false);
+  });
   it('starts on and retains an explicit off choice across Stop/restart', async () => {
     const s=await session();expect(get(s.client).speakerMode).toBe(true);
     s.client.toggleSpeakerMode();s.client.stop();await s.client.start();s.ready();

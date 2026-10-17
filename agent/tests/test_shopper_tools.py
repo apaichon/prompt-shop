@@ -36,11 +36,13 @@ async def test_find_product_uses_one_classification_and_only_routes_unique_match
         host.begin("turn-1")
         tool = ShopperTool("find_product", host)
         result = await tool.run_async(args={"query": "milk", "text": "Where is milk?"}, tool_context=None)
-        assert len(classifications) == 1
+        assert len([e for e in classifications if e["type"] == "classification_completed"]) == 1
         assert inputs == ["Where is milk?"]
         assert classifications[0]["response_mode"] == "catalog"
         assert [c[0] for c in calls] == (["search_catalog", "get_product_route"] if kind in {"unique", "route-error"} else ["search_catalog"])
-        assert host.audio_allowed == (kind not in {"search-error", "route-error"})
+        assert host.audio_allowed
+        if kind in {"search-error", "route-error"}:
+            assert classifications[-1]["type"] == "response_ready"
         if kind in {"unique", "route-error"}:
             assert calls[-1][1]["args"] == {"product_id": "milk", "search_id": "server-id"}
             assert "route" in result
@@ -48,7 +50,7 @@ async def test_find_product_uses_one_classification_and_only_routes_unique_match
             assert envelope["classification_attempt_id"] == classifications[0]["classification_attempt_id"]
         # No second model flow can switch response mode or repeat callbacks.
         assert (await ShopperTool("begin_conversation", host).run_async(args={"text": "hello"}, tool_context=None))["error"]["code"] == "RATE_LIMITED"
-        assert len(classifications) == 1
+        assert len([e for e in classifications if e["type"] == "classification_completed"]) == 1
         await host.close()
 
 

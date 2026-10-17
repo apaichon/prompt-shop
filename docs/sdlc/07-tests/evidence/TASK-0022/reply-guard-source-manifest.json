@@ -1,0 +1,7 @@
+{
+  "web/src/lib/voice/client.ts": "e7716bc69397d8302a7a025bdae18afc15ae844283169f657b43f24cc452dc63",
+  "web/src/lib/components/VoicePanel.svelte": "51bd338e807a26b216ed6484e725634bf88d07730df0e9aeefedf4ae1a0f531f",
+  "web/tests/unit/speaker-mode.test.ts": "7aedafdfe12ab615b6f8a8629375d91842195cd94600c54fd68ce71e56de9ffc",
+  "web/tests/browser/portal.spec.ts": "67b972d76e3ba8d11fa541b6eb6edfe76f242d252e66293f81965f33772b7f35",
+  "web/tests/native/beef-audio.cjs": "40c78b04d6cfc0548a6b6d5a79c93a51111a22c18dcbd6a52ec3fca6f42f32dd"
+}
