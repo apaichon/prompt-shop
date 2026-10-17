@@ -73,25 +73,27 @@ type Call struct {
 type Event map[string]any
 
 type Session struct {
-	mu                       sync.Mutex
-	ID, Language, capability string
-	turn                     Epoch
-	ctx                      context.Context
-	cancel                   context.CancelFunc
-	turnCtx                  context.Context
-	cancelTurn               context.CancelFunc
-	closed                   bool
-	failed                   bool
-	classification           string
-	searches, routes         int
-	calls                    map[string]bool
-	candidates               map[string]bool
-	searchID                 string
-	searchTurn               Epoch
-	searchExpiry             time.Time
-	ambiguous                bool
-	audioAllowed             bool
-	emit                     func(Event) error
+	mu                          sync.Mutex
+	ID, Language, capability    string
+	turn                        Epoch
+	ctx                         context.Context
+	cancel                      context.CancelFunc
+	turnCtx                     context.Context
+	cancelTurn                  context.CancelFunc
+	closed                      bool
+	failed                      bool
+	classification              string
+	searches, routes, summaries int
+	calls                       map[string]bool
+	candidates                  map[string]bool
+	searchID                    string
+	searchTurn                  Epoch
+	searchExpiry                time.Time
+	ambiguous                   bool
+	history                     []summaryRecord
+	historyTruncated            bool
+	audioAllowed                bool
+	emit                        func(Event) error
 }
 
 func randomToken() string {
@@ -117,6 +119,7 @@ func (s *Session) BeginTurn() Epoch {
 	s.classification = ""
 	s.searches = 0
 	s.routes = 0
+	s.summaries = 0
 	s.calls = map[string]bool{}
 	s.audioAllowed = false
 	s.failed = false
@@ -147,6 +150,7 @@ func (s *Session) Close() {
 	s.closed = true
 	s.capability = ""
 	s.candidates = nil
+	s.history = nil
 	s.cancelTurn()
 	s.cancel()
 }
@@ -186,6 +190,11 @@ func (s *Session) beginCall(call Call, name string) (context.Context, context.Ca
 			return nil, nil, ErrLimit
 		}
 		s.searches++
+	case "get_conversation_summary":
+		if s.summaries >= 1 {
+			return nil, nil, ErrLimit
+		}
+		s.summaries++
 	case "get_product_route":
 		if s.routes >= 1 {
 			return nil, nil, ErrLimit
@@ -244,10 +253,14 @@ func (s *Session) Search(call Call, catalog Catalog) (SearchResult, error) {
 	s.searchExpiry = time.Now().Add(time.Minute)
 	s.ambiguous = result.Ambiguous
 	s.audioAllowed = result.Ambiguous || len(result.Candidates) == 0
+	s.rememberSearch(args.Query, result)
 	if s.emit != nil {
 		if err := s.emit(Event{"type": "candidates", "session_id": s.ID, "turn_id": s.turn, "search_id": result.SearchID, "catalog_version": result.CatalogVersion, "candidates": result.Candidates}); err != nil {
 			return SearchResult{}, err
 		}
+	}
+	if err := s.emitSummary(false); err != nil {
+		return SearchResult{}, err
 	}
 	return result, nil
 }
@@ -289,6 +302,7 @@ func (s *Session) route(ctx context.Context, turn Epoch, productID, searchID str
 		return RouteResult{}, ErrStale
 	}
 	s.audioAllowed = true
+	s.rememberRoute(searchID, result)
 	if s.emit != nil {
 		data, _ := json.Marshal(result)
 		event := Event{}
@@ -300,6 +314,9 @@ func (s *Session) route(ctx context.Context, turn Epoch, productID, searchID str
 		if err := s.emit(event); err != nil {
 			return RouteResult{}, err
 		}
+	}
+	if err := s.emitSummary(false); err != nil {
+		return RouteResult{}, err
 	}
 	return result, nil
 }

@@ -74,3 +74,13 @@ the existing session/idle limits. Unknown/fatal provider errors still close the
 session. The browser treats only this explicitly allowed code as turn recovery.
 The public JSON error shape is unchanged; its code string already permits this
 additive value. Browser capture uses the same RMS >=500 speech test as Go.
+
+
+TASK-0020 adds capability-protected POST /internal/tools/get_conversation_summary
+with args={} and the existing classification ACK/turn/call budget. It reads only
+bounded Go session memory, emits the server-authored summary event and unlocks
+that turn's audio. Successful search/route operations emit requested=false summary
+snapshots; explicit recap emits requested=true. Bridge/provider frames cannot
+supply summary facts. Entry fields: query,status,catalog_version,products. Statuses:
+confirmed,needs_choice,not_found,unconfirmed. Max 50 records and 48 KB snapshot; truncated
+states discarded earlier history. Close clears memory. No database writes.

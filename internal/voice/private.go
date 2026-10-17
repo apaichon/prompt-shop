@@ -34,7 +34,7 @@ func PrivateHandler(registry *Registry, catalog Catalog) http.Handler {
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Type", "application/json")
 		name := strings.TrimPrefix(r.URL.Path, "/internal/tools/")
-		if r.Method != "POST" || r.URL.RawQuery != "" || (name != "search_catalog" && name != "get_product_route") {
+		if r.Method != "POST" || r.URL.RawQuery != "" || (name != "search_catalog" && name != "get_product_route" && name != "get_conversation_summary") {
 			privateError(w, 404, "INVALID_REQUEST")
 			return
 		}
@@ -61,6 +61,8 @@ func PrivateHandler(registry *Registry, catalog Catalog) http.Handler {
 		var result any
 		if name == "search_catalog" {
 			result, err = session.Search(call, catalog)
+		} else if name == "get_conversation_summary" {
+			result, err = session.Summary(call)
 		} else {
 			result, err = session.Route(call, catalog)
 		}

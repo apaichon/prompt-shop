@@ -116,7 +116,7 @@ class ToolHost:
             if turn != self.turn or self.closed or self.failed:
                 return tool_error("STALE_SELECTION")
             if "error" not in result:
-                if name == "get_product_route" or result.get("ambiguous") or not result.get("candidates"):
+                if name in {"get_product_route", "get_conversation_summary"} or result.get("ambiguous") or not result.get("candidates"):
                     self.audio_allowed = True
             return result
         except asyncio.CancelledError:

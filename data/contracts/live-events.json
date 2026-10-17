@@ -162,5 +162,41 @@
   {
     "type": "ping",
     "session_id": "fixture-session"
+  },
+  {
+    "type": "summary",
+    "session_id": "fixture-session",
+    "turn_id": "turn-4",
+    "entries": [
+      {
+        "query": "whole milk",
+        "status": "confirmed",
+        "catalog_version": 1,
+        "products": [
+          {
+            "id": "milk-whole-1l",
+            "name": "Whole milk 1 L",
+            "category": "Dairy",
+            "aisle": {
+              "id": "a02",
+              "label": "Aisle 2"
+            },
+            "shelf": {
+              "id": "a02-s03",
+              "label": "Shelf 3"
+            },
+            "route_available": true
+          }
+        ]
+      },
+      {
+        "query": "invented item",
+        "status": "not_found",
+        "catalog_version": 1,
+        "products": []
+      }
+    ],
+    "truncated": false,
+    "requested": true
   }
 ]

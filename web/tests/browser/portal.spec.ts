@@ -26,7 +26,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
       createMediaStreamSource() { return new Node(); }
       createGain() { return Object.assign(new Node(), { gain: { value: 0 } }); }
       createBuffer(_channels: number, length: number) { return { getChannelData: () => new Float32Array(length) }; }
-      createBufferSource() { return Object.assign(new Node(), { buffer: null, onended: null, start() { metrics.played++; }, stop() { metrics.flushed++; } }); }
+      createBufferSource() { const source:any=Object.assign(new Node(), { buffer: null, onended: null, start() { metrics.played++; }, stop() { metrics.flushed++; } }); (window as any).__drain=()=>source.onended?.(); return source; }
     };
     if(devices)(window as any).AudioContext.prototype.setSinkId=async(id:string)=>{metrics.sink=id;};
     (window as any).AudioWorkletNode = class extends Node {
@@ -48,7 +48,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
     await request.fulfill({ status: path === '/api/voice/sessions' ? 201 : 200, json: body });
   });
   await page.routeWebSocket('**/ws/voice', (ws) => { socket = ws; ws.onMessage((message) => messages.push(message)); });
-  const send = (type: string, extras = {}) => socket!.send(JSON.stringify({ ...events.find((e) => e.type === type), ...extras }));
+  const send = (type: string, extras = {}) => socket!.send(JSON.stringify({ type, ...events.find((e) => e.type === type), ...extras }));
   await page.goto('/');
   await expect(page.getByRole('img', { name: /floor map/i })).toBeVisible();
   return {
@@ -415,4 +415,36 @@ test('logout and authentication loss stop capture and remove shopper content',as
  });
  await page.reload();await f.start();await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);expect(await page.evaluate(()=>(window as any).__audio.stopped)).toBe(1);
  signed=true;await page.reload();await f.start();await page.evaluate(()=>window.dispatchEvent(new Event('shop-auth-required')));await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__audio.capture)).toBe(false);
+});
+
+
+for(const width of [320,1440])test(`visual conversation summary preserves confirmed and unresolved items at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:950});const f=await fixture(page);if(width<1200){await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();await f.start(page.getByRole('dialog',{name:'Voice assistant'}));await page.getByRole('button',{name:/Minimize/}).click();}else await f.start();
+ const entries=[{query:'milk',status:'confirmed',catalog_version:1,products:[route.product]}, {query:'unicorn cake',status:'not_found',catalog_version:1,products:[]}, {query:'milk choice',status:'needs_choice',catalog_version:1,products:[route.product,{...route.product,id:'other-milk',name:'Other milk'}]}];
+ f.send('summary',{session_id:'fixture-session',turn_id:'turn-1',entries,truncated:false,requested:false});
+ await page.getByRole('button',{name:'Show summary',exact:true}).click();const report=page.getByRole('region',{name:'Items and locations'});
+ await expect(report).toContainText('1 confirmed item · 2 unresolved requests');await expect(report).toContainText(route.product.shelf.label);await expect(report).toContainText('No catalog match found');await expect(report).toContainText('Choose the product you mean');
+ f.send('output_transcript',{text:'Invented item in aisle99'});await expect(report).not.toContainText('Invented');
+ f.send('summary',{session_id:'wrong-session',turn_id:'turn-99',entries:[],truncated:false,requested:true});await expect(report).toContainText(route.product.name);
+ const scope=width<1200?page.getByRole('region',{name:'Voice controls'}):page.locator('.desktop-voice');await scope.getByRole('button',{name:'End voice',exact:true}).click();await expect(report).toContainText(route.product.name);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+ await page.screenshot({path:`test-results/summary-${width}.png`,fullPage:true});
+ await report.getByRole('button',{name:`Locate ${route.product.name} from summary`,exact:true}).click();await expect(page.getByTestId('route-path')).toBeVisible();await page.reload();await expect(page.getByRole('heading',{name:'Items and locations'})).toHaveCount(0);
+});
+
+test('quiet offer waits for native completion and drain, then accepting opens the visual summary',async({page})=>{
+ await page.clock.install();const f=await fixture(page);await f.start();
+ f.send('summary',{session_id:'fixture-session',turn_id:'turn-1',entries:[{query:'milk',status:'confirmed',catalog_version:1,products:[route.product]}],truncated:false,requested:false});
+ f.send('audio_start');f.binary();f.send('turn_complete');await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(1);
+ await page.clock.fastForward(11000);expect(f.messages.filter(v=>typeof v==='string'&&JSON.parse(v).type==='text')).toHaveLength(0);await page.evaluate(()=>(window as any).__drain());
+ await page.clock.fastForward(9000);expect(f.messages.filter(v=>typeof v==='string'&&JSON.parse(v).type==='text')).toHaveLength(0);f.send('pong');await page.clock.fastForward(2000);
+ await expect(page.getByRole('button',{name:'Yes, summarize'})).toBeVisible();expect(f.messages.filter(v=>typeof v==='string'&&JSON.parse(v).type==='text')).toHaveLength(1);
+ await page.getByRole('button',{name:'Yes, summarize'}).click();await expect(page.getByRole('region',{name:'Items and locations'})).toContainText('1 confirmed item');await expect(page.getByRole('button',{name:'Yes, summarize'})).toHaveCount(0);
+});
+
+
+test('a requested empty summary opens and focuses the report outside the mobile voice dialog',async({page})=>{
+ await page.setViewportSize({width:320,height:900});const f=await fixture(page);await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();await f.start(page.getByRole('dialog',{name:'Voice assistant'}));
+ f.send('summary',{session_id:'fixture-session',turn_id:'turn-1',entries:[],truncated:false,requested:true});
+ await expect(page.getByRole('dialog',{name:'Voice assistant'})).not.toBeVisible();await expect(page.getByRole('heading',{name:'Items and locations'})).toBeFocused();await expect(page.getByText('No items have been looked up yet. Ask Monti to find an item first.')).toBeVisible();await expect(page.getByRole('region',{name:'Voice controls'}).getByRole('button',{name:'End voice',exact:true})).toBeVisible();
 });

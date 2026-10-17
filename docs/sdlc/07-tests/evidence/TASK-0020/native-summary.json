@@ -1,0 +1,14 @@
+{
+  "input": "synthetic silence capture + public text controls; actual native provider and Chromium playout",
+  "complete_replies": 6,
+  "summary_requests": 2,
+  "confirmed_items": 3,
+  "unique_items": 3,
+  "quiet_offer_count": 1,
+  "quiet_ms_after_playout": 10426,
+  "native_audio_bytes": 1385288,
+  "played_chunks": 139,
+  "error_codes": [],
+  "connected_until_end": true,
+  "report_retained_after_end": true
+}
