@@ -74,7 +74,7 @@ class Manifests(unittest.TestCase):
         self.assertEqual(json.loads(a["run.googleapis.com/container-dependencies"]), {"go": ["adk"], "adk": ["laya"]})
         self.assertEqual(a["autoscaling.knative.dev/maxScale"], "2")
         self.assertEqual(a["autoscaling.knative.dev/minScale"], "0")
-        self.assertEqual(template["spec"]["timeoutSeconds"], 360)
+        self.assertEqual(template["spec"]["timeoutSeconds"], 660)
         self.assertEqual(template["spec"]["containerConcurrency"], 10)
         self.assertEqual(service["spec"]["traffic"][0]["percent"], 100)
         for container in template["spec"]["containers"]:

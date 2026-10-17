@@ -142,6 +142,13 @@ func testGatewayBridge(t *testing.T, revoke bool) {
 	if ready["type"] != "ready" {
 		t.Fatal(ready)
 	}
+	expires, e := time.Parse(time.RFC3339Nano, ready["expires_at"].(string))
+	if e != nil || time.Until(expires) < 599*time.Second || time.Until(expires) > 600*time.Second {
+		t.Fatal("ready must offer ten minutes")
+	}
+	if maxSessionAudioBytes < 600*32000 {
+		t.Fatal("audio allowance shorter than session")
+	}
 	sid := ready["session_id"].(string)
 	if err = conn.WriteJSON(Event{"type": "text", "session_id": sid, "text": "milk"}); err != nil {
 		t.Fatal(err)

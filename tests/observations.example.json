@@ -85,7 +85,7 @@
       "artifact": null,
       "sha256": null,
       "candidate_commit": null,
-      "purpose": "300s/60s/30s limits, cleanup, private callbacks, bounded audio/tools and no content logs"
+      "purpose": "600s/60s/30s limits, cleanup, private callbacks, bounded audio/tools and no content logs"
     },
     "map_fallbacks": {
       "status": "not_run",

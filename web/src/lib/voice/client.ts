@@ -12,7 +12,7 @@ export interface VoiceState {
   phase: VoicePhase; message: string; active: boolean; micMuted: boolean; soundMuted: boolean;
   speakerMode: boolean; micHeld: boolean; remaining: number; input: string; output: string; outputLevel: number;
 }
-const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, speakerMode: false, micHeld: false, remaining: 300, input: '', output: '', outputLevel: 0 });
+const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, speakerMode: true, micHeld: false, remaining: 600, input: '', output: '', outputLevel: 0 });
 export class VoiceClient {
   readonly devices = new AudioDevices(() => { if(this.state.active)this.stop('A selected audio device disconnected. Check Audio settings, then start voice again.'); });
   private state = initial();
@@ -186,7 +186,7 @@ export class VoiceClient {
     switch (event.type) {
       case 'ready':
         if (this.ready) { this.fail('Voice connection was reset. Please restart.'); return; }
-        this.ready = true; this.expires = Math.min(Date.parse(event.expires_at), Date.now() + 300000);
+        this.ready = true; this.expires = Math.min(Date.parse(event.expires_at), Date.now() + 600000);
         this.lastSpeech = this.lastPing = Date.now(); this.pongDeadline = 0; this.inputActivity.reset();
         this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say hello, ask a question, or find an item.' }); break;
       case 'input_transcript': this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;

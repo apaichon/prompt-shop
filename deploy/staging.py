@@ -153,7 +153,7 @@ def render(c, lock):
                    "run.googleapis.com/container-dependencies": json.dumps({"go": ["adk"], "adk": ["laya"]}),
                    "run.googleapis.com/cloudsql-instances": connection(c)}},
                    "spec": {"serviceAccountName": account(c, "runtime"), "containerConcurrency": 10,
-                            "timeoutSeconds": 360, "containers": containers}}, "traffic": traffic}}
+                            "timeoutSeconds": 660, "containers": containers}}, "traffic": traffic}}
     job = {"apiVersion": "run.googleapis.com/v1", "kind": "Job",
            "metadata": {"name": c["service"] + "-import", "namespace": c["project_number"]},
            "spec": {"template": {"metadata": {"annotations": {"run.googleapis.com/cloudsql-instances": connection(c)}},

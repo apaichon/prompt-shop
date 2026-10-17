@@ -58,7 +58,7 @@ async function fixture(page: Page, options: { denied?: boolean; realAudio?: bool
       socket = undefined;
       await scope.getByRole('button', { name: /Start voice|Restart voice/ }).click();
       await expect.poll(() => !!socket).toBe(true);
-      send('ready', { expires_at: new Date(Date.now() + 300000).toISOString() });
+      send('ready', { expires_at: new Date(Date.now() + 600000).toISOString() });
       await expect(scope.getByText('Listening', { exact: true })).toBeVisible();
     }
   };
@@ -313,7 +313,7 @@ test('late shelf responses cannot replace a newer selection',async({page})=>{
 
 
 test('brief loud capture noise cannot stop playback while sustained speech can',async({page})=>{
- const f=await fixture(page);await f.start();f.send('audio_start');f.binary();
+ const f=await fixture(page);await page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode on',exact:true}).click();await f.start();f.send('audio_start');f.binary();
  await expect.poll(()=>page.evaluate(()=>(window as any).__audio.played)).toBe(1);
  const before=await page.evaluate(()=>(window as any).__audio.flushed);
  await page.evaluate(()=>{const pcm=new Int16Array(320).fill(1000);(window as any).__captureNode.port.onmessage({data:pcm.buffer});});
@@ -352,7 +352,7 @@ test('voice updates never reload or abort an unchanged pending shelf',async({pag
 test('speaker mode blocks feedback PCM, offers Interrupt, and retains the choice after End', async ({page}) => {
   const f = await fixture(page);
   const panel = page.locator('.desktop-voice');
-  await panel.getByRole('button', {name:'Speaker mode off',exact:true}).click();
+  await expect(panel.getByRole('button', {name:'Speaker mode on',exact:true})).toHaveAttribute('aria-pressed','true');
   await f.start(); f.send('audio_start'); f.binary();
   await expect(panel).toContainText('Mic paused for speakers');
   await page.evaluate(() => (window as any).__captureNode.port.onmessage({data:new Int16Array(1280).fill(2000).buffer}));
@@ -371,7 +371,7 @@ test('mobile speaker mode has a reachable Interrupt in the minimized dock and sh
   await page.setViewportSize({width:320,height:900}); const f = await fixture(page);
   await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button',{name:'Speaker mode off',exact:true}).click();
+  await expect(dialog.getByRole('button',{name:'Speaker mode on',exact:true})).toHaveAttribute('aria-pressed','true');
   await f.start(dialog); f.send('audio_start'); f.binary();
   await expect(dialog).toContainText('Mic paused for speakers');
   await dialog.getByRole('button',{name:'Minimize'}).click();

@@ -15,7 +15,7 @@ MANUAL_CHECKS = {
     "voice_interruption": "barge-in clears playback, late events/stale epochs rejected, selection synchronized",
     "voice_permissions": "allow, deny, revoke, unsupported capture and explicit restart without auto-reconnect/replay",
     "voice_failures": "provider quota/outage, database failure, disconnect, setup timeout and session expiry",
-    "voice_bounds_privacy": "300s/60s/30s limits, cleanup, private callbacks, bounded audio/tools and no content logs",
+    "voice_bounds_privacy": "600s/60s/30s limits, cleanup, private callbacks, bounded audio/tools and no content logs",
     "map_fallbacks": "unmapped/disconnected shelves give truthful location; stale map reload/retry exactly once",
     "map_accessibility": "keyboard, screen reader, color-independent path; 320/360/768/1280px without overflow",
     "auth_sessions": "direct server auth, secure host cookie, rotation, eight-hour absolute expiry, logout/replay",

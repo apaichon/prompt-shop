@@ -34,7 +34,7 @@ The region suggestion is `asia-southeast1`; retain it only if approved. SQL is P
 |---|---|
 | TASK-0001/shared wiring | `cmd/server`, `cmd/import`, module lock and migrations; full readiness; static files from `STATIC_DIR=/app/web/build`, SPA fallback excluding APIs; server binds `$PORT`; SIGTERM drains in <10s |
 | TASK-0002/shared wiring | Register real catalog/route handlers and the TASK-0003 catalog adapter; fixed readonly/backoffice/ticket pool limits 2/2/1; keep private tool server bound only to 127.0.0.1:8002 |
-| TASK-0003/shared wiring | Register voice gateway, exact `PUBLIC_ORIGIN`, `VOICE_ENABLED=true`, `ADK_BRIDGE_SECRET`; use `TICKET_DATABASE_URL` for the one-connection ticket pool; actual setup30/session300/idle60 and four-session cap; fresh reconnect |
+| TASK-0003/shared wiring | Register voice gateway, exact `PUBLIC_ORIGIN`, `VOICE_ENABLED=true`, `ADK_BRIDGE_SECRET`; use `TICKET_DATABASE_URL` for the one-connection ticket pool; actual setup30/session600/idle60 and four-session cap; fresh reconnect |
 | TASK-0004 | `web/package.json`, npm lock, `npm run check`, static `npm run build` producing `web/build/index.html` and assets; no secret-backed frontend build variables |
 | TASK-0009/shared wiring | `BACKOFFICE_DATABASE_URL` and `ADMIN_PASSWORD_HASH` are proposed deployment handoff names, not currently implemented configuration; keep backoffice protected and credentials separate |
 | TASK-0010 | `intent/pyproject.toml`, `uv.lock`, CPU dependencies, `intent_service.app:app`; `LAYA_MODEL_PATH`, `LAYA_INTERNAL_TOKEN`; port8003 `/healthz` after real model warm-up; one worker with bounded inference subprocess/queue and cleanup; `agent/tools/intent.py` using the same token and fixed loopback endpoint |
@@ -94,7 +94,7 @@ Set the exact HTTPS origin and a fresh `revision_suffix`. The Go gateway current
 rtk proxy python3 deploy/staging.py render --config deploy/local/staging.json --images deploy/local/images.json
 ```
 
-Inspect `deploy/out/service.json` and `import-job.json`. One Go ingress uses HTTP1/8080, private ADK8001/Laya8003 startup probes, Laya→ADK→Go ordering, Go `/readyz` startup and `/healthz` liveness, timeout360, concurrency10, min0/max2, total4vCPU/5GiB. These are proposed limits awaiting measured cold-start/RSS qualification. No live provider call is permitted in probes. Runtime sidecar outages must produce an explicit voice failure/typed recovery; startup checks do not prove ongoing inference health.
+Inspect `deploy/out/service.json` and `import-job.json`. One Go ingress uses HTTP1/8080, private ADK8001/Laya8003 startup probes, Laya→ADK→Go ordering, Go `/readyz` startup and `/healthz` liveness, timeout660, concurrency10, min0/max2, total4vCPU/5GiB. These are proposed limits awaiting measured cold-start/RSS qualification. No live provider call is permitted in probes. Runtime sidecar outages must produce an explicit voice failure/typed recovery; startup checks do not prove ongoing inference health.
 
 ## Execute migration, then staging
 

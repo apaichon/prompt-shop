@@ -1,7 +1,7 @@
 // Opt-in real microphone/playout pipeline with a synthetic 10-utterance WAV.
 const {chromium}=require('@playwright/test');
 if(!process.env.NATIVE_VOICE_WAV)throw new Error('Set NATIVE_VOICE_WAV to the synthetic conversation WAV');
-const speakerMode=process.env.NATIVE_SPEAKER_MODE==='1';
+const speakerMode=process.env.NATIVE_SPEAKER_MODE!=='0';
 const injectFeedback=process.env.NATIVE_SPEAKER_FEEDBACK==='1';
 if(injectFeedback&&!speakerMode)throw new Error('Synthetic feedback probe requires speaker mode');
 (async()=>{
@@ -53,7 +53,7 @@ if(injectFeedback&&!speakerMode)throw new Error('Synthetic feedback probe requir
  });});
  try{
   await page.goto(process.env.NATIVE_VOICE_ORIGIN||'http://localhost:8080');await require('./auth.cjs').signIn(page);
-  if(speakerMode)await page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode off',exact:true}).click();
+  if(!speakerMode)await page.locator('.desktop-voice').getByRole('button',{name:'Speaker mode on',exact:true}).click();
   await page.locator('.desktop-voice').getByRole('button',{name:'Start voice',exact:true}).click();
   const deadline=Date.now()+165000;
   while(Date.now()<deadline&&!closed&&[...turns.values()].filter(t=>t.complete).length<10)await page.waitForTimeout(200);
