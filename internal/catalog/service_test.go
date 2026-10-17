@@ -88,6 +88,37 @@ func TestSeededReadonlyCatalogAndHTTP(t *testing.T) {
 			t.Fatal("foreign shelf escaped")
 		}
 	}
+
+	statusBakery, rawBakery := request("GET", "/api/products?category=Bakery&page_size=24", "")
+	var bakery ProductList
+	if statusBakery != 200 || json.Unmarshal(rawBakery, &bakery) != nil || bakery.Total != 15 {
+		t.Fatal("expected15published bakery items")
+	}
+	for _, product := range bakery.Products {
+		found, e := s.Search(context.Background(), product.Name, "en-US")
+		if e != nil {
+			t.Fatal("gallery name search failed", e)
+		}
+		present := false
+		for _, candidate := range found.Candidates {
+			if candidate.ID == product.ID {
+				present = true
+			}
+		}
+		if !present {
+			t.Fatalf("gallery item missing from search: %s", product.ID)
+		}
+		route, e := s.Route(context.Background(), product.ID)
+		if e != nil || route.Product.Shelf.ID != product.Shelf.ID {
+			t.Fatalf("gallery route mismatch: %s", product.ID)
+		}
+	}
+	for query, id := range map[string]string{"bagel": "bagels", "blueberry muffin": "blueberry-muffins", "burger bun": "burger-buns", "cinnamon roll": "cinnamon-rolls", "croissant": "croissants"} {
+		found, e := s.Search(context.Background(), query, "en-US")
+		if e != nil || len(found.Candidates) != 1 || found.Candidates[0].ID != id {
+			t.Fatalf("spoken word form not resolved: %s", query)
+		}
+	}
 	status, raw := request("GET", "/api/store-map", "")
 	var m StoreMap
 	if status != 200 || json.Unmarshal(raw, &m) != nil || m.Origin != "entrance" || len(m.Aisles) != 8 || len(m.Nodes) == 0 {

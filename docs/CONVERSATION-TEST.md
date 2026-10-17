@@ -113,6 +113,29 @@ Keep failures in the results; restarting or repeating a failed utterance does no
 turn the original attempt into a pass. These repetitions are regression checks,
 not a replacement for the project's frozen performance/classifier acceptance cases.
 
+## Bakery word-form regression
+
+All15Bakery products are in the same catalog used by backoffice and voice. In the
+backoffice, clear the status/text filter and use Next/Previous (50rows per page),
+or search a product name directly. The shopper gallery lists only published items.
+
+In one session, ask each prompt below and confirm native audio, the exact product
+card, its route and the shelf shown in the gallery agree. Singular wording is
+intentional; no backoffice renaming should be needed.
+
+| Say | Expected product | Aisle / shelf |
+|---|---|---|
+| Where is a bagel? | Bagels | 3 / 1 |
+| Where is a blueberry muffin? | Blueberry muffins | 3 / 4 |
+| Find a burger bun. | Burger buns | 3 / 2 |
+| Where is a cinnamon roll? | Cinnamon rolls | 3 / 1 |
+| Where is a croissant? | Croissants | 3 / 4 |
+| Where is chocolate cake? | Chocolate cake | 3 / 3 |
+
+Also ask “Where is the bakery?” Expect product choices from Bakery, then select
+one offered product. “Find a muffin” should clarify blueberry versus English.
+“Find a gluten-free muffin” must not claim that unsupported modifier matches.
+
 ## Product reference for the seeded catalog
 
 These values come from `data/demo-store.json` and `data/catalog-expansion-v2.json`.
