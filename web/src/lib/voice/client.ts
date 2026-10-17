@@ -10,9 +10,9 @@ import { mergeTranscriptChunk } from './transcript';
 export type VoicePhase = 'idle' | 'connecting' | 'listening' | 'thinking' | 'speaking' | 'interrupted' | 'error';
 export interface VoiceState {
   phase: VoicePhase; message: string; active: boolean; micMuted: boolean; soundMuted: boolean;
-  speakerMode: boolean; micHeld: boolean; remaining: number; input: string; output: string; outputLevel: number;
+  speakerMode: boolean; micHeld: boolean; remaining: number; input: string; output: string; outputLevel: number; summaryOffer: boolean;
 }
-const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, speakerMode: true, micHeld: false, remaining: 600, input: '', output: '', outputLevel: 0 });
+const initial = (): VoiceState => ({ phase: 'idle', message: '', active: false, micMuted: false, soundMuted: false, speakerMode: true, micHeld: false, remaining: 600, input: '', output: '', outputLevel: 0, summaryOffer:false });
 export class VoiceClient {
   readonly devices = new AudioDevices(() => { if(this.state.active)this.stop('A selected audio device disconnected. Check Audio settings, then start voice again.'); });
   private state = initial();
@@ -39,6 +39,22 @@ export class VoiceClient {
   private greetingHeard = false;
   private playingReply = false;
   private speakerTailUntil = 0;
+  private completedReply = false;
+  private quietSince = 0;
+  private offerSent = false;
+  private hasRequests = false;
+  private armSummaryQuiet() {
+    if (!this.greeting && this.completedReply && this.audioDrained && !this.playingReply && !this.quietSince) this.quietSince = Date.now();
+  }
+  dismissSummaryOffer() { this.offerSent = true; this.patch({summaryOffer:false}); }
+  requestSummary() { this.dismissSummaryOffer(); return this.requestText('Please summarize all the items I asked about and their locations. Show the visual report.'); }
+  private requestText(text: string) {
+    if (!this.ready || this.socket?.readyState !== 1 || this.greeting) return false;
+    this.completedReply = false; this.quietSince = 0; this.offerSent = true;
+    this.flushAudio(); this.gate.anticipateTurn(); this.inputActivity.reset(); this.callbacks.turn();
+    this.patch({phase:'thinking',input:'',output:'',summaryOffer:false,message:'Thinking…'});
+    return this.send({type:'text',text});
+  }
 
   // Network completion and local playout are independent. A gap between PCM
   // chunks must not reopen the microphone while the provider is still speaking.
@@ -56,7 +72,7 @@ export class VoiceClient {
       this.playingReply = false;
       this.speakerTailUntil = Date.now() + 250;
     }
-    this.updateSpeakerHold();
+    this.updateSpeakerHold(); this.armSummaryQuiet();
   }
   private flushAudio() {
     this.audio?.flush(); this.audioFinished = true; this.audioDrained = true;
@@ -68,6 +84,7 @@ export class VoiceClient {
   }
   interrupt() {
     if (!this.ready || !this.state.speakerMode || !this.state.micHeld) return;
+    this.completedReply=false; this.quietSince=0; this.dismissSummaryOffer();
     this.flushAudio(); this.gate.anticipateTurn(); this.inputActivity.reset();
     this.lastSpeech = Date.now(); this.callbacks.turn();
     this.patch({ phase: 'listening', outputLevel: 0, message: 'Reply stopped. Speak when the microphone resumes.' });
@@ -120,6 +137,7 @@ export class VoiceClient {
     const session = this.gate.session;
     this.audioFinished = false; this.audioDrained = true; this.playingReply = false; this.speakerTailUntil = 0; this.inputActivity.reset();
     this.greeting = this.greetingComplete = this.greetingHeard = false;
+    this.completedReply=false; this.quietSince=0; this.offerSent=false; this.hasRequests=false;
     this.nonce++; this.gate.stop(); this.ready = false; this.callbacks.turn();
     this.abort?.abort(); this.abort = undefined;
     if (this.timer) clearInterval(this.timer); this.timer = undefined;
@@ -133,15 +151,17 @@ export class VoiceClient {
     this.patch({ ...initial(), speakerMode: this.state.speakerMode, message });
   }
   private fail(message: string) { this.stop(); this.patch({ phase: 'error', message }); }
-  muteMicrophone() { const muted = !this.state.micMuted; this.audio?.microphoneMuted(muted); this.patch({ micMuted: muted }); }
+  muteMicrophone() { const muted = !this.state.micMuted; this.audio?.microphoneMuted(muted); this.patch({ micMuted: muted }); this.quietSince=0; if(!muted)this.armSummaryQuiet(); }
   muteSpeaker() {
     const muted = !this.state.soundMuted;
     if (muted) this.flushAudio();
     this.audio?.speakerMuted(muted);
     this.patch({ soundMuted: muted, ...(muted && this.state.phase === 'speaking' ? { phase: 'listening' as const } : {}) });
+    this.quietSince=0; if(!muted)this.armSummaryQuiet();
   }
   select(search_id: string, product_id: string): boolean {
     if (!this.ready || this.socket?.readyState !== 1) return false;
+    this.completedReply=false; this.quietSince=0; this.offerSent=true;
     this.inputActivity.reset(); this.flushAudio(); this.gate.anticipateTurn(); this.lastSpeech = Date.now();
     this.callbacks.turn(); this.patch({ phase: 'thinking', message: 'Finding directions…', input: '', output: '' });
     return this.send({ type: 'select', search_id, product_id });
@@ -160,7 +180,9 @@ export class VoiceClient {
     if (held || this.state.micMuted) frame = new ArrayBuffer(frame.byteLength);
     const speech = voiced && !this.state.micMuted && !held;
     const activity = this.inputActivity.push(frame.byteLength, speech);
+    if (speech && this.completedReply) this.quietSince = now;
     if (activity.started) {
+      this.completedReply=false; this.quietSince=0; this.patch({summaryOffer:false});
       this.flushAudio(); this.gate.anticipateTurn(); this.callbacks.turn();
       this.patch({ phase: 'listening', input: '', output: '', message: 'Listening to you…' });
     }
@@ -190,7 +212,7 @@ export class VoiceClient {
     const event = parsed.data, decision = this.gate.accept(event);
     if (!decision.accepted) return;
     if (decision.flush) this.flushAudio();
-    if (decision.newTurn) { this.audioFinished = false; this.callbacks.turn(); this.patch({ input: '', output: '' }); }
+    if (decision.newTurn) { this.completedReply=false; this.quietSince=0; this.audioFinished = false; this.callbacks.turn(); this.patch({ input: '', output: '' }); }
     if (!this.ready && !['ready', 'error', 'session_ending'].includes(event.type)) return;
     switch (event.type) {
       case 'ready':
@@ -204,7 +226,7 @@ export class VoiceClient {
           this.patch({phase:'thinking',message:'Monti is saying hi.'});
         } else { this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say hello, ask a question, or find an item.' }); }
         break;
-      case 'input_transcript': this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;
+      case 'input_transcript': this.completedReply=false; this.quietSince=0; this.patch({summaryOffer:false}); this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;
       case 'output_transcript': this.patch({ output: mergeTranscriptChunk(this.state.output, event.text).slice(-8000) }); break;
       case 'audio_start': this.audioFinished = false; break;
       case 'audio_end': this.audioFinished = true; this.finishPlayout(); if (this.audioDrained) this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
@@ -214,8 +236,9 @@ export class VoiceClient {
           : { phase: 'interrupted', message: 'Response stopped. Listening to you…' }); break;
       case 'turn_complete':
         if (this.greeting) { this.greetingComplete = true; this.audioFinished = true; this.finishPlayout(); break; }
-        this.audioFinished = true; this.finishPlayout(); if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
+        this.completedReply=true; this.audioFinished = true; this.finishPlayout(); if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
       case 'error':
+        this.completedReply=false; this.quietSince=0; this.dismissSummaryOffer();
         if (this.greeting) { this.fail('Tap Play welcome to hear Monti.'); break; }
         if (event.code === 'TURN_TIMEOUT') {
           this.flushAudio(); this.gate.anticipateTurn(); this.callbacks.turn();
@@ -229,7 +252,7 @@ export class VoiceClient {
         break;
       case 'session_ending': this.fail(recovery[event.reason] ?? 'Voice session ended. Restart voice or type an item.'); break;
       case 'pong': this.pongDeadline = 0; break;
-      default: this.callbacks.event(event);
+      default: if (event.type==='summary') { this.hasRequests=event.entries.length>0; if(!event.requested)this.offerSent=false; else this.dismissSummaryOffer(); } this.callbacks.event(event);
     }
   }
   private tick() {
@@ -239,6 +262,11 @@ export class VoiceClient {
     this.patch({ remaining: Math.max(0, Math.ceil((this.expires - now) / 1000)) });
     if (now >= this.expires) { this.fail(recovery.SESSION_EXPIRED); return; }
     if (now - this.lastSpeech >= 60000) { this.fail(recovery.IDLE_TIMEOUT); return; }
+    if (!this.greeting && this.hasRequests && this.completedReply && this.audioDrained && !this.playingReply && !this.inputActivity.active
+        && !this.state.micHeld && !this.state.micMuted && !this.state.soundMuted && this.state.phase==='listening'
+        && !this.offerSent && this.quietSince && now-this.quietSince>=10000 && this.expires-now>20000) {
+      if (this.requestText('After the quiet pause, offer to summarize the items and their locations. Ask only if I would like a summary. Do not summarize yet.')) this.patch({summaryOffer:true});
+    }
     if (this.pongDeadline && now >= this.pongDeadline) { this.fail('Voice disconnected. Restart voice or type an item.'); return; }
     if (now - this.lastPing >= 20000) { this.send({ type: 'ping' }); this.lastPing = now; this.pongDeadline = now + 10000; }
   }

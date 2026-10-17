@@ -3,6 +3,7 @@
   import { Portal } from '#lib/portal.ts';
   import Icon from '#lib/components/Icon.svelte';
   import VoicePanel from '#lib/components/VoicePanel.svelte';
+  import ConversationSummary from '#lib/components/ConversationSummary.svelte';
   import WelcomeGreeting from '#lib/components/WelcomeGreeting.svelte';
   import AssistantAvatar from '#lib/components/AssistantAvatar.svelte';
   import ProductCard from '#lib/components/ProductCard.svelte';
@@ -28,7 +29,7 @@
     if ($portal.focusVersion !== focusVersion && $portal.focus) {
       focusVersion = $portal.focusVersion;
       const target = $portal.focus;
-      void tick().then(() => { if (!dialog?.open) document.getElementById(target)?.focus(); });
+      void tick().then(() => { if(target==='summary-heading' && dialog?.open)dialog.close(); if (!dialog?.open) document.getElementById(target)?.focus(); });
     }
   });
   function closeDrawer() { portal.stopVoice(); dialog?.close(); launcher?.focus(); }
@@ -72,6 +73,7 @@
     <div class="finder-column">
       <section class="shop-introduction"><div><p class="small-overline">LESS SEARCHING. MORE FINDING.</p><h1>Find it. Say it. <span>Shop it.</span></h1><p>Your store, a little easier. Just ask Monti.</p></div><span class="intro-mark" aria-hidden="true"><Icon name="sparkle" size={31} /></span></section>
       <section class="search-panel" aria-label="Suggested searches"><div class="suggestions"><span>Try an item</span>{#each ['Milk','Rice','Toothpaste'] as item}<button onclick={() => {query=item;search();}}><Icon name="search" size={13} />{item}</button>{/each}</div><span class="catalog-note"><Icon name="check" size={13} />Store catalog</span></section>
+      <ConversationSummary {portal} />
       {#if $portal.loading || $portal.searched || $portal.message}
         <section class="results-section" aria-labelledby="results-heading" aria-busy={$portal.loading}>
           <div class="section-top"><h2 id="results-heading" tabindex="-1">{$portal.loading && !$portal.candidates.length ? 'Looking for your item…' : $portal.candidates.length ? `${$portal.candidates.length} ${$portal.candidates.length === 1 ? 'match' : 'matches'} found` : 'Search results'}</h2><span class="result-source">{$portal.source === 'voice' ? 'Found with Monti' : $portal.query}</span></div><p class="result-message" role="status">{$portal.message}</p>

@@ -24,3 +24,16 @@ Binary audio is PCM16LE mono: browser input 16 kHz, 3200 bytes normally, even le
 After `classification-completed`, Go registers the attempt on the current session/turn and sends `classification-registered`. ADK must await this matching ACK **before** the HTTP callback. New turn, interruption or revoked capability cancels dispatch; missing/stale ACK rejects catalog calls. Classification is advisory, never product/location authority or permission. Timeout/abstention remains explicit. Go private listener binds loopback and is never registered on public Fiber routes. All placeholders labelled fixture are non-secret test values.
 
 TASK-0003 and TASK-0010 implement and test these transports with actual ADK/Laya. Required native Gemini Live 3.8 remains a later task; no provider access is claimed here.
+
+
+## TASK-0020 additive contract — 17 October 2026
+
+`summary` is a Go-authored server event; provider/bridge messages cannot publish it.
+It carries session_id, turn_id, entries, truncated and requested. Each entry contains
+query, status (confirmed/needs_choice/not_found/unconfirmed), catalog_version and
+up to 3 returned products; max 50 entries and 48 KB snapshot. requested=false synchronizes
+bounded memory after a successful search/route, requested=true opens the report.
+The classified capability-protected private get_conversation_summary callback uses
+args={} and returns entries/truncated. It has one call per turn, current ACK/epoch
+checks, no writes or transcript parsing. See DES-0001 TASK-0020 amendment. The
+historical 300 second foundation limit above was amended to 600 seconds by TASK-0017.

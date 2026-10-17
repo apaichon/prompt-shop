@@ -137,5 +137,44 @@
       "Follow the walkway to Shelf 3."
     ],
     "distance_units": 70
+  },
+  "summary-callback": {
+    "session_id": "fixture-session",
+    "turn_id": "turn-1",
+    "call_id": "call-1",
+    "classification_attempt_id": "classification-1",
+    "args": {}
+  },
+  "summary-tool-response": {
+    "entries": [
+      {
+        "query": "whole milk",
+        "status": "confirmed",
+        "catalog_version": 1,
+        "products": [
+          {
+            "id": "milk-whole-1l",
+            "name": "Whole milk 1 L",
+            "category": "Dairy",
+            "aisle": {
+              "id": "a02",
+              "label": "Aisle 2"
+            },
+            "shelf": {
+              "id": "a02-s03",
+              "label": "Shelf 3"
+            },
+            "route_available": true
+          }
+        ]
+      },
+      {
+        "query": "invented item",
+        "status": "not_found",
+        "catalog_version": 1,
+        "products": []
+      }
+    ],
+    "truncated": false
   }
 }

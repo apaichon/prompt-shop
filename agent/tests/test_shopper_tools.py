@@ -115,3 +115,26 @@ async def test_conversation_waits_for_classification_ack_before_unlocking_audio(
         assert (await task)["acknowledged"] is True
         assert host.audio_allowed and host.counts == {"classify_intent": 1}
         await host.close()
+
+
+@pytest.mark.parametrize("entries", [[], [{"query":"milk","status":"confirmed","catalog_version":1,"products":[{"id":"milk"}]}]])
+async def test_summary_classifies_then_reads_only_current_server_facts(entries):
+    calls, classifications = [], []
+    async def send(event):
+        classifications.append(event)
+        host.acknowledge(event)
+    async def transport(request):
+        calls.append((request.url.path, json.loads(request.content)))
+        return httpx.Response(200, json={"entries":entries,"truncated":False})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+        host=ToolHost(setup(),send,classifier,client);host.begin("turn-1")
+        result=await ShopperTool("summarize_items",host).run_async(args={"text":"Yes, summarize my items"},tool_context=None)
+        assert result=={"entries":entries,"truncated":False} and host.audio_allowed
+        assert len(classifications)==1 and classifications[0]["response_mode"]=="catalog"
+        assert len(calls)==1 and calls[0][0]=="/internal/tools/get_conversation_summary" and calls[0][1]["args"]=={}
+        assert calls[0][1]["classification_attempt_id"]==classifications[0]["classification_attempt_id"]
+        await host.close()
+
+async def test_summary_rejects_model_supplied_products_before_host_access():
+    result=await ShopperTool("summarize_items",object()).run_async(args={"text":"recap","products":[{"id":"fake"}]},tool_context=None)
+    assert result["error"]["code"]=="INVALID_REQUEST"

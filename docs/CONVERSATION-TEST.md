@@ -194,3 +194,31 @@ stopwatch observations here are useful diagnosis, not proof that those gates pas
 Related procedures: [readiness runbook](sdlc/09-operations/READINESS.md),
 [authentication/device acceptance](sdlc/07-tests/TEST-0013.md), and
 [general-conversation diagnosis](VOICE-CONVERSATION-FIX-2026-10-16.md).
+
+
+## Item summary and quiet follow-up
+
+1. Sign in, let the welcome finish, then choose Start voice (Speaker mode on).
+2. Say “Where is whole milk?” Wait for the full answer. Say “Where is a bagel?”
+3. Say “Summarize all the items I asked about and their locations.” Monti should
+   briefly recap the verified facts and open Items and locations. Check both
+   products, product pictures, aisle groups and shelf labels against the catalog.
+4. Ask “Where is jasmine rice?” After the full reply has played, stay quiet for
+   more than ten seconds. Monti asks whether you want a summary. It must not talk
+   over the reply, start the offer during thinking, or immediately create a report.
+5. Say “Yes, please summarize them,” or choose Yes, summarize. Check all three
+   confirmed items appear once. Wait another ten seconds: no repeated offer.
+6. In another item lookup, let the offer occur and say “No thanks.” Wait again:
+   no repeated offer until you ask for another catalog item. Mute mic/sound or
+   End voice: no proactive speech. New speech during quiet postpones the offer.
+7. Ask an ambiguous item, leaving the choice unresolved, and an invented item.
+   Request a summary: choices and no-match requests appear under Still to confirm,
+   with no invented confirmed location. Different products selected from repeated
+   broad searches are retained; repeated confirmed products appear only once.
+8. End voice. The report remains visible; Hide/Show summary works. Choose Locate
+   for a fresh current route from the entrance. Refresh or sign out: report clears.
+
+Report facts are last verified snapshots for the current voice conversation, not
+stock/price promises or a combined optimized shopping route. Up to50recent retained
+requests fit the bounded report; if earlier data exceeds retention/frame limits,
+the report states this explicitly. Starting a fresh voice session clears its report.

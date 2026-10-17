@@ -88,3 +88,12 @@ rtk proxy make reset-data
 `start` creates a private `.env` from `.env.example` only when missing, starts PostgreSQL, waits for readiness, applies migrations, imports the demo seed and grants the local read-only login. Repeated imports of the same seed are idempotent. `stop` and `restart` retain the database volume; `restart` does not reseed it. `reset-data` deletes this project's local database volume, then rebuilds the schema/seed/login. It removes custom data, maintainer sessions and extra database logins; recreate optional backoffice logins afterward. Stop any app using this database before resetting it.
 
 Use `rtk proxy make status`, `rtk proxy make logs` or `rtk proxy make help` for inspection. The aliases `infra-start`, `infra-stop`, `infra-restart` and `infra-reset-data` are also available. These commands manage the fixed `prompt-shop` Compose project and its PostgreSQL service, not the Go server, portal, ADK, Laya or GCP. Imports always use loopback and the local `POSTGRES_*` settings, ignoring a caller's `OPERATOR_DATABASE_URL`. If you customize `.env`, keep `DATABASE_URL` consistent with your local reader login; the supplied login script creates `prompt_shop_reader` with the development password from the template.
+
+
+Monti can summarize the items discussed in the current voice session. Say
+“Summarize my items and their locations” to open a visual report grouped by aisle
+and shelf, with unresolved requests listed separately. After a completed reply and
+more than 10 seconds of quiet, Monti offers a summary once per new item lookup.
+Accept by voice or Yes, summarize; No thanks dismisses it. End voice keeps the
+report available; a new voice session, reload or logout clears it. Locations are
+last verified catalog snapshots; Locate fetches current directions.

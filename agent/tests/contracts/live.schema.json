@@ -678,6 +678,109 @@
       ],
       "additionalProperties": false,
       "description": "Password length is additionally checked in UTF-8 bytes (16-72); exact Origin required."
+    },
+    "SummaryEntry": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "status": {
+          "enum": [
+            "confirmed",
+            "needs_choice",
+            "not_found",
+            "unconfirmed"
+          ]
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "products": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/Product"
+          }
+        }
+      },
+      "required": [
+        "query",
+        "status",
+        "catalog_version",
+        "products"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "confirmed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "not_found"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "needs_choice"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "minItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unconfirmed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "oneOf": [
@@ -1109,7 +1212,43 @@
         "session_id"
       ],
       "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "summary"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "entries": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/SummaryEntry"
+          }
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "requested": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "session_id",
+        "turn_id",
+        "entries",
+        "truncated",
+        "requested"
+      ],
+      "additionalProperties": false
     }
   ],
-  "description": "Binary PCM is outside JSON Schema. Server events: ready, input_transcript, output_transcript, candidates, route, audio_start, audio_end, interrupted, turn_complete, error, session_ending, pong. Browser: text/select/stop/ping. All session IDs must match the active socket."
+  "description": "Binary PCM is outside JSON Schema. Server events: ready, input_transcript, output_transcript, candidates, route, summary, audio_start, audio_end, interrupted, turn_complete, error, session_ending, pong. Browser: text/select/stop/ping. All session IDs must match the active socket."
 }
