@@ -38,7 +38,11 @@ func run() int {
 	defer pool.Close()
 	checks := []httpserver.Check{httpserver.DatabaseCheck(pool)}
 	if cfg.ReadinessMode == "full" {
-		checks = append(checks, httpserver.SidecarCheck("http://127.0.0.1:8001/healthz"), httpserver.SidecarCheck("http://127.0.0.1:8003/healthz"))
+		checks = append(checks, httpserver.SidecarCheck("http://127.0.0.1:8001/healthz"))
+		// Gemini Embedding 2 runs inside ADK. Laya is not a readiness dependency then.
+		if os.Getenv("INTENT_BACKEND") != "embedding" {
+			checks = append(checks, httpserver.SidecarCheck("http://127.0.0.1:8003/healthz"))
+		}
 	}
 	deps := httpserver.Dependencies{Checks: checks, ReadinessMode: cfg.ReadinessMode}
 	catalogService := catalog.NewService(pool)

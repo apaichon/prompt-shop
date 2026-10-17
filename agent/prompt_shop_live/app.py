@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import asyncio
 import importlib
 import logging
@@ -53,7 +54,27 @@ def create_app(classifier=None, *, runtime=None):
             return
         await engine.serve(ws, setup)
 
-    app = Starlette(routes=[Route("/healthz", health), WebSocketRoute("/live", live)])
+    @asynccontextmanager
+    async def lifespan(app):
+        # Prototype vectors are cached before the first shopper turn. The key and
+        # sentence stay out of this line. A warm failure leaves the process up.
+        if os.environ.get("INTENT_BACKEND") == "embedding":
+            print("intent_backend=embedding model=gemini-embedding-2", flush=True)
+            try:
+                router = importlib.import_module("tools.embedding_router")
+                await router.default_router().warm()
+                print("intent_backend=embedding warm=ready", flush=True)
+            except Exception:
+                print("intent_backend=embedding warm=error", flush=True)
+        try:
+            yield
+        finally:
+            if os.environ.get("INTENT_BACKEND") == "embedding":
+                router = importlib.import_module("tools.embedding_router")
+                if router._router is not None:
+                    await router._router.embedder.aclose()
+
+    app = Starlette(routes=[Route("/healthz", health), WebSocketRoute("/live", live)], lifespan=lifespan)
     app.state.runtime = engine
     return app
 

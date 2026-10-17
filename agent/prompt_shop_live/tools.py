@@ -122,6 +122,16 @@ class ShopperTool(BaseTool):
                 return result
         if self.host.turn != turn or self.host.failed:
             return tool_error("STALE_SELECTION")
+        result = await self._dispatch(call, args)
+        if self.host.turn != turn or self.host.failed:
+            return tool_error("STALE_SELECTION")
+        if not self.host.audio_allowed:
+            await self.host.allow_response(turn)
+        return result
+
+    async def _dispatch(self, call, args):
+        if getattr(self.host, "label_gate", False):
+            return await self._dispatch_label(call, args)
         if self.name == "summarize_items":
             return await call("get_conversation_summary", {})
         if self.name == "begin_conversation":
@@ -136,3 +146,36 @@ class ShopperTool(BaseTool):
             return tool_error("INVALID_RESPONSE")
         route = await call("get_product_route", {"product_id": candidates[0]["id"], "search_id": search["search_id"]})
         return {"search": search, "route": route}
+
+    async def _dispatch_label(self, call, args):
+        """The embedding label chooses the tool. Laya revisions never reach here."""
+        intent = self.host.intent
+        if self.host.abstained or intent in (None, "out_of_scope"):
+            return {"acknowledged": True, "next_action": "If this was a product request, ask the shopper to repeat one item name or use typed search. Otherwise answer briefly in English. No store facts were verified; do not invent locations or availability."}
+        if intent == "summarize":
+            return await call("get_conversation_summary", {})
+        if intent == "repeat_directions":
+            route = getattr(self.host, "session_route", None)
+            if not route:
+                return {"acknowledged": True, "next_action": "There is no current route to repeat."}
+            return await call("get_product_route", {"product_id": route["product_id"], "search_id": route["search_id"]})
+        if intent == "select_item":
+            results = getattr(self.host, "session_results", None) or {}
+            product_id = args.get("product_id")
+            search_id = args.get("search_id")
+            if product_id not in results.get("ids", ()) or search_id != results.get("search_id"):
+                return {"acknowledged": True, "next_action": "Ask the shopper to choose one of the current results. Do not search again."}
+            return await call("get_product_route", {"product_id": product_id, "search_id": search_id})
+        if intent == "find_item":
+            query = (args.get("query") or args.get("text") or "").strip()[:200]
+            if not query:
+                return {"acknowledged": True, "next_action": "Ask which product to find."}
+            search = await call("search_catalog", {"query": query})
+            if "error" in search or search.get("ambiguous") or not search.get("candidates"):
+                return search
+            candidates = search["candidates"]
+            if len(candidates) != 1 or not search.get("search_id"):
+                return tool_error("INVALID_RESPONSE")
+            route = await call("get_product_route", {"product_id": candidates[0]["id"], "search_id": search["search_id"]})
+            return {"search": search, "route": route}
+        return {"acknowledged": True, "next_action": "If this was a product request, ask the shopper to repeat one item name or use typed search. Otherwise answer briefly in English. No store facts were verified; do not invent locations or availability."}

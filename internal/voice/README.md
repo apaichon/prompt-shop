@@ -84,3 +84,12 @@ snapshots; explicit recap emits requested=true. Bridge/provider frames cannot
 supply summary facts. Entry fields: query,status,catalog_version,products. Statuses:
 confirmed,needs_choice,not_found,unconfirmed. Max 50 records and 48 KB snapshot; truncated
 states discarded earlier history. Close clears memory. No database writes.
+
+
+TASK-0022 adds a private ADK-to-Go `response_ready` event carrying only
+`session_id`, `turn_id`, and `classification_attempt_id`. After a bounded shopper
+flow finishes with a clarification or tool error, ADK sends this control before
+any audio. Go accepts it only for the current, classified, unfailed turn and does
+not forward it to the browser. It releases speech but never creates catalog,
+route, or summary facts. Public browser controls cannot send this event. Both
+services must be restarted together when installing this amendment.

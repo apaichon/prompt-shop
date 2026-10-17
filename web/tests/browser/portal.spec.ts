@@ -354,7 +354,7 @@ test('speaker mode blocks feedback PCM, offers Interrupt, and retains the choice
   const panel = page.locator('.desktop-voice');
   await expect(panel.getByRole('button', {name:'Speaker mode on',exact:true})).toHaveAttribute('aria-pressed','true');
   await f.start(); f.send('audio_start'); f.binary();
-  await expect(panel).toContainText('Mic paused for speakers');
+  await expect(panel).toContainText('Mic paused for reply');
   await page.evaluate(() => (window as any).__captureNode.port.onmessage({data:new Int16Array(1280).fill(2000).buffer}));
   await expect.poll(() => f.messages.filter(Buffer.isBuffer).length).toBe(1);
   expect(f.messages.filter(Buffer.isBuffer)[0].every(n => n === 0)).toBe(true);
@@ -373,7 +373,7 @@ test('mobile speaker mode has a reachable Interrupt in the minimized dock and sh
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('button',{name:'Speaker mode on',exact:true})).toHaveAttribute('aria-pressed','true');
   await f.start(dialog); f.send('audio_start'); f.binary();
-  await expect(dialog).toContainText('Mic paused for speakers');
+  await expect(dialog).toContainText('Mic paused for reply');
   await dialog.getByRole('button',{name:'Minimize'}).click();
   const dock = page.locator('.mobile-voice-dock');
   await expect(dock).toContainText('Mic paused');
@@ -447,4 +447,30 @@ test('a requested empty summary opens and focuses the report outside the mobile 
  await page.setViewportSize({width:320,height:900});const f=await fixture(page);await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();await f.start(page.getByRole('dialog',{name:'Voice assistant'}));
  f.send('summary',{session_id:'fixture-session',turn_id:'turn-1',entries:[],truncated:false,requested:true});
  await expect(page.getByRole('dialog',{name:'Voice assistant'})).not.toBeVisible();await expect(page.getByRole('heading',{name:'Items and locations'})).toBeFocused();await expect(page.getByText('No items have been looked up yet. Ask Monti to find an item first.')).toBeVisible();await expect(page.getByRole('region',{name:'Voice controls'}).getByRole('button',{name:'End voice',exact:true})).toBeVisible();
+});
+
+
+for(const width of [390,1440]) test(`unique search automatically highlights its verified location at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await fixture(page);
+ await page.getByRole('textbox',{name:'Item name'}).fill('whole milk');
+ await page.getByRole('textbox',{name:'Item name'}).press('Enter');
+ await expect(page.getByTestId('route-path')).toBeVisible();
+ await expect(page.locator('.aisle.selected')).toHaveCount(1);
+ await expect(page.locator('.product-card.chosen')).toContainText('Whole milk');
+ await expect(page.locator('.destination-strip')).toContainText('Shelf 3');
+});
+
+test('a verified voice route reveals the mobile map while voice stays connected',async({page})=>{
+ await page.setViewportSize({width:390,height:900});const f=await fixture(page);
+ await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Voice assistant'});await f.start(dialog);
+ f.send('candidates');f.send('route');
+ await expect(dialog).not.toBeVisible();await expect(page.getByTestId('route-path')).toBeVisible();
+ await expect(page.locator('#route-heading')).toBeFocused();
+ await page.getByRole('button',{name:'Open voice assistant',exact:true}).click();
+ f.send('interrupted',{turn_id:'turn-2',generation_id:'generation-2'});
+ await expect(dialog).toBeVisible();
+ await dialog.getByRole('button',{name:'Minimize'}).click();
+ await expect(page.getByRole('region',{name:'Voice controls'}).getByRole('button',{name:'End voice',exact:true})).toBeVisible();
+ expect(f.tickets()).toBe(1);
 });

@@ -5,13 +5,13 @@ title: "Deploy the item-finding voice prototype by 16 October"
 status: "proposed"
 owner: "pm-agent"
 created: "2026-10-13"
-updated: "2026-10-13"
+updated: "2026-10-17"
 risk: "high"
 risk_notes: "Three delivery days remain after planning; validate speech and cloud access on day one."
 horizon: "2026-10-13 through 2026-10-18, Asia/Bangkok"
 outcome: "A deployed English voice demo returns grounded item locations and a walkable route from a known starting point."
 success_metrics: ["GCP deployment accepted by 2026-10-16 17:00 Asia/Bangkok (proposed cutoff)", "At least 27 of 30 supported English prompts return the correct item in the first three choices", "Zero fabricated aisle or shelf locations in the acceptance set", "Gemini Live 3.8 native voice: p95 at most 5 seconds to actionable speech and 8 seconds to verified card from user speech end across 30 warm trials", "Submission package ready on 17 October; submit on 18 October"]
-related: ["REQ-0001", "REQ-0002", "REQ-0003", "REQ-0004", "REQ-0005", "REQ-0006"]
+related: ["REQ-0001", "REQ-0002", "REQ-0003", "REQ-0004", "REQ-0005", "REQ-0006", "ROADMAP-0002"]
 ---
 
 # Roadmap: A shopper finds the right shelf quickly

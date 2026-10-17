@@ -251,3 +251,29 @@ func TestSpeechEnergyMatchesBrowserRMSBoundary(t *testing.T) {
 		}
 	}
 }
+
+func TestResponseReadyRequiresCurrentClassifiedUnfailedTurn(t *testing.T) {
+	s := NewSession(context.Background(), "session", "en-US", nil)
+	defer s.Close()
+	turn := s.BeginTurn()
+	attempt := "classification-attempt-0001"
+	if s.AllowResponse(turn, attempt) == nil {
+		t.Fatal("unclassified reply allowed")
+	}
+	classify(t, s)
+	if s.AllowResponse(turn, "wrong") == nil || s.AudioAllowed(turn) {
+		t.Fatal("wrong classification allowed")
+	}
+	if s.AllowResponse(turn, attempt) != nil || !s.AudioAllowed(turn) {
+		t.Fatal("clarification blocked")
+	}
+	next := s.BeginTurn()
+	if s.AllowResponse(turn, attempt) == nil || s.AudioAllowed(next) {
+		t.Fatal("stale reply revived")
+	}
+	classify(t, s)
+	s.FailTurn(next)
+	if s.AllowResponse(next, attempt) == nil || s.AudioAllowed(next) {
+		t.Fatal("failed turn revived")
+	}
+}

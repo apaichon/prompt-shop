@@ -196,3 +196,11 @@
 .speaker-mode-toggle[aria-pressed="true"]{background:#e5efff;border-color:#0057d9}
 .speaker-mode-help{font-size:12px;line-height:1.5;color:#526b92;margin:8px auto;max-width:290px}
 @media(max-width:1199px){.mobile-voice-dock:has(.dock-interrupt){flex-wrap:wrap}.dock-interrupt{order:3;width:100%}.shop-portal:has(.dock-interrupt) .monti-main{padding-bottom:170px}}
+
+.map-choices{display:grid;gap:6px;padding:0 16px 14px}
+.map-choices button{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;min-height:44px;padding:10px 12px;border:1px solid #dce6f7;border-radius:8px;background:#fff;color:#233c5b;text-align:left;font:inherit;font-size:12px;cursor:pointer}
+.map-choices button[aria-pressed="true"]{border-color:#0057d9;background:#edf4ff}
+.map-choices button:focus-visible{outline:3px solid #0057d9;outline-offset:2px}
+.map-choices span{font-size:11px}
+
+.sound-muted-notice{color:#8b3500;background:#fff1df;border:1px solid #dfb783;border-radius:8px;padding:8px;font-size:12px;line-height:1.5;text-align:center}

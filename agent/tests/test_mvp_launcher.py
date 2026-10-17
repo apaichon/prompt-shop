@@ -29,6 +29,8 @@ class LocalMVP(unittest.TestCase):
             self.assertNotIn("GOOGLE_API_KEY", intent)
             self.assertEqual(agent["GOOGLE_API_KEY"], "synthetic-private-key")
             self.assertEqual((agent["GEMINI_MODEL"], agent["GEMINI_VOICE"]), ("gemini-configured-live", "Aoede"))
+            self.assertEqual(agent["INTENT_BACKEND"], "embedding")
+            self.assertEqual(go["INTENT_BACKEND"], "embedding")
             self.assertEqual(go["ADK_BRIDGE_SECRET"], agent["ADK_BRIDGE_SECRET"])
             self.assertGreaterEqual(len(agent["ADK_BRIDGE_SECRET"]), 32)
             self.assertEqual(intent["LAYA_INTERNAL_TOKEN"], agent["LAYA_INTERNAL_TOKEN"])
@@ -40,6 +42,9 @@ class LocalMVP(unittest.TestCase):
                 self.assertNotIn("OPERATOR_DATABASE_URL", scoped)
                 self.assertEqual("GOOGLE_API_KEY" in scoped, role == "adk")
                 self.assertEqual("DATABASE_URL" in scoped, role == "go")
+                self.assertEqual(scoped.get("INTENT_BACKEND"), "embedding" if role in {"adk", "go"} else None)
+            saved = module.service_env("adk", {"INTENT_BACKEND": "laya", "GOOGLE_API_KEY": "synthetic-provider-key"})
+            self.assertEqual(saved.get("INTENT_BACKEND"), "laya")
 
     def test_stop_preserves_a_foreign_process_reusing_saved_pid(self):
         module = self.load()
@@ -52,3 +57,11 @@ class LocalMVP(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     module.stop()
                 kill.assert_not_called()
+
+
+    def test_backend_services_only_start_laya_for_explicit_rollback(self):
+        module = self.load()
+        self.assertEqual(module.backend_services("embedding"), ("adk", "go"))
+        self.assertEqual(module.backend_services("laya"), ("laya", "adk", "go"))
+        with self.assertRaises(RuntimeError):
+            module.backend_services("typo")

@@ -81,6 +81,10 @@ class Classifier:
 
 async def classify_intent(text: str) -> dict:
     # Endpoint/model/schema are server-owned; none is exposed in tool arguments.
+    # Laya stays the default so REQ-0006 can still call the pinned checkpoint.
+    if os.environ.get("INTENT_BACKEND", "laya") == "embedding":
+        import tools.embedding_router as embedding_router
+        return await embedding_router.classify_text(text)
     try:
         classifier=Classifier(os.environ.get("LAYA_INTERNAL_TOKEN",""))
     except ValueError:

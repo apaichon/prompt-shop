@@ -1,9 +1,12 @@
 import asyncio
 import logging
+import os
 import secrets
 from collections.abc import Awaitable, Callable
 
 import httpx
+
+from tools.router_state import router_state
 
 from .protocol import tool_error
 
@@ -23,6 +26,12 @@ class ToolHost:
         self.failed = False
         self.counts = {}
         self.flows = set()
+        self.intent = None
+        self.abstained = False
+        self.label_gate = False
+        self.turn_results = None
+        self.session_results = None
+        self.session_route = None
 
     def begin(self, turn):
         if not isinstance(turn, str) or not turn.startswith("turn-") or int(turn[5:]) <= int(self.turn[5:]):
@@ -31,6 +40,12 @@ class ToolHost:
             task.cancel()
         self.turn, self.attempt = turn, None
         self.classified = self.audio_allowed = self.failed = False
+        self.intent = None
+        self.abstained = False
+        self.label_gate = False
+        self.turn_results = None
+        # Current results and the current route survive the turn so a later
+        # selection or repeat can see them. begin() only clears this turn.
         self.counts = {}
         self.flows = set()
         self.ack = asyncio.Event()
@@ -66,6 +81,8 @@ class ToolHost:
         try:
             if self.closed or self.failed or turn != self.turn or turn == "turn-0":
                 return tool_error("STALE_SELECTION")
+            if name != "classify_intent" and self.label_gate and not self._label_allows(name, args):
+                return tool_error("TOOL_NOT_ALLOWED")
             count = self.counts.get(name, 0)
             if count >= (2 if name == "search_catalog" else 1):
                 return tool_error("RATE_LIMITED")
@@ -75,13 +92,27 @@ class ToolHost:
                 if not isinstance(response_mode, str) or response_mode not in {"conversation", "catalog"}:
                     return tool_error("INVALID_REQUEST")
                 self.attempt = secrets.token_urlsafe(24)
+                state_token = router_state.set({
+                    "has_results": bool(self.session_results and self.session_results.get("ids")),
+                    "has_route": self.session_route is not None,
+                })
                 try:
-                    async with asyncio.timeout(1.2):
-                        result = await self.classify(args["text"])
-                except (TimeoutError, httpx.HTTPError):
-                    result = {"schema_version": "intent-v1", "intent": None, "confidence": None,
-                              "margin": None, "abstained": True, "reason": "unavailable", "model_revision": "unavailable"}
-                validate_classification(result)
+                    try:
+                        async with asyncio.timeout(2.75 if os.environ.get("INTENT_BACKEND") == "embedding" else 1.2):
+                            result = await self.classify(args["text"])
+                    except (TimeoutError, httpx.HTTPError):
+                        result = {"schema_version": "intent-v1", "intent": None, "confidence": None,
+                                  "margin": None, "abstained": True, "reason": "unavailable", "model_revision": "unavailable"}
+                    validate_classification(result)
+                finally:
+                    router_state.reset(state_token)
+                revision = result["model_revision"]
+                embedding = isinstance(revision, str) and revision.startswith("gemini-embedding-2")
+                # Go unlocks speech from this mode. Abstain and out of scope must
+                # speak without a tool; every other embedding label waits for Go.
+                if embedding:
+                    spoken_only = result["abstained"] or result["intent"] in (None, "out_of_scope")
+                    response_mode = "conversation" if spoken_only else "catalog"
                 if turn != self.turn or self.failed:
                     return tool_error("STALE_SELECTION")
                 await self.send({"type": "classification_completed", "session_id": self.setup.session_id,
@@ -93,6 +124,9 @@ class ToolHost:
                 if turn != self.turn or self.failed:
                     return tool_error("STALE_SELECTION")
                 self.classified = True
+                self.intent = result["intent"]
+                self.abstained = result["abstained"]
+                self.label_gate = embedding
                 # Laya's four shopping labels are advisory, including abstention.
                 # A conversation has no store facts to verify before replying.
                 self.audio_allowed = response_mode == "conversation"
@@ -116,6 +150,7 @@ class ToolHost:
             if turn != self.turn or self.closed or self.failed:
                 return tool_error("STALE_SELECTION")
             if "error" not in result:
+                self._remember(name, args, result)
                 if name in {"get_product_route", "get_conversation_summary"} or result.get("ambiguous") or not result.get("candidates"):
                     self.audio_allowed = True
             return result
@@ -123,6 +158,52 @@ class ToolHost:
             raise
         except (ValueError, TimeoutError, httpx.HTTPError):
             return tool_error("DEPENDENCY_UNAVAILABLE")
+
+    async def allow_response(self, turn):
+        # Private bridge metadata precedes audio on the same ordered socket.
+        # This releases a clarification/error reply after the bounded flow ends.
+        if self.closed or self.failed or turn != self.turn or not self.classified or not self.ack.is_set():
+            return
+        await self.send({"type": "response_ready", "session_id": self.setup.session_id,
+                         "turn_id": turn, "classification_attempt_id": self.attempt})
+        if turn == self.turn and not self.failed and not self.closed:
+            self.audio_allowed = True
+
+    def _label_allows(self, name, args):
+        if self.abstained or self.intent in (None, "out_of_scope"):
+            return False
+        if self.intent == "summarize":
+            return name == "get_conversation_summary"
+        if self.intent == "find_item" and name == "search_catalog":
+            return True
+        if self.intent == "find_item" and name == "get_product_route" and self.turn_results:
+            return (args.get("product_id") in self.turn_results["ids"]
+                    and args.get("search_id") == self.turn_results["search_id"])
+        if self.intent == "select_item" and name == "get_product_route" and self.session_results:
+            return (args.get("product_id") in self.session_results["ids"]
+                    and args.get("search_id") == self.session_results["search_id"])
+        if self.intent == "repeat_directions" and name == "get_product_route" and self.session_route:
+            return (args.get("product_id") == self.session_route["product_id"]
+                    and args.get("search_id") == self.session_route["search_id"])
+        return False
+
+    def _remember(self, name, args, result):
+        if name == "search_catalog":
+            candidates = result.get("candidates")
+            search_id = result.get("search_id")
+            if isinstance(candidates, list) and isinstance(search_id, str) and search_id:
+                ids = [item["id"] for item in candidates
+                       if isinstance(item, dict) and isinstance(item.get("id"), str) and item["id"]]
+                remembered = {"search_id": search_id, "ids": ids}
+                self.turn_results = remembered
+                self.session_results = remembered
+                # Go replaces candidate membership on every search, even no match.
+                self.session_route = None
+        elif name == "get_product_route":
+            product_id = args.get("product_id")
+            search_id = args.get("search_id")
+            if isinstance(product_id, str) and product_id and isinstance(search_id, str) and search_id:
+                self.session_route = {"product_id": product_id, "search_id": search_id}
 
     async def close(self):
         self.closed = True
@@ -138,12 +219,19 @@ def validate_classification(result):
         raise ValueError("invalid classification")
     if type(result["abstained"]) is not bool or not isinstance(result["model_revision"], str):
         raise ValueError("invalid classification")
-    if result["intent"] not in (None, "find_item", "select_item", "repeat_directions", "out_of_scope"):
+    if result["intent"] not in (None, "find_item", "select_item", "repeat_directions", "summarize", "out_of_scope"):
         raise ValueError("invalid classification")
     for key in ("confidence", "margin"):
         n = result[key]
         if n is not None and (type(n) not in (int, float) or not 0 <= n <= 1):
             raise ValueError("invalid classification")
-    if not result["abstained"] and (result["intent"] is None or result["confidence"] is None or
-            result["confidence"] < .7 or result["margin"] is None or result["margin"] < .15):
+    embedding = result["model_revision"].startswith("gemini-embedding-2@")
+    confidence_min, margin_min = (.75, .05) if embedding else (.7, .15)
+    strong_find = (embedding and result["intent"] == "find_item"
+                   and result["confidence"] is not None and result["confidence"] >= .80)
+    if result["abstained"]:
+        if result["intent"] is not None or result["reason"] not in {"low_confidence", "timeout", "busy", "error", "unavailable"}:
+            raise ValueError("invalid classification")
+    elif (result["intent"] is None or result["reason"] is not None or result["confidence"] is None
+          or result["confidence"] < confidence_min or result["margin"] is None or (result["margin"] < margin_min and not strong_find)):
         raise ValueError("invalid classification")

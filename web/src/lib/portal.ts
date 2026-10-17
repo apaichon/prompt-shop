@@ -59,6 +59,16 @@ export class Portal {
       this.patch({ candidates: result.candidates, loading: false, searched: true,
         message: result.candidates.length ? (result.ambiguous ? 'Choose the item you mean.' : 'Found in the store catalog.') : 'No matching items. Try another name or ask a store colleague.' });
       this.focus('results-heading');
+      if (!result.ambiguous && result.candidates.length === 1) {
+        // A unique typed match should locate itself just like a voice match.
+        const product = result.candidates[0];
+        this.patch({ loading: true, location: product });
+        try {
+          const route = await this.api.route(product.id, abort.signal);
+          if (route.product.id !== product.id) throw new ApiError('INVALID_RESPONSE');
+          await this.commitRoute(route, key, abort, false);
+        } catch (error) { this.routeError(error, key, product); }
+      }
     } catch (error) {
       if (!this.current(key)) return;
       if (error instanceof ApiError && error.retryAfter) this.cooldown = Date.now() + error.retryAfter * 1000;
@@ -69,7 +79,7 @@ export class Portal {
     if (!this.state.candidates.some((p) => p.id === product.id)) return;
     if (this.voiceActive && this.state.source === 'voice' && this.state.searchID) {
       if (this.voice.select(this.state.searchID, product.id)) {
-        this.clicked = product.id; this.patch({ loading: true, routeMessage: 'Finding directions…' });
+        this.clicked = product.id; this.patch({ loading: true, location: product, route: null, routeMessage: 'Finding directions…' });
         return;
       }
     }
@@ -112,7 +122,7 @@ export class Portal {
     if (!routeMatchesMap(route, map)) {
       this.patch({ map, mapLoading: false, loading: false, mapError: '', route: null, location: route.product, routeMessage: 'Map updated; try again. No route is shown until the map matches.' });
     } else {
-      this.patch({ map, mapLoading: false, mapError: '', route, location: route.product, loading: false, routeMessage: '',
+      this.patch({ map, mapLoading: false, mapError: '', route, location: route.product, loading: false, routeMessage: '', message: 'Item located. Follow the highlighted route from the entrance.',
         candidates: this.state.candidates.map((p) => p.id === route.product.id ? route.product : p) });
     }
     if (explicit) this.focus('route-heading');
@@ -124,7 +134,8 @@ export class Portal {
     } else if (event.type === 'candidates') {
       this.invalidate(); this.clicked = null;
       this.patch({ candidates: event.candidates, searchID: event.search_id, source: 'voice', searched: true, query: '',
-        route: null, location: null, routeMessage: '', message: event.candidates.length ? 'Say an item name to choose, or select Show route.' : 'No matching items. Try another name or type an item.' });
+        route: null, location: event.candidates.length === 1 ? event.candidates[0] : null,
+        routeMessage: '', message: event.candidates.length === 1 ? 'Found your item. Loading its location…' : event.candidates.length ? 'Say an item name to choose, or select Show route.' : 'No matching items. Try another name or type an item.' });
     } else if (event.type === 'route') {
       if (event.search_id !== this.state.searchID || !this.state.candidates.some((p) => p.id === event.product.id)) return;
       this.invalidate(); const key = this.epoch; const abort = new AbortController(); this.request = abort;
