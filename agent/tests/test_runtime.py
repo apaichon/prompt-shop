@@ -638,3 +638,22 @@ async def test_withheld_completed_reply_recovers_promptly_with_whole_request(mon
     finally:
         bridge.control("stop")
         await asyncio.wait_for(task, 5)
+
+
+async def test_session_deadline_cleans_up_the_provider_and_resources(monkeypatch):
+    import prompt_shop_live.runtime as module
+    assert module.SESSION_SECONDS == 600
+    monkeypatch.setattr(module, "SESSION_SECONDS", .2)
+    monkeypatch.setenv("GOOGLE_API_KEY", "fixture-key-never-sent")
+    socket = ProviderSocket()
+    @contextlib.asynccontextmanager
+    async def connect(*args, **kwargs):
+        yield socket
+    monkeypatch.setattr(live, "ws_connect", connect)
+    runtime = Runtime(classifier)
+    bridge = Bridge("ten-minute-expiry-fixture")
+    task = asyncio.create_task(runtime.serve(bridge, setup(bridge.sid)))
+    await asyncio.wait_for(bridge.ready.wait(), 5)
+    await asyncio.wait_for(task, 5)
+    assert bridge.closed and runtime.active == 0 and runtime.cleanups == 1
+    assert any(isinstance(e, dict) and e.get("type") == "error" for e in bridge.output)

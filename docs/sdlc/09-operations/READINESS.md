@@ -79,7 +79,7 @@ rtk proxy curl --silent --show-error --include --max-time 10 https://APPROVED_HO
 1. Interrupt a spoken answer with another item request. Obsolete playback must stop; delayed tools/cards from the earlier turn must not replace the new selection.
 2. Disconnect the network during a turn, restore it and use the explicit restart control. Confirm old capture/playback/queued audio stops, resources are released, and reconnect creates a fresh ticket/session with no recorded-turn replay.
 3. Deny microphone permission in a fresh browser context. Confirm a clear recovery message and usable typing. Restore permission and deliberately start a new session. Separately test playback denial/unsupported capture as described in [TEST-0002](../07-tests/TEST-0002.md).
-4. Measure separate setup, idle and session-expiry cases: setup bounded by 30 seconds, idle by 60 seconds and application session by 300 seconds from ready; confirm the configured outer Cloud Run timeout is 360 seconds. Observe a visible expiry/restart state and release of provider/admission resources.
+4. Measure separate setup, idle and session-expiry cases: setup bounded by 30 seconds, idle by 60 seconds and application session by 600 seconds from ready; confirm the configured outer Cloud Run timeout is 660 seconds. Observe a visible expiry/restart state and release of provider/admission resources.
 
 5. During a complete reply, stay quiet and leave a short pause before the next
    question. Quiet background input must not silently discard the reply. Ask a
@@ -192,7 +192,7 @@ DevOps / QA review and time:
 - [ ] Startup order is model-warmed Laya → ADK import/config readiness → Go. ADK probe does not call Go, Laya or provider. `/live` rejects wrong bridge tokens; tool callbacks reject expired/mismatched capabilities; `/classify` rejects missing/wrong internal token; no private listener is reachable through Fiber routing.
 - [ ] A native English voice turn calls a validated read-only tool, returns a real shelf/walkable route from the labeled entrance and speaks a grounded result. Interruption stops obsolete playback and prevents stale card/tool updates.
 - [ ] That normal voice flow uses real Laya classification, not a mock or Gemini-only bypass. Laya accepts 1–300 characters/fixed schema, one active inference and queue four; verify queue wait ≤200 ms and total deadline 1,200 ms, timeout abstention, no retry and stuck-worker cleanup.
-- [ ] Cloud Run timeout 360 seconds, app lifetime 300 seconds, setup 30 seconds and idle 60 seconds are tested; disconnect/reconnect creates a fresh session without replaying recorded audio.
+- [ ] Cloud Run timeout 660 seconds, app lifetime 600 seconds, setup 30 seconds and idle 60 seconds are tested; disconnect/reconnect creates a fresh session without replaying recorded audio.
 - [ ] Session/frame/buffer limits, active-session slots, provider quotas, runtime memory, aggregate SQL pool size and five-user demo concurrency are observed. Socket close releases the provider connection and admission slot.
 - [ ] Record CPU/RSS/startup peak for each container under load; do not reuse the old single-process 512 MiB assumption. Test sidecar loss, queue close, blocked callback cancellation and simultaneous SIGTERM drain below ten seconds.
 - [ ] A known good revision, matched image digests, ADK lock/bridge version and compatible schema/secret versions are recorded for rollback.
