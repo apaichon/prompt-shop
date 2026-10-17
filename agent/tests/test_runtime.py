@@ -237,9 +237,9 @@ async def test_actual_runner_sdk_wire_config_multipart_and_cleanup(monkeypatch, 
                 # The pinned Developer API SDK preserves snake_case inside speechConfig.
                 assert config["generationConfig"]["speechConfig"] == {"voice_config": {"prebuilt_voice_config": {"voice_name": selected_voice}}}
             declarations = [d for t in config["tools"] for d in t["functionDeclarations"]]
-            assert {d["name"] for d in declarations} == {"begin_conversation", "find_product", "select_product"}
+            assert {d["name"] for d in declarations} == {"begin_conversation", "find_product", "select_product", "summarize_items"}
             assert {d["name"]: d["behavior"] for d in declarations} == {
-                "begin_conversation": "BLOCKING", "find_product": "BLOCKING", "select_product": "BLOCKING"}
+                "begin_conversation": "BLOCKING", "find_product": "BLOCKING", "select_product": "BLOCKING", "summarize_items": "BLOCKING"}
             assert all("additional_properties" not in d["parameters"] and "additionalProperties" not in d["parameters"] for d in declarations)
             assert "inputAudioTranscription" in config and "outputAudioTranscription" in config
             wire = json.dumps(config)

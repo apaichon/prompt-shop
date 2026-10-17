@@ -37,11 +37,21 @@ export const errorSchema = z.object({ error: z.object({
   code: z.string().max(80), message: z.string().max(500), retryable: z.boolean(),
   details: z.object({ product: productSchema }).strict().optional()
 }).strict(), request_id: z.string().max(128) }).strict();
+export const summaryEntrySchema = z.object({
+  query: z.string().min(1).max(200), status: z.enum(['confirmed','needs_choice','not_found','unconfirmed']),
+  catalog_version: version, products: z.array(productSchema).max(3)
+}).strict().superRefine((entry, ctx) => {
+  const valid = entry.status === 'confirmed' ? entry.products.length === 1 : entry.status === 'not_found' ? entry.products.length === 0 : entry.status === 'needs_choice' ? entry.products.length > 1 : entry.products.length > 0;
+  if (!valid) ctx.addIssue({code:'custom',message:'Summary status does not match products'});
+});
+export const summarySchema = z.object({entries:z.array(summaryEntrySchema).max(50),truncated:z.boolean()}).strict();
+export type ItemSummary = z.infer<typeof summarySchema>;
 const searchID = z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/);
 const envelope = { session_id: z.string().min(1).max(128) };
 const turn = { turn_id: z.string().regex(/^turn-(0|[1-9][0-9]{0,8})$/) };
 const generation = { generation_id: z.string().regex(/^generation-(0|[1-9][0-9]{0,8})$/) };
 export const eventSchema = z.discriminatedUnion('type', [
+  z.object({ ...envelope, ...turn, type:z.literal('summary'), ...summarySchema.shape, requested:z.boolean() }).strict(),
   z.object({ ...envelope, type: z.literal('ready'), expires_at: z.iso.datetime(), input_rate: z.literal(16000), output_rate: z.literal(24000) }).strict(),
   z.object({ ...envelope, ...turn, type: z.enum(['input_transcript', 'output_transcript']), text: z.string().max(8000), final: z.boolean() }).strict(),
   z.object({ ...envelope, ...turn, type: z.literal('candidates'), search_id: searchID, catalog_version: version, candidates: z.array(productSchema).max(3) }).strict(),

@@ -7,6 +7,7 @@ from google.genai import types
 from .protocol import text_arg, tool_error
 
 SCHEMAS = {
+    "get_conversation_summary": {},
     "classify_intent": {
         "text": "Shopper's completed semantic request, at most 300 characters.",
         "response_mode": "conversation for general chat, greetings or meal ideas; catalog for product matching, store availability, ingredients to locate or shelf directions.",
@@ -19,6 +20,7 @@ SCHEMAS = {
 class BlockingTool(BaseTool):
     def __init__(self, name, host):
         super().__init__(name=name, description={
+            "get_conversation_summary": "Return the current session verified item summary, without inventing locations.",
             "classify_intent": "Record advisory classification for each shopper turn and choose conversation or catalog response mode. General chat and meal suggestions do not need a product lookup.",
             "search_catalog": "Look up authoritative published catalog products. Never invent a result.",
             "get_product_route": "Get authoritative shelf directions for a selected current candidate.",
@@ -55,6 +57,7 @@ class BlockingTool(BaseTool):
 
 
 LIVE_SCHEMAS = {
+    "summarize_items": {"text": "The request to summarize discussed items, or acceptance of the summary offer, at most 300 characters."},
     "begin_conversation": {"text": "The completed greeting, general question or recipe request, at most 300 characters."},
     "find_product": {
         "text": "The completed shopper request (including a request to repeat), at most 300 characters.",
@@ -72,6 +75,7 @@ class ShopperTool(BaseTool):
     """One model call; required local classifier/search/route operations stay bounded."""
     def __init__(self, name, host):
         super().__init__(name=name, description={
+            "summarize_items": "Summarize all items and locations discussed in this session. Also use when shopper accepts the offered summary. Returns verified facts and displays the visual report. Never use general conversation for item summaries.",
             "begin_conversation": "Begin a general conversational reply. Call once, then answer promptly after acknowledgment. Never use for store locations or availability.",
             "find_product": "Find a store product and its verified directions in one operation. Also use for repeated directions. If ambiguous, ask the shopper to choose; if no match, say so.",
             "select_product": "Locate the shopper's choice from pending ambiguous candidates. Use the exact returned product/search IDs.",
@@ -118,6 +122,8 @@ class ShopperTool(BaseTool):
                 return result
         if self.host.turn != turn or self.host.failed:
             return tool_error("STALE_SELECTION")
+        if self.name == "summarize_items":
+            return await call("get_conversation_summary", {})
         if self.name == "begin_conversation":
             return {"acknowledged": True, "next_action": "Answer the shopper briefly in English now. Do not wait for more speech."}
         if self.name == "select_product":

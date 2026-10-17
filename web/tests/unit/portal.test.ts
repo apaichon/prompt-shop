@@ -267,3 +267,45 @@ describe('one-shot native welcome',()=>{
   const g=voiceFixture();await g.voice.start(g.audio,true);g.ready();g.socket.receive(event('error',{code:'TURN_TIMEOUT',message:'timeout',retryable:true}));expect(get(g.voice).active).toBe(false);expect(get(g.voice).message).toContain('Play welcome');
  });
 });
+
+
+describe('quiet summary follow-up',()=>{
+ const snapshot={type:'summary',session_id:'fixture-session',turn_id:'turn-1',entries:[{query:'milk',status:'confirmed',catalog_version:1,products:[search.candidates[0]]}],truncated:false,requested:false};
+ const texts=(f:ReturnType<typeof voiceFixture>)=>f.socket.send.mock.calls.map(([v])=>typeof v==='string'?JSON.parse(v):null).filter(v=>v?.type==='text');
+ async function reply(f:ReturnType<typeof voiceFixture>,turn=1){f.socket.receive(event('audio_start',{turn_id:`turn-${turn}`,generation_id:`generation-${turn}`}));f.socket.receive(new ArrayBuffer(640));f.socket.receive(event('turn_complete',{turn_id:`turn-${turn}`}));}
+ it('requires completion, drain and ten quiet seconds; offers once without summarizing or looping on decline',async()=>{
+  vi.useFakeTimers();const f=voiceFixture();await f.voice.start();f.ready();f.socket.receive(snapshot);await reply(f);
+  await vi.advanceTimersByTimeAsync(12000);expect(texts(f)).toHaveLength(0);f.audio.drain!();
+  await vi.advanceTimersByTimeAsync(9999);f.socket.receive(event('pong'));expect(texts(f)).toHaveLength(0);
+  await vi.advanceTimersByTimeAsync(501);expect(texts(f)).toHaveLength(1);expect(texts(f)[0].text).toContain('Do not summarize yet');expect(get(f.voice).summaryOffer).toBe(true);
+  f.socket.receive(event('interrupted',{turn_id:'turn-2',generation_id:'generation-2'}));await reply(f,2);f.audio.drain!();
+  await vi.advanceTimersByTimeAsync(11000);f.socket.receive(event('pong'));expect(texts(f)).toHaveLength(1);
+  f.socket.receive(event('interrupted',{turn_id:'turn-3',generation_id:'generation-3'}));f.socket.receive(event('input_transcript',{turn_id:'turn-3',text:'No thanks',final:true}));await reply(f,3);f.audio.drain!();
+  await vi.advanceTimersByTimeAsync(11000);f.socket.receive(event('pong'));expect(texts(f)).toHaveLength(1);expect(get(f.voice).summaryOffer).toBe(false);f.voice.stop();
+ });
+ it('quiet starts after a drained reply, ignores speech/noise and mute time, and only new lookup rearms',async()=>{
+  vi.useFakeTimers();const f=voiceFixture();await f.voice.start();f.ready();f.socket.receive(snapshot);await reply(f);f.audio.drain!();await vi.advanceTimersByTimeAsync(6000);
+  f.audio.frame!(new ArrayBuffer(640),true);await vi.advanceTimersByTimeAsync(6000);expect(texts(f)).toHaveLength(0);
+  f.voice.muteMicrophone();await vi.advanceTimersByTimeAsync(11000);f.socket.receive(event('pong'));expect(texts(f)).toHaveLength(0);f.voice.muteMicrophone();
+  await vi.advanceTimersByTimeAsync(10000);expect(texts(f)).toHaveLength(1);f.voice.stop();await vi.advanceTimersByTimeAsync(12000);expect(texts(f)).toHaveLength(1);
+ });
+ it('never offers on welcome, empty session, incomplete turn, errors or near expiry',async()=>{
+  vi.useFakeTimers();const f=voiceFixture();await f.voice.start();f.ready();await reply(f);f.audio.drain!();await vi.advanceTimersByTimeAsync(11000);expect(texts(f)).toHaveLength(0);
+  f.socket.receive(snapshot);f.socket.receive(event('error',{code:'TURN_TIMEOUT',message:'timeout',retryable:true}));await vi.advanceTimersByTimeAsync(11000);f.socket.receive(event('pong'));expect(texts(f)).toHaveLength(0);f.voice.stop();
+  const g=voiceFixture();await g.voice.start(g.audio,true);g.ready();g.socket.receive(snapshot);await reply(g);g.audio.drain!();await vi.advanceTimersByTimeAsync(11000);expect(texts(g)).toHaveLength(1);expect(texts(g)[0].text).toContain("I'm Monti");
+  const h=voiceFixture();await h.voice.start();h.socket.receive(event('ready',{expires_at:new Date(Date.now()+25000).toISOString()}));h.socket.receive(snapshot);await reply(h);h.audio.drain!();await vi.advanceTimersByTimeAsync(11000);expect(texts(h)).toHaveLength(0);h.voice.stop();
+ });
+ it('sound mute time cannot trigger a quiet offer, and unmute begins a fresh quiet interval',async()=>{
+  vi.useFakeTimers();const f=voiceFixture();await f.voice.start();f.ready();f.socket.receive(snapshot);await reply(f);f.audio.drain!();f.voice.muteSpeaker();await vi.advanceTimersByTimeAsync(11000);expect(texts(f)).toHaveLength(0);f.voice.muteSpeaker();await vi.advanceTimersByTimeAsync(10000);expect(texts(f)).toHaveLength(1);f.voice.stop();
+ });
+ it('requested summary suppresses a redundant quiet offer until another catalog lookup',async()=>{
+  vi.useFakeTimers();const f=voiceFixture();await f.voice.start();f.ready();f.socket.receive({...snapshot,requested:true});await reply(f);f.audio.drain!();await vi.advanceTimersByTimeAsync(11000);expect(texts(f)).toHaveLength(0);
+  f.socket.receive(event('interrupted',{turn_id:'turn-2',generation_id:'generation-2'}));f.socket.receive({...snapshot,turn_id:'turn-2'});await reply(f,2);f.audio.drain!();await vi.advanceTimersByTimeAsync(11000);expect(texts(f)).toHaveLength(1);f.voice.stop();
+ });
+ it('explicit summary sends bounded text through the existing session and rejects malformed/stale summary facts',async()=>{
+  const f=voiceFixture();expect(f.voice.requestSummary()).toBe(false);await f.voice.start();f.ready();f.socket.receive(snapshot);expect(f.callbacks.event).toHaveBeenCalledOnce();expect(f.voice.requestSummary()).toBe(true);
+  expect(texts(f)[0].text).toContain('summarize all');f.socket.receive(snapshot);expect(f.callbacks.event).toHaveBeenCalledOnce();
+  expect(eventSchema.safeParse({...snapshot,entries:[{...snapshot.entries[0],status:'not_found'}]}).success).toBe(false);
+  f.voice.stop();
+ });
+});

@@ -418,3 +418,16 @@ ADK/Gemini path, not a browser speech-synthesis substitute. Audio is prepared du
 the Sign in gesture following [Chrome Web Audio guidance](https://developer.chrome.com/blog/web-audio-autoplay).
 Browser permission and provider failures keep typed search and explicit Start voice
 available. No credentials, welcome audio or transcripts should enter test logs.
+
+
+## TASK-0020 manual summary check
+
+Use [the item summary conversation](../../CONVERSATION-TEST.md#item-summary-and-quiet-follow-up).
+Verify the report against the protected catalog: chosen items group by aisle and
+shelf, duplicate products collapse, unresolved matches/no-matches stay separate.
+Ask for a summary by voice, then perform another lookup and leave 10 seconds of quiet
+after actual playback ends. Accept/decline; ensure no offer loop. Repeat with mic
+muted, sound muted, pending reply, End voice, navigation and sign-out. No unsolicited
+welcome offer, background capture, new socket or repeated catalog polling is allowed.
+The report survives End voice but clears on a new voice session, reload or logout.
+Formal cloud, classifier and physical acoustic acceptance remain separate gates.

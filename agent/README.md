@@ -188,3 +188,14 @@ One intermediate spoken required-tool timeout remains recorded in TASK-0012 evid
 Recoverable `voice_turn_timeout` entries record only whether classification/search/
 route were attempted and classification completed. These booleans help distinguish
 missing required model calls from tool failure without exposing a shopper request.
+
+
+TASK-0020 adds BLOCKING summarize_items(text) for item/location recaps and acceptance
+of the quiet summary offer. It performs real Laya classification in catalog mode,
+waits for Go ACK, then reads get_conversation_summary with no model-supplied facts.
+Spoken recap uses this result; Go emits the visual report. A browser timer requests
+one conversational offer after complete local playout and 10 seconds of quiet, only
+with item history and unmuted active voice. No autonomous provider silence loop or
+new connection is introduced. Summary/decline does not rearm until another lookup.
+Opt-in probe: NATIVE_SUMMARY_TEST=1 with private NATIVE_ACCOUNTS_FILE, then
+node web/tests/native/conversation-summary.cjs. No raw speech/transcript is saved.

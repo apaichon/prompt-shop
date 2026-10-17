@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { Api, ApiError, errorMessage } from './api';
-import { routeMatchesMap, type StoreMap, type Product, type Route, type VoiceEvent } from './contracts';
+import { routeMatchesMap, type StoreMap, type Product, type Route, type VoiceEvent, type ItemSummary } from './contracts';
 import { VoiceClient } from './voice/client';
 import { cancelWelcome } from './voice/welcome';
 
@@ -8,11 +8,12 @@ export interface PortalState {
   map: StoreMap | null; mapError: string; mapLoading: boolean; candidates: Product[];
   route: Route | null; location: Product | null; loading: boolean; searched: boolean; query: string;
   message: string; routeMessage: string; searchID: string | null; source: 'typed' | 'voice';
-  focus: 'results-heading' | 'route-heading' | null; focusVersion: number;
+  summary: ItemSummary; summaryVisible: boolean;
+  focus: 'results-heading' | 'route-heading' | 'summary-heading' | null; focusVersion: number;
 }
 export class Portal {
   private state: PortalState = { map: null, mapError: '', mapLoading: true, candidates: [], route: null, location: null,
-    loading: false, searched: false, query: '', message: '', routeMessage: '', searchID: null, source: 'typed', focus: null, focusVersion: 0 };
+    loading: false, searched: false, query: '', message: '', routeMessage: '', searchID: null, source: 'typed', focus: null, focusVersion: 0, summary:{entries:[],truncated:false}, summaryVisible:false };
   private store = writable(this.state);
   subscribe = this.store.subscribe;
   readonly voice: VoiceClient;
@@ -28,7 +29,7 @@ export class Portal {
 
   constructor(private api = new Api(), voiceFactory = (callbacks: ConstructorParameters<typeof VoiceClient>[0]) => new VoiceClient(callbacks, api)) {
     this.voice = voiceFactory({ event: (event) => { void this.voiceEvent(event); }, turn: () => this.invalidate() });
-    this.unsubscribe = this.voice.subscribe((state) => { this.voiceActive = state.active; });
+    this.unsubscribe = this.voice.subscribe((state) => { if(this.voiceActive && !state.active && this.state.summary.entries.length) this.patch({summaryVisible:true}); this.voiceActive = state.active; });
   }
   private patch(patch: Partial<PortalState>) { this.state = { ...this.state, ...patch }; this.store.set(this.state); }
   private invalidate() { this.epoch++; this.request?.abort(); this.request = undefined; this.patch({ loading: false }); }
@@ -117,7 +118,10 @@ export class Portal {
     if (explicit) this.focus('route-heading');
   }
   private async voiceEvent(event: VoiceEvent) {
-    if (event.type === 'candidates') {
+    if (event.type === 'summary') {
+      this.patch({summary:{entries:event.entries,truncated:event.truncated},summaryVisible:event.requested || this.state.summaryVisible});
+      if(event.requested)this.focus('summary-heading');
+    } else if (event.type === 'candidates') {
       this.invalidate(); this.clicked = null;
       this.patch({ candidates: event.candidates, searchID: event.search_id, source: 'voice', searched: true, query: '',
         route: null, location: null, routeMessage: '', message: event.candidates.length ? 'Say an item name to choose, or select Show route.' : 'No matching items. Try another name or type an item.' });
@@ -129,7 +133,10 @@ export class Portal {
       catch (error) { this.routeError(error, key, route.product); }
     }
   }
-  startVoice() { cancelWelcome(); this.invalidate(); this.clicked = null; return this.voice.start(); }
+  showSummary() { this.voice.dismissSummaryOffer(); this.patch({summaryVisible:true}); this.focus('summary-heading'); }
+  hideSummary() { this.patch({summaryVisible:false}); }
+  acceptSummary() { this.showSummary(); if(this.voiceActive)this.voice.requestSummary(); }
+  startVoice() { if(!this.voiceActive)this.patch({summary:{entries:[],truncated:false},summaryVisible:false}); cancelWelcome(); this.invalidate(); this.clicked = null; return this.voice.start(); }
   stopVoice() { cancelWelcome(); this.invalidate(); this.voice.stop(); }
   destroy() { this.alive = false; this.stopVoice(); this.mapEpoch++; this.mapRequest?.abort(); this.unsubscribe(); this.voice.devices.destroy(); }
 }

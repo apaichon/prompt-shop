@@ -22,7 +22,7 @@ class LocalMVP(unittest.TestCase):
             (root / "intent/local/model-bundle").mkdir(parents=True)
             (root / "intent/local/model-bundle/model.safetensors").write_bytes(b"fixture, never loaded")
             (root / "agent/.env").write_text("GOOGLE_API_KEY=synthetic-private-key\nGEMINI_MODEL=gemini-configured-live\nGEMINI_VOICE=Aoede\nADK_BRIDGE_SECRET=too-short\n")
-            (root / ".env").write_text("PORT=8080\nPOSTGRES_PORT=55432\n")
+            (root / ".env").write_text("PORT=8080\nPOSTGRES_PORT=55432\nSHOPPER_AUTH_ENABLED=false\n")
             with patch.object(module, "ROOT", root):
                 go, agent, intent = module.configure()
             self.assertNotIn("GOOGLE_API_KEY", go)

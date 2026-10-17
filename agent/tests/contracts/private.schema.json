@@ -195,7 +195,10 @@
           "type": "string"
         },
         "response_mode": {
-          "enum": ["conversation", "catalog"]
+          "enum": [
+            "conversation",
+            "catalog"
+          ]
         },
         "result": {
           "$ref": "#/$defs/laya-response"
@@ -394,6 +397,159 @@
     },
     "route-tool-response": {
       "$ref": "#/$defs/RouteResponse"
+    },
+    "summary-callback": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "turn_id": {
+          "type": "string"
+        },
+        "call_id": {
+          "type": "string"
+        },
+        "classification_attempt_id": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "session_id",
+        "turn_id",
+        "call_id",
+        "classification_attempt_id",
+        "args"
+      ],
+      "additionalProperties": false
+    },
+    "SummaryEntry": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "status": {
+          "enum": [
+            "confirmed",
+            "needs_choice",
+            "not_found",
+            "unconfirmed"
+          ]
+        },
+        "catalog_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "products": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/Product"
+          }
+        }
+      },
+      "required": [
+        "query",
+        "status",
+        "catalog_version",
+        "products"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "confirmed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "not_found"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "needs_choice"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "minItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unconfirmed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "products": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "summary-tool-response": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/SummaryEntry"
+          }
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "entries",
+        "truncated"
+      ],
+      "additionalProperties": false
     }
   }
 }
