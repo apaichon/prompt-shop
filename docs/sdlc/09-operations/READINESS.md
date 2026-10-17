@@ -397,3 +397,24 @@ handout and optionally `NATIVE_USERNAME` (default demo02). Authentication uses t
 browser request context, so credentials never appear in DOM screenshots or logs.
 Do not enable trace/HAR collection with real credentials. Provider keys remain in
 `agent/.env`; shared login adds no browser provider secrets.
+
+
+## TASK-0019 login welcome — manual check
+
+1. Sign out and sign in on the shopper page. Monti should speak a short English
+   welcome using the configured Gemini model/voice; microphone permission must
+   not be requested and the regular Start voice control remains available.
+2. Let the full welcome drain. Its native connection must close; the regular
+   ten-minute conversation begins only when Start voice is chosen.
+3. Sign in again and test Skip welcome, logout, navigation, hidden page and Start
+   voice during playback. Each cancels the old greeting without overlapping audio.
+4. Block playback and expect Play welcome recovery, with no automatic retry or
+   microphone access. A failed password never admits a provider session.
+5. Refresh/focus an already signed-in page and sign in directly to backoffice:
+   neither should replay the welcome. Test mobile layout and keyboard controls.
+
+The welcome is a bounded25second one-shot using the existing authenticated native
+ADK/Gemini path, not a browser speech-synthesis substitute. Audio is prepared during
+the Sign in gesture following [Chrome Web Audio guidance](https://developer.chrome.com/blog/web-audio-autoplay).
+Browser permission and provider failures keep typed search and explicit Start voice
+available. No credentials, welcome audio or transcripts should enter test logs.

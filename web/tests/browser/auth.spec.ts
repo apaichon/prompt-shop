@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import map from '../fixtures/store-map.json' with {type:'json'};
 for(const role of ['shopper','admin'])test(`shared sign-in and ${role} scope`,async({page})=>{
  let signed=false,protectedCalls=0,logouts=0;
+ await page.routeWebSocket('**/ws/voice',()=>{});
  await page.route('**/api/**',async r=>{
   const path=new URL(r.request().url()).pathname,method=r.request().method();
   if(path==='/api/auth/session'){
@@ -11,6 +12,7 @@ for(const role of ['shopper','admin'])test(`shared sign-in and ${role} scope`,as
    return r.fulfill({status:signed?200:401,json:signed?{enabled:true,username:role==='admin'?'demo01':'demo02',role,expires_at:new Date(Date.now()+3600000).toISOString(),csrf_token:'fixture-csrf'}:{}});
   }
   protectedCalls++;expect(signed).toBe(true);
+  if(path==='/api/voice/sessions')return r.fulfill({status:201,json:{session_id:'welcome-fixture',ticket_expires_at:new Date(Date.now()+30000).toISOString(),ws_path:'/ws/voice'}});
   if(path==='/api/store-map')return r.fulfill({json:map});
   if(path==='/api/products')return r.fulfill({json:{catalog_version:1,products:[],total:0,page:1,page_size:12,categories:[]}});
   if(path==='/api/backoffice/session')return r.fulfill({json:{csrf_token:'fixture-csrf',expires_at:new Date(Date.now()+3600000).toISOString()}});

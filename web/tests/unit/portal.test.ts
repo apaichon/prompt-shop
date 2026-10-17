@@ -239,3 +239,31 @@ it('a single loud 20ms frame cannot cancel a reply; sustained speech can',async(
  expect(f.audio.flush.mock.calls.length).toBe(before+1);
  expect(get(f.voice).phase).toBe('listening');f.voice.stop();
 });
+
+
+describe('one-shot native welcome',()=>{
+ it.each(['provider-first','drain-first'])('does not capture and waits for completion AND drain (%s)',async order=>{
+  const f=voiceFixture();await f.voice.start(f.audio,true);f.ready();
+  expect(f.audio.capture).not.toHaveBeenCalled();
+  const sent=f.socket.send.mock.calls.map(([v])=>typeof v==='string'?JSON.parse(v):null);
+  expect(sent.some(v=>v?.type==='text'&&v.text.includes("I'm Monti"))).toBe(true);
+  f.socket.receive(event('audio_start'));f.socket.receive(new ArrayBuffer(640));
+  if(order==='provider-first')f.socket.receive(event('turn_complete'));else f.audio.drain!();
+  expect(get(f.voice).active).toBe(true);
+  if(order==='provider-first')f.audio.drain!();else f.socket.receive(event('turn_complete'));
+  expect(get(f.voice).active).toBe(false);expect(f.audio.close).toHaveBeenCalledOnce();expect(f.socket.close).toHaveBeenCalledOnce();
+ });
+ it('bounds welcome to25seconds and cancels late output after explicit Stop',async()=>{
+  vi.useFakeTimers();const f=voiceFixture();await f.voice.start(f.audio,true);f.ready();
+  await vi.advanceTimersByTimeAsync(25000);expect(get(f.voice).active).toBe(false);expect(f.audio.capture).not.toHaveBeenCalled();
+  const g=voiceFixture();await g.voice.start(g.audio,true);g.ready();const late=g.socket.onmessage!;g.voice.stop();late({data:JSON.stringify(event('audio_start'))});late({data:new ArrayBuffer(640)});expect(g.audio.play).not.toHaveBeenCalled();
+ });
+ it('keeps recovery visible when the greeting control cannot send or no audio arrives',async()=>{
+  const f=voiceFixture();await f.voice.start(f.audio,true);f.socket.send.mockImplementationOnce(()=>{throw new Error('closed')});f.ready();expect(get(f.voice)).toMatchObject({active:false,phase:'error'});expect(get(f.voice).message).toContain('Play welcome');
+  const g=voiceFixture();await g.voice.start(g.audio,true);g.ready();g.socket.receive(event('turn_complete'));expect(get(g.voice)).toMatchObject({active:false,phase:'error'});
+ });
+ it('never admits a provider when prepared output is blocked and closes on a failed greeting turn',async()=>{
+  const f=voiceFixture();f.audio.open.mockRejectedValueOnce(new Error('blocked'));await f.voice.start(f.audio,true);expect(f.socket.onmessage).toBeNull();expect(f.audio.close).toHaveBeenCalled();
+  const g=voiceFixture();await g.voice.start(g.audio,true);g.ready();g.socket.receive(event('error',{code:'TURN_TIMEOUT',message:'timeout',retryable:true}));expect(get(g.voice).active).toBe(false);expect(get(g.voice).message).toContain('Play welcome');
+ });
+});

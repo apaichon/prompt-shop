@@ -3,6 +3,7 @@
   import { Portal } from '#lib/portal.ts';
   import Icon from '#lib/components/Icon.svelte';
   import VoicePanel from '#lib/components/VoicePanel.svelte';
+  import WelcomeGreeting from '#lib/components/WelcomeGreeting.svelte';
   import AssistantAvatar from '#lib/components/AssistantAvatar.svelte';
   import ProductCard from '#lib/components/ProductCard.svelte';
   import CatalogBrowser from '#lib/components/CatalogBrowser.svelte';
@@ -66,6 +67,7 @@
     <form class="header-search" onsubmit={(event) => { event.preventDefault(); search(); }}><Icon name="search" size={21} /><label class="sr-only" for="item-query">Item name</label><input id="item-query" name="query" bind:value={query} maxlength="200" placeholder="Ask or search for a product" autocomplete="off" /><button class="search-submit" type="submit" aria-label="Find item"><Icon name="arrow" size={19} /></button><button class="search-mic" type="button" aria-label="Open voice assistant from search" onclick={() => { if (matchMedia('(min-width:1200px)').matches) { void portal.startVoice(); } else { dialog.showModal(); } }}><Icon name="mic" size={21} /></button></form>
     <a class="backoffice-link" href="/backoffice" aria-label="Backoffice"><Icon name="grid" size={20} /><span>Backoffice</span></a>
   </div></header>
+  <WelcomeGreeting />
   <main id="main" class="monti-main"><div class="shop-workspace" class:has-results={$portal.searched || !!$portal.location}>
     <div class="finder-column">
       <section class="shop-introduction"><div><p class="small-overline">LESS SEARCHING. MORE FINDING.</p><h1>Find it. Say it. <span>Shop it.</span></h1><p>Your store, a little easier. Just ask Monti.</p></div><span class="intro-mark" aria-hidden="true"><Icon name="sparkle" size={31} /></span></section>
