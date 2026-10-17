@@ -1,0 +1,35 @@
+{
+  "input": "public WebSocket text controls; no browser microphone/playout",
+  "scenario": "ambiguous selection",
+  "turns": [
+    {
+      "index": 1,
+      "first_audio_ms": 1460,
+      "route_ms": null,
+      "audio_bytes": 107042,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    },
+    {
+      "index": 2,
+      "first_audio_ms": 1421,
+      "route_ms": null,
+      "audio_bytes": 209282,
+      "complete": true,
+      "errors": [],
+      "candidate_count": 3,
+      "expected_route": true
+    },
+    {
+      "index": 3,
+      "first_audio_ms": 1615,
+      "route_ms": 1112,
+      "audio_bytes": 195362,
+      "complete": true,
+      "errors": [],
+      "expected_route": true
+    }
+  ],
+  "closed": false
+}

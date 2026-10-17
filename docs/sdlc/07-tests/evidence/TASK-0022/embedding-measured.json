@@ -1,0 +1,370 @@
+{
+  "model_revision": "gemini-embedding-2@768:718705fca362f4f0",
+  "context": "all labels eligible",
+  "exact_labels": 36,
+  "tool_families": 40,
+  "total": 40,
+  "warm_p95_ms": 631,
+  "cases": [
+    {
+      "id": "embed-find-01",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8959173836896797,
+      "margin": 0.07526749367334351,
+      "latency_ms": 560,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-02",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8397982472800195,
+      "margin": 0.0053945478544076275,
+      "latency_ms": 547,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-03",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8084728958440675,
+      "margin": 0.04990885528281419,
+      "latency_ms": 631,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-04",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8125300698962229,
+      "margin": 0.044277665357140505,
+      "latency_ms": 551,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-05",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8703843137721516,
+      "margin": 0.14103047377243105,
+      "latency_ms": 633,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-06",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8455740135460535,
+      "margin": 0.10813922665429121,
+      "latency_ms": 566,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-07",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8503577935615497,
+      "margin": 0.06930590941926851,
+      "latency_ms": 607,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-find-08",
+      "expected": "find_item",
+      "actual": "find_item",
+      "confidence": 0.8073968897049079,
+      "margin": 0.025489793544978046,
+      "latency_ms": 541,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-01",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.9184513329210675,
+      "margin": 0.16845286666809778,
+      "latency_ms": 583,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-02",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.9250028758875909,
+      "margin": 0.1898364765400935,
+      "latency_ms": 551,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-03",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.8892033423102311,
+      "margin": 0.1483059970818349,
+      "latency_ms": 540,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-04",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.8027440649114796,
+      "margin": 0.0665903903079006,
+      "latency_ms": 587,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-05",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.8215201979989913,
+      "margin": 0.08818596857102234,
+      "latency_ms": 577,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-06",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.9072789090316101,
+      "margin": 0.15549600112831496,
+      "latency_ms": 551,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-07",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.8176940460613271,
+      "margin": 0.06534562016385792,
+      "latency_ms": 597,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-select-08",
+      "expected": "select_item",
+      "actual": "select_item",
+      "confidence": 0.8721823633377156,
+      "margin": 0.11731687314953809,
+      "latency_ms": 597,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-01",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.9430751046583458,
+      "margin": 0.21930978090761943,
+      "latency_ms": 562,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-02",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.8766128689951947,
+      "margin": 0.11844425067132303,
+      "latency_ms": 550,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-03",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.8163852675450944,
+      "margin": 0.11821042989988007,
+      "latency_ms": 482,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-04",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.9085832370698103,
+      "margin": 0.15525481045827927,
+      "latency_ms": 585,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-05",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.8604892250714072,
+      "margin": 0.13838792762778684,
+      "latency_ms": 552,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-06",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.8994431712030054,
+      "margin": 0.1493488645129425,
+      "latency_ms": 592,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-07",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.8677327995095928,
+      "margin": 0.12377602650173336,
+      "latency_ms": 586,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-repeat-08",
+      "expected": "repeat_directions",
+      "actual": "repeat_directions",
+      "confidence": 0.897665746399003,
+      "margin": 0.15221364506903756,
+      "latency_ms": 529,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-01",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.841507405682688,
+      "margin": 0.11551700254742414,
+      "latency_ms": 593,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-02",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.8574535750620458,
+      "margin": 0.1084304594307749,
+      "latency_ms": 611,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-03",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.8181240329012441,
+      "margin": 0.05804265837763256,
+      "latency_ms": 654,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-04",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.9452657719424902,
+      "margin": 0.2235340499273053,
+      "latency_ms": 623,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-05",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.8187171020714825,
+      "margin": 0.07885577657914389,
+      "latency_ms": 590,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-06",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.8900460303058302,
+      "margin": 0.13700544301695172,
+      "latency_ms": 546,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-07",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.8979649327196565,
+      "margin": 0.15739347933036785,
+      "latency_ms": 574,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-summary-08",
+      "expected": "summarize",
+      "actual": "summarize",
+      "confidence": 0.854879242428953,
+      "margin": 0.09398196856117225,
+      "latency_ms": 595,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-01",
+      "expected": "out_of_scope",
+      "actual": "out_of_scope",
+      "confidence": 0.784109906664408,
+      "margin": 0.07415261019401542,
+      "latency_ms": 543,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-02",
+      "expected": "out_of_scope",
+      "actual": "out_of_scope",
+      "confidence": 0.7599704125369767,
+      "margin": 0.09042190574424402,
+      "latency_ms": 570,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-03",
+      "expected": "out_of_scope",
+      "actual": "out_of_scope",
+      "confidence": 0.7669661417859084,
+      "margin": 0.09525857338511479,
+      "latency_ms": 615,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-04",
+      "expected": "out_of_scope",
+      "actual": null,
+      "confidence": 0.7090612314331555,
+      "margin": 0.017617011723456977,
+      "latency_ms": 575,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-05",
+      "expected": "out_of_scope",
+      "actual": "out_of_scope",
+      "confidence": 0.8024294762314147,
+      "margin": 0.10422713974300091,
+      "latency_ms": 590,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-06",
+      "expected": "out_of_scope",
+      "actual": null,
+      "confidence": 0.7106310250506302,
+      "margin": 0.008656846406684848,
+      "latency_ms": 548,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-07",
+      "expected": "out_of_scope",
+      "actual": null,
+      "confidence": 0.6714441564007407,
+      "margin": 0.017273272661024186,
+      "latency_ms": 586,
+      "tool_family_correct": true
+    },
+    {
+      "id": "embed-scope-08",
+      "expected": "out_of_scope",
+      "actual": null,
+      "confidence": 0.6905513714826365,
+      "margin": 0.003998313280540899,
+      "latency_ms": 598,
+      "tool_family_correct": true
+    }
+  ]
+}

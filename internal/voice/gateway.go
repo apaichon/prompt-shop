@@ -375,6 +375,15 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket, authorized func() bool
 				if err = bridgeEvent(Event{"type": "classification_registered", "turn_id": turn, "classification_attempt_id": attempt}); err != nil {
 					return err
 				}
+			case "response_ready":
+				var attempt string
+				if json.Unmarshal(event["classification_attempt_id"], &attempt) != nil {
+					return errors.New("INVALID_REQUEST")
+				}
+				// Internal control only; never forward this metadata to the browser.
+				if s.AllowResponse(turn, attempt) != nil {
+					continue
+				}
 			case "audio_start":
 				if turn != s.Turn() || !s.AudioAllowed(turn) {
 					audioTurn = 0

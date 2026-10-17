@@ -32,6 +32,16 @@
       void tick().then(() => { if(target==='summary-heading' && dialog?.open)dialog.close(); if (!dialog?.open) document.getElementById(target)?.focus(); });
     }
   });
+  let revealedRoute: typeof $portal.route = null;
+  $effect(() => {
+    const route = $portal.route;
+    if (route === revealedRoute) return;
+    revealedRoute = route;
+    if (route && dialog?.open) {
+      dialog.close();
+      void tick().then(() => document.getElementById('route-heading')?.focus());
+    }
+  });
   function closeDrawer() { portal.stopVoice(); dialog?.close(); launcher?.focus(); }
   function minimizeDrawer() { dialog?.close(); launcher?.focus(); }
   function trapDrawer(event: KeyboardEvent) {
@@ -92,7 +102,16 @@
         <section class="map-panel" aria-labelledby="route-heading"><div class="map-heading"><div><span class="small-overline">YOUR WAY THERE</span><h2 id="route-heading" tabindex="-1">{$portal.location ? $portal.location.name : 'Get to know your store'}</h2></div><Icon name="map" size={20} /></div>
           <div class="map-meta"><span><Icon name="pin" size={12} />From entrance</span><span>Sample map · Not live location</span></div>
           {#if $portal.location}<div class="destination-strip"><strong>{$portal.location.aisle.label}</strong><span>{$portal.location.shelf.label}</span>{#if $portal.route}<span class="verified-location"><Icon name="check" size={12} />Route found</span>{/if}</div>{/if}
-          {#if $portal.map}<StoreMap map={$portal.map} route={$portal.route} />{:else}<div class="map-placeholder"><Icon name="map" size={32} /><p>{$portal.mapLoading ? 'Loading the store map…' : 'The map is unavailable right now.'}</p></div>{/if}
+          {#if $portal.map}<StoreMap map={$portal.map} route={$portal.route} product={$portal.location} />{:else}<div class="map-placeholder"><Icon name="map" size={32} /><p>{$portal.mapLoading ? 'Loading the store map…' : 'The map is unavailable right now.'}</p></div>{/if}
+          {#if $portal.candidates.length > 1}
+            <div class="map-choices" aria-label="Choose an item to highlight">
+              {#each $portal.candidates as product (product.id)}
+                <button aria-pressed={$portal.location?.id === product.id} onclick={() => {void portal.choose(product);}}>
+                  <strong>{product.name}</strong><span>{product.aisle.label} · {product.shelf.label}</span>
+                </button>
+              {/each}
+            </div>
+          {/if}
           {#if $portal.mapError}<div class="inline-error" role="status"><p>{$portal.mapError}</p><button class="text-button" onclick={() => portal.loadMap()}>Retry map</button></div>{/if}
           {#if $portal.routeMessage}<p class="route-message" role="status">{$portal.routeMessage}</p>{/if}
           <div class="map-map-footer"><span><i></i>{$portal.route ? 'Your walking route' : 'Find an item to see its route'}</span><Icon name="route" size={15} /></div>
@@ -100,6 +119,6 @@
       {/snippet}
     </VoicePanel></aside>
   </div><footer class="monti-footer"><span><strong>{shopBrand.name}</strong> A little help around the store.</span><span>Powered by a friendly conversation.</span></footer></main>
-  <div class="mobile-voice-dock" role="region" aria-label="Voice controls" style:bottom={`${keyboardInset}px`}>{#if $voice.phase === 'error'}<p class="dock-error" role="alert">{$voice.message}</p>{/if}<button bind:this={launcher} class="dock-companion" aria-label="Open voice assistant" onclick={() => dialog.showModal()}><AssistantAvatar phase={$voice.phase} level={$voice.outputLevel} size={46} /><span><strong>{shopBrand.assistant}</strong><small role="status" aria-live="polite">{$voice.active ? `${statusLabels[$voice.phase]} · ${$voice.micMuted ? 'Mic muted' : $voice.micHeld ? 'Mic paused' : 'Mic on'} · ${Math.floor($voice.remaining/60)}:${String($voice.remaining%60).padStart(2, '0')} left` : 'Ready to help'}<Icon name="chevron" size={11} /></small></span></button>{#if $voice.speakerMode && $voice.active}<button class="dock-interrupt interrupt-reply" disabled={!$voice.micHeld} onclick={() => voice.interrupt()}>Interrupt</button>{/if}<div class="dock-actions"><button class="round-control" disabled={!$voice.active} aria-label={$voice.micMuted ? 'Unmute mic' : 'Mute mic'} aria-pressed={$voice.micMuted} onclick={() => voice.muteMicrophone()}><Icon name="mic" size={17} /></button><button class="dock-primary" aria-label={$voice.active ? 'End voice' : $voice.phase === 'error' ? 'Restart voice' : 'Start voice'} onclick={() => $voice.active ? portal.stopVoice() : portal.startVoice()}><Icon name={$voice.active ? 'stop' : 'mic'} size={24} /></button><button class="round-control" disabled={!$voice.active} aria-label={$voice.soundMuted ? 'Unmute sound' : 'Mute sound'} aria-pressed={$voice.soundMuted} onclick={() => voice.muteSpeaker()}><Icon name="sound" size={18} /></button></div></div>
+  <div class="mobile-voice-dock" role="region" aria-label="Voice controls" style:bottom={`${keyboardInset}px`}>{#if $voice.phase === 'error'}<p class="dock-error" role="alert">{$voice.message}</p>{/if}<button bind:this={launcher} class="dock-companion" aria-label="Open voice assistant" onclick={() => dialog.showModal()}><AssistantAvatar phase={$voice.phase} level={$voice.outputLevel} size={46} /><span><strong>{shopBrand.assistant}</strong><small role="status" aria-live="polite">{$voice.active ? `${$voice.soundMuted ? 'Sound muted' : statusLabels[$voice.phase]} · ${$voice.micMuted ? 'Mic muted' : $voice.micHeld ? 'Mic paused' : 'Mic on'} · ${Math.floor($voice.remaining/60)}:${String($voice.remaining%60).padStart(2, '0')} left` : 'Ready to help'}<Icon name="chevron" size={11} /></small></span></button>{#if $voice.speakerMode && $voice.active}<button class="dock-interrupt interrupt-reply" disabled={!$voice.micHeld} onclick={() => voice.interrupt()}>Interrupt</button>{/if}<div class="dock-actions"><button class="round-control" disabled={!$voice.active} aria-label={$voice.micMuted ? 'Unmute mic' : 'Mute mic'} aria-pressed={$voice.micMuted} onclick={() => voice.muteMicrophone()}><Icon name="mic" size={17} /></button><button class="dock-primary" aria-label={$voice.active ? 'End voice' : $voice.phase === 'error' ? 'Restart voice' : 'Start voice'} onclick={() => $voice.active ? portal.stopVoice() : portal.startVoice()}><Icon name={$voice.active ? 'stop' : 'mic'} size={24} /></button><button class="round-control" disabled={!$voice.active} aria-label={$voice.soundMuted ? 'Unmute sound' : 'Mute sound'} aria-pressed={$voice.soundMuted} onclick={() => voice.muteSpeaker()}><Icon name={$voice.soundMuted ? 'sound-muted' : 'sound'} size={18} /></button></div></div>
   <dialog bind:this={dialog} class="voice-dialog monti-dialog" onkeydown={trapDrawer} aria-label="Voice assistant" oncancel={(event) => {event.preventDefault();closeDrawer();}}><div class="dialog-actions"><button class="minimize-assistant" onclick={minimizeDrawer}>Minimize <Icon name="chevron" size={15} /></button><button class="drawer-close" aria-label="Close voice assistant" onclick={closeDrawer}><Icon name="close" /></button></div><VoicePanel {portal} prefix="mobile" /></dialog>
 </div>

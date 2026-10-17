@@ -1,0 +1,24 @@
+{
+  "input": "synthetic spoken microphone; real Chromium capture/playout; Gemini Live and embedding API",
+  "injected_noise_frames": 7,
+  "ui_caption_present": true,
+  "candidate_count": 2,
+  "input_caption": true,
+  "output_caption": true,
+  "complete": true,
+  "audio_bytes": 218402,
+  "audio_rms": 3625,
+  "playout_started": true,
+  "error_codes": [],
+  "closed": false,
+  "selection": {
+    "complete": true,
+    "audio_bytes": 218880,
+    "audio_rms": 4393,
+    "expected_route": true,
+    "map_visible": true,
+    "selected_aisles": 1,
+    "spoken_aisle": true,
+    "spoken_shelf": true
+  }
+}

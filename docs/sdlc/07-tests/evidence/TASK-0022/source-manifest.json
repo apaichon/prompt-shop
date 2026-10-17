@@ -1,0 +1,26 @@
+{
+  "scope": "TASK-0022 repair, layered on the user current uncommitted source snapshot",
+  "files": {
+    "agent/tools/embedding_router.py": "1442ce6a53993be69c1680252663227bcd7d023ada1e7370a31755e0dc029e91",
+    "agent/tools/prototypes/embedding-v2.json": "718705fca362f4f0aa36ba62ebeabf587e61f5de3d20ca59a6668f8bd45a68f5",
+    "agent/prompt_shop_live/app.py": "d521268e503ac8d1b32ea3b7fbd43ceba72ef78af90163b223156d10ab75c095",
+    "agent/prompt_shop_live/host.py": "25ee2df6ffa2d398b4c2ff94f1d185b4a0dff7549103ba138479584d6f384e40",
+    "agent/prompt_shop_live/tools.py": "9610c74b01b3aaa5cb61e24433eab4b05958e2f6b4ee194085a0e67ba3e3f02d",
+    "agent/prompt_shop_live/runtime.py": "6bdd59fc35783cfef6a7ecd858c0b4084e62a71cc276dec1325c4b3107e16b23",
+    "agent/evaluate_embeddings.py": "71f0276b4c29806e1ee22c98ba9334b01fb57c686427a0c3ace80db75ac518c2",
+    "scripts/mvp.py": "f1e1c71d1cf6ac38bbd3947211d384bb5d3f2058067fe00c36f1b1c67d5f54e1",
+    "internal/voice/session.go": "bb2fa868e9d10299a3cacf1a30d0ddade3ce1b5b90262e8a8d1e7fa192727cf2",
+    "internal/voice/gateway.go": "265caa4135ac098f4de8e143fe790293967348245ec05c9bd60626d54957b600",
+    "web/src/lib/portal.ts": "a4cebc7ebaa38a589eb57ecf1a88bb49d052a3a4c71daf3263d86eba688085c5",
+    "web/src/lib/components/StoreMap.svelte": "e7d589a9475139e0d996d942ac2c8549e21b543c9aa575ea0b9036c97eb472e2",
+    "web/src/routes/+page.svelte": "70bb7aa1a8621fe0554cfce72dc590771bf151eccd31b29c6e122281ea63df4d",
+    "web/src/monti.css": "2125203465426e587a9ebe1331addd371ebaa1311c36ed36b9084221f8f3772f",
+    "agent/tests/test_embedding_router.py": "8fbd64b9626068bbc160d8176cc38cd78c6286298b22a332319ea904b668a8d3",
+    "agent/tests/test_shopper_tools.py": "030b7717648a1672da6b731cae825d8212b0aab21c888dca0f7e8097bac80041",
+    "agent/tests/test_mvp_launcher.py": "f28b5ce30183a950239a93d2ed8b5e106b4e841490d7b7912c19724766e264cc",
+    "internal/voice/session_test.go": "c2d9498f148cd40c37f125c2a1067d02353174d1db47f26608b2abf86521a9ce",
+    "web/tests/unit/portal.test.ts": "6b16b2a339e44cb804025134ef38cc3731e2170ea173cd8283d4d48be497516d",
+    "web/tests/browser/portal.spec.ts": "fc75587e4c5f9a20076e69f4a3a816126ae92b868edfde823d56b3cc6b132c8a",
+    "web/tests/native/embedding-map.cjs": "d5909b8b5b3d2cc8ad75d2aa8bb5e22d5fa46f92b3981963c7b5ed72c562a20f"
+  }
+}

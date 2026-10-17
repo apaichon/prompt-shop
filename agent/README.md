@@ -199,3 +199,30 @@ with item history and unmuted active voice. No autonomous provider silence loop 
 new connection is introduced. Summary/decline does not rearm until another lookup.
 Opt-in probe: NATIVE_SUMMARY_TEST=1 with private NATIVE_ACCOUNTS_FILE, then
 node web/tests/native/conversation-summary.cjs. No raw speech/transcript is saved.
+
+
+## Local embedding runtime (TASK-0022)
+
+The local MVP launcher defaults to `INTENT_BACKEND=embedding` and starts only ADK
+and Go. Set the backend in `agent/.env`; the launcher copies that choice into Go's
+readiness configuration. `laya` is an explicit rollback and starts the local Laya
+service only when its Python environment and model bundle are installed. Existing
+cloud release qualification and historical Laya evidence are unchanged.
+
+Gemini Embedding 2 embeds completed text at 768 dimensions using the documented
+classification prefix (https://ai.google.dev/gemini-api/docs/embeddings). Prototype
+v2 includes named choices and ordinary conversation. V1 and the original 40-case
+evaluation file remain unchanged. Every label needs cosine >=0.75 and a
+margin >=0.05, except a winning find_item with cosine >=0.80 may perform a
+read-only catalog search despite overlapping selection phrasing. Catalog ambiguity
+still requires shopper choice. These are similarity thresholds, not calibrated probabilities.
+Unavailable or uncertain embeddings ask for clarification without inventing facts.
+The HTTP connection and prototype vectors are reused; no local transformer is loaded.
+The embedding budget is 2.5 seconds, the host classification budget 2.75 seconds,
+and the existing eight-second first-response watchdog remains in place. Shutdown
+closes the shared HTTP client.
+
+Successful searches replace the remembered candidate IDs even for zero matches,
+and invalidate the old repeat route. Candidate IDs and search IDs must still match
+Go's current, unexpired search. A clarification or tool failure sends the private
+`response_ready` control so Go and ADK agree that the spoken recovery may play.

@@ -1,0 +1,178 @@
+{
+  "schema_version": "embedding-prototypes-v1",
+  "model": "gemini-embedding-2",
+  "dimensions": 768,
+  "prefix": "task: classification | query: ",
+  "examples": [
+    {
+      "id": "proto-find-01",
+      "label": "find_item",
+      "text": "Where is whole milk?"
+    },
+    {
+      "id": "proto-find-02",
+      "label": "find_item",
+      "text": "Find toilet roll."
+    },
+    {
+      "id": "proto-find-03",
+      "label": "find_item",
+      "text": "Do you have rice?"
+    },
+    {
+      "id": "proto-find-04",
+      "label": "find_item",
+      "text": "I need toothpaste."
+    },
+    {
+      "id": "proto-select-01",
+      "label": "select_item",
+      "text": "Choose the first one."
+    },
+    {
+      "id": "proto-select-02",
+      "label": "select_item",
+      "text": "The second one, please."
+    },
+    {
+      "id": "proto-select-03",
+      "label": "select_item",
+      "text": "I'll take that one."
+    },
+    {
+      "id": "proto-select-04",
+      "label": "select_item",
+      "text": "The larger pack."
+    },
+    {
+      "id": "proto-repeat-01",
+      "label": "repeat_directions",
+      "text": "Repeat those directions."
+    },
+    {
+      "id": "proto-repeat-02",
+      "label": "repeat_directions",
+      "text": "Say the route again."
+    },
+    {
+      "id": "proto-repeat-03",
+      "label": "repeat_directions",
+      "text": "Can you repeat the way?"
+    },
+    {
+      "id": "proto-repeat-04",
+      "label": "repeat_directions",
+      "text": "Tell me how to walk there again."
+    },
+    {
+      "id": "proto-summary-01",
+      "label": "summarize",
+      "text": "Summarize my items and their locations."
+    },
+    {
+      "id": "proto-summary-02",
+      "label": "summarize",
+      "text": "Yes please summarize them."
+    },
+    {
+      "id": "proto-summary-03",
+      "label": "summarize",
+      "text": "Recap what I found."
+    },
+    {
+      "id": "proto-summary-04",
+      "label": "summarize",
+      "text": "What have we looked at?"
+    },
+    {
+      "id": "proto-scope-01",
+      "label": "out_of_scope",
+      "text": "Book me a hotel."
+    },
+    {
+      "id": "proto-scope-02",
+      "label": "out_of_scope",
+      "text": "Charge my credit card."
+    },
+    {
+      "id": "proto-scope-03",
+      "label": "out_of_scope",
+      "text": "What is the weather tomorrow?"
+    },
+    {
+      "id": "proto-scope-04",
+      "label": "out_of_scope",
+      "text": "Tell me a joke."
+    },
+    {
+      "id": "v2-find_item-1",
+      "label": "find_item",
+      "text": "Show me where the crackers are."
+    },
+    {
+      "id": "v2-find_item-2",
+      "label": "find_item",
+      "text": "Where are the paper towels sold?"
+    },
+    {
+      "id": "v2-find_item-3",
+      "label": "find_item",
+      "text": "Locate a bottle of olive oil."
+    },
+    {
+      "id": "v2-find_item-4",
+      "label": "find_item",
+      "text": "Can you show the location of toothpaste?"
+    },
+    {
+      "id": "v2-select_item-1",
+      "label": "select_item",
+      "text": "I choose the whole milk."
+    },
+    {
+      "id": "v2-select_item-2",
+      "label": "select_item",
+      "text": "The oat drink, please."
+    },
+    {
+      "id": "v2-select_item-3",
+      "label": "select_item",
+      "text": "Take the strawberry jam from those options."
+    },
+    {
+      "id": "v2-select_item-4",
+      "label": "select_item",
+      "text": "I want the seeded loaf from the results."
+    },
+    {
+      "id": "v2-out_of_scope-1",
+      "label": "out_of_scope",
+      "text": "Hello, nice to meet you."
+    },
+    {
+      "id": "v2-out_of_scope-2",
+      "label": "out_of_scope",
+      "text": "Thank you for helping me."
+    },
+    {
+      "id": "v2-out_of_scope-3",
+      "label": "out_of_scope",
+      "text": "What is two plus two?"
+    },
+    {
+      "id": "v2-out_of_scope-4",
+      "label": "out_of_scope",
+      "text": "Give me a dinner recipe using eggs."
+    },
+    {
+      "id": "v2-out_of_scope-5",
+      "label": "out_of_scope",
+      "text": "Tell me about the solar system."
+    },
+    {
+      "id": "v2-out_of_scope-6",
+      "label": "out_of_scope",
+      "text": "Who is the current prime minister?"
+    }
+  ]
+}

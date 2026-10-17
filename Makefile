@@ -10,10 +10,10 @@ help:
 	  'reset-data  DELETE local PostgreSQL data, then migrate and reseed' \
 	  'status      Show local infrastructure state' \
 	  'logs        Follow PostgreSQL logs' \
-	  'mvp-start   Start the portal, real ADK voice and offline Laya' \
+	  'mvp-start   Start the portal and ADK voice with Gemini Embedding 2' \
 	  'mvp-stop    Stop application services; retain PostgreSQL' \
 	  'mvp-restart Restart application services with current configuration' \
-	  'mvp-status  Check portal, ADK and Laya readiness' \
+	  'mvp-status  Check portal and ADK readiness; Laya stays stopped' \
 	  'demo-accounts Generate ten local accounts once; preserve existing credentials'
 
 start stop restart reset-data status logs infra-start infra-stop infra-restart infra-reset-data:

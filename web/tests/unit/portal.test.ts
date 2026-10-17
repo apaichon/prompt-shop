@@ -75,7 +75,7 @@ describe('HTTP and asynchronous presentation', () => {
   it('retries a stale map and route once, then refuses mismatched overlays', async () => {
     let routeCalls = 0, mapCalls = 0;
     const api = new Api(vi.fn(async (path) => {
-      if (path === '/api/search') return response(search);
+      if (path === '/api/search') return response({...search, ambiguous:true});
       if (path === '/api/store-map') { mapCalls++; return response({ ...map, map_version: mapCalls }); }
       routeCalls++; return response({ ...route, map_version: 3 });
     }));
@@ -91,7 +91,7 @@ describe('HTTP and asynchronous presentation', () => {
   it('does not commit a route whose delayed map arrives after Stop', async () => {
     const delayed = deferred<Response>();
     const api = new Api(vi.fn(async (path) => path === '/api/search' ? response(search) : path === '/api/routes' ? response(route) : delayed.promise));
-    const portal = new Portal(api); await portal.search('milk'); const pending = portal.choose(search.candidates[0]);
+    const portal = new Portal(api); const pending = portal.search('milk');
     await Promise.resolve(); await Promise.resolve(); portal.stopVoice(); delayed.resolve(response(map)); await pending;
     expect(get(portal).route).toBeNull(); portal.destroy();
   });
@@ -308,4 +308,19 @@ describe('quiet summary follow-up',()=>{
   expect(eventSchema.safeParse({...snapshot,entries:[{...snapshot.entries[0],status:'not_found'}]}).success).toBe(false);
   f.voice.stop();
  });
+});
+
+
+it('automatically locates one typed match without another click', async () => {
+ const fetcher=vi.fn(async(path)=>response(path==='/api/store-map'?map:path==='/api/search'?search:route));
+ const portal=new Portal(new Api(fetcher));await portal.loadMap();await portal.search('whole milk');
+ expect(get(portal).location?.id).toBe(route.product.id);expect(get(portal).route?.product.id).toBe(route.product.id);
+ expect(get(portal).focus).toBe('results-heading');expect(get(portal).loading).toBe(false);
+ expect(fetcher.mock.calls.filter(([path])=>path==='/api/routes')).toHaveLength(1);portal.destroy();
+});
+
+it('keeps ambiguous typed matches unselected until the shopper chooses', async () => {
+ const fetcher=vi.fn(async()=>response({...search,candidates:[search.candidates[0],{...search.candidates[0],id:'other-milk'}],ambiguous:true}));
+ const portal=new Portal(new Api(fetcher));await portal.search('milk');
+ expect(get(portal).location).toBeNull();expect(get(portal).route).toBeNull();expect(fetcher).toHaveBeenCalledTimes(1);portal.destroy();
 });
