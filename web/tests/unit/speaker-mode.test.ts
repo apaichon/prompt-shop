@@ -18,9 +18,9 @@ async function session(speakerMode = true) {
   const api = { ticket: async () => ({ session_id: 'test', ticket_expires_at: new Date(Date.now() + 30000).toISOString() }) } as Api;
   const client = new VoiceClient({ event: vi.fn(), turn: vi.fn() }, api, () => audio, () => socket as unknown as WebSocket, () => 'http://localhost');
   clients.push(client);
-  if (speakerMode) client.toggleSpeakerMode();
+  if (!speakerMode) client.toggleSpeakerMode();
   const event = (type: string, extras = {}) => socket.onmessage({ data: JSON.stringify({ type, session_id: 'test', ...(['audio_start', 'audio_end', 'interrupted'].includes(type) ? {turn_id:'turn-1',generation_id:'generation-1'} : type === 'error' || type === 'turn_complete' ? {turn_id:'turn-1'} : {}), ...extras }) });
-  const ready = () => event('ready', { expires_at: new Date(Date.now() + 300000).toISOString(), input_rate: 16000, output_rate: 24000 });
+  const ready = () => event('ready', { expires_at: new Date(Date.now() + 600000).toISOString(), input_rate: 16000, output_rate: 24000 });
   await client.start(); ready();
   const pcm = () => capture(new Int16Array(1280).fill(2000).buffer, true); // sustained 80ms, above both VAD thresholds
   const binary = () => socket.onmessage({ data: new ArrayBuffer(640) });
@@ -30,6 +30,11 @@ async function session(speakerMode = true) {
 }
 
 describe('speaker mode microphone guard', () => {
+  it('starts on and retains an explicit off choice across Stop/restart', async () => {
+    const s=await session();expect(get(s.client).speakerMode).toBe(true);
+    s.client.toggleSpeakerMode();s.client.stop();await s.client.start();s.ready();
+    expect(get(s.client).speakerMode).toBe(false);
+  });
   it.each(['provider-first', 'drain-first'])('waits for both completion and drain plus acoustic tail (%s)', async order => {
     const s = await session(); s.reply(); const flushes = vi.mocked(s.audio.flush).mock.calls.length;
     s.pcm(); expect([...s.lastPCM()].every(n => n === 0)).toBe(true);

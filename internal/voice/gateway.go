@@ -20,6 +20,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const sessionLifetime = 10 * time.Minute
+const maxSessionAudioBytes = 20 << 20
+
 const Protocol = "prompt-shop.voice.v1"
 const ticketCookie = "__Host-voice-ticket"
 
@@ -349,7 +352,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket, authorized func() bool
 				now := time.Now()
 				readyAt.Store(now.UnixNano())
 				activity.Store(now.UnixNano())
-				if err = emit(Event{"type": "ready", "session_id": s.ID, "expires_at": now.Add(300 * time.Second).UTC(), "input_rate": 16000, "output_rate": 24000}); err != nil {
+				if err = emit(Event{"type": "ready", "session_id": s.ID, "expires_at": now.Add(sessionLifetime).UTC(), "input_rate": 16000, "output_rate": 24000}); err != nil {
 					return err
 				}
 			case "classification_completed":
@@ -446,7 +449,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket, authorized func() bool
 				last = now
 				tokens -= float64(len(data))
 				total += len(data)
-				if tokens < 0 || total > 10<<20 {
+				if tokens < 0 || total > maxSessionAudioBytes {
 					return ErrLimit
 				}
 				started, ended, frames := input.push(data)
@@ -555,7 +558,7 @@ func (g *Gateway) relay(client *websocket.Conn, t Ticket, authorized func() bool
 				if !ready.Load() && now.Sub(startTime) >= 30*time.Second {
 					return errors.New("SETUP_TIMEOUT")
 				}
-				if ready.Load() && (now.Sub(time.Unix(0, readyAt.Load())) >= 300*time.Second || now.Sub(time.Unix(0, activity.Load())) >= 60*time.Second) {
+				if ready.Load() && (now.Sub(time.Unix(0, readyAt.Load())) >= sessionLifetime || now.Sub(time.Unix(0, activity.Load())) >= 60*time.Second) {
 					return errors.New("SESSION_EXPIRED")
 				}
 				if !pendingPing.IsZero() {

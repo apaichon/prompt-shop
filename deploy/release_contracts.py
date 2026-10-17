@@ -136,7 +136,7 @@ def revision_view(c, value, name, bundle, secret_refs, *, must_be_ready=True):
     secrets(secret_refs)
     spec = value["spec"]
     require(isinstance(spec, dict), "revision spec object required")
-    require(spec["serviceAccountName"] == account(c, "runtime") and type(spec["containerConcurrency"]) is int and spec["containerConcurrency"] == 10 and type(spec["timeoutSeconds"]) is int and spec["timeoutSeconds"] == 360, "runtime identity/limits differ")
+    require(spec["serviceAccountName"] == account(c, "runtime") and type(spec["containerConcurrency"]) is int and spec["containerConcurrency"] == 10 and type(spec["timeoutSeconds"]) is int and spec["timeoutSeconds"] == 660, "runtime identity/limits differ")
     require(not spec.get("volumes") and not spec.get("nodeSelector"), "unreviewed volume/GPU runtime override")
     annotations = metadata.get("annotations", {})
     for key, expected in {"run.googleapis.com/cloudsql-instances": connection(c), "autoscaling.knative.dev/maxScale": "2", "autoscaling.knative.dev/minScale": "0", "run.googleapis.com/execution-environment": "gen2", "run.googleapis.com/cpu-throttling": "true"}.items():

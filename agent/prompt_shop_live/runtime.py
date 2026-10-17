@@ -20,6 +20,7 @@ from .tools import ShopperTool, LIVE_SCHEMAS
 from .transcript import merge_transcript
 
 TURN_TOOL_TIMEOUT = 8.0
+SESSION_SECONDS = 600
 
 INSTRUCTION = """You are Monti, a friendly hypermarket voice assistant. Always speak English, even if the shopper asks for another language.
 Answer promptly and briefly, usually one or two sentences. After answering, wait for a new shopper request.
@@ -88,7 +89,7 @@ class Runtime:
 
         async def on_ready():
             nonlocal deadline, last_activity
-            deadline = time.monotonic() + 300
+            deadline = time.monotonic() + SESSION_SECONDS
             last_activity = time.monotonic()
             await send({"type": "provider_ready", "session_id": setup.session_id})
             ready.set()

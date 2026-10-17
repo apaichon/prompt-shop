@@ -113,7 +113,7 @@ function voiceFixture() {
   const audio = new FakeAudio(), socket = new Socket(), callbacks = { event: vi.fn(), turn: vi.fn() };
   const api = new Api(vi.fn(async () => response({ session_id: 'fixture-session', ticket_expires_at: new Date(Date.now() + 30000).toISOString(), ws_path: '/ws/voice' }, 201)));
   const voice = new VoiceClient(callbacks, api, () => audio, () => socket as unknown as WebSocket, () => 'https://portal.test');
-  const ready = () => socket.receive(event('ready', { expires_at: new Date(Date.now() + 300000).toISOString() }));
+  const ready = () => socket.receive(event('ready', { expires_at: new Date(Date.now() + 600000).toISOString() }));
   return { voice, audio, socket, callbacks, ready };
 }
 afterEach(() => vi.useRealTimers());
@@ -181,8 +181,9 @@ describe('voice lifecycle and bounded transport', () => {
     const idle = voiceFixture(); await idle.voice.start(); idle.ready();
     for (let i = 0; i < 6; i++) { await vi.advanceTimersByTimeAsync(10000); idle.socket.receive(event('pong')); }
     expect(get(idle.voice).message).toContain('inactivity');
-    const active = voiceFixture(); await active.voice.start(); active.ready();
-    for (let i = 0; i < 30; i++) { active.audio.frame!(new ArrayBuffer(3200), true); active.socket.receive(event('pong')); await vi.advanceTimersByTimeAsync(10000); }
+    const active = voiceFixture(); expect(get(active.voice)).toMatchObject({speakerMode:true,remaining:600}); await active.voice.start(); active.ready();
+    expect(get(active.voice).remaining).toBe(600);
+    for (let i = 0; i < 60; i++) { active.audio.frame!(new ArrayBuffer(3200), true); active.socket.receive(event('pong')); await vi.advanceTimersByTimeAsync(10000); if(i===29)expect(get(active.voice).active).toBe(true); }
     expect(get(active.voice).message).toContain('session ended');
   });
 });
@@ -227,7 +228,7 @@ it('failed selection send reports failure and still releases microphone and sock
 
 
 it('a single loud 20ms frame cannot cancel a reply; sustained speech can',async()=>{
- const f=voiceFixture();await f.voice.start();f.ready();
+ const f=voiceFixture();f.voice.toggleSpeakerMode();await f.voice.start();f.ready();
  f.socket.receive(event('audio_start'));f.socket.receive(new ArrayBuffer(3200));
  const before=f.audio.flush.mock.calls.length;
  f.audio.frame!(new ArrayBuffer(640),true);

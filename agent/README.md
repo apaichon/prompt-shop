@@ -142,7 +142,7 @@ real Laya, integrated routing, or the 30-turn latency acceptance.
   plus 64 total queue entries. The pinned SDK socket uses one queued message and
   a 65,536-byte message cap; application output rejects >48,000-byte PCM parts and
   splits frames at 16,384 bytes. Slow writes time out after one second.
-- Setup 30 seconds, session 300 seconds from provider-ready, idle 60 seconds and
+- Setup 30 seconds, session 600 seconds from provider-ready, idle 60 seconds and
   an eight-second wait for first audio per attempt (including missing tools). A recognized request may get
   one native ADK continuation reminder. A silent completed reply triggers it
   immediately; if tools are already complete it reuses their current verified results
