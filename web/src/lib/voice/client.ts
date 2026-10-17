@@ -34,6 +34,9 @@ export class VoiceClient {
   private audioFinished = false;
   private audioDrained = true;
   private cooldown = 0;
+  private greeting = false;
+  private greetingComplete = false;
+  private greetingHeard = false;
   private playingReply = false;
   private speakerTailUntil = 0;
 
@@ -45,6 +48,10 @@ export class VoiceClient {
     return micHeld;
   }
   private finishPlayout() {
+    if (this.greeting && this.greetingComplete && this.audioDrained) {
+      if (this.greetingHeard) this.stop(); else this.fail('Tap Play welcome to hear Monti.');
+      return;
+    }
     if (this.playingReply && this.audioFinished && this.audioDrained) {
       this.playingReply = false;
       this.speakerTailUntil = Date.now() + 250;
@@ -72,17 +79,18 @@ export class VoiceClient {
     private origin: () => string = () => window.location.origin) {}
   private patch(patch: Partial<VoiceState>) { this.state = { ...this.state, ...patch }; this.store.set(this.state); }
 
-  async start() {
-    if (this.state.active) return;
-    if (Date.now() < this.cooldown) { this.patch({ phase: 'error', message: recovery.RATE_LIMITED }); return; }
+  async start(audioOverride?: AudioEngine, greeting = false) {
+    if (this.state.active) { audioOverride?.close(); return; }
+    if (Date.now() < this.cooldown) { audioOverride?.close(); this.patch({ phase: 'error', message: recovery.RATE_LIMITED }); return; }
     this.stop();
     const token = this.nonce;
     const current = () => token === this.nonce;
     this.devices.cancel();
-    const audio = this.makeAudio(this.devices.selection()); this.audio = audio;
+    this.greeting = greeting;
+    const audio = audioOverride ?? this.makeAudio(this.devices.selection()); this.audio = audio;
     const abort = new AbortController(); this.abort = abort;
-    this.setupDeadline = Date.now() + 30000;
-    this.patch({ ...initial(), speakerMode: this.state.speakerMode, phase: 'connecting', active: true, message: 'Allow microphone access to begin.' });
+    this.setupDeadline = Date.now() + (greeting ? 25000 : 30000);
+    this.patch({ ...initial(), speakerMode: this.state.speakerMode, phase: 'connecting', active: true, message: greeting ? 'Monti is getting ready to say hi.' : 'Allow microphone access to begin.' });
     this.timer = setInterval(() => this.tick(), 500);
     try {
       await audio.open((frame, voiced) => { if (current()) this.sendAudio(frame, voiced); },
@@ -111,6 +119,7 @@ export class VoiceClient {
     // Invalidate the identity before any transport callback or asynchronous cleanup.
     const session = this.gate.session;
     this.audioFinished = false; this.audioDrained = true; this.playingReply = false; this.speakerTailUntil = 0; this.inputActivity.reset();
+    this.greeting = this.greetingComplete = this.greetingHeard = false;
     this.nonce++; this.gate.stop(); this.ready = false; this.callbacks.turn();
     this.abort?.abort(); this.abort = undefined;
     if (this.timer) clearInterval(this.timer); this.timer = undefined;
@@ -166,7 +175,7 @@ export class VoiceClient {
         // A sound mute may have flushed an earlier chunk of this generation.
         // Fresh PCM must wait for completion again, even without a new audio_start.
         this.audioFinished = false; this.audioDrained = this.state.soundMuted;
-        this.audio?.play(data);
+        this.audio?.play(data); this.greetingHeard = true;
         if (!this.state.soundMuted) {
           this.playingReply = true; this.updateSpeakerHold(); this.patch({ phase: 'speaking' });
         }
@@ -186,9 +195,15 @@ export class VoiceClient {
     switch (event.type) {
       case 'ready':
         if (this.ready) { this.fail('Voice connection was reset. Please restart.'); return; }
-        this.ready = true; this.expires = Math.min(Date.parse(event.expires_at), Date.now() + 600000);
+        this.ready = true; this.expires = Math.min(Date.parse(event.expires_at), this.greeting ? this.setupDeadline : Date.now() + 600000);
         this.lastSpeech = this.lastPing = Date.now(); this.pongDeadline = 0; this.inputActivity.reset();
-        this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say hello, ask a question, or find an item.' }); break;
+        if (this.greeting) {
+          if (!this.send({type:'text',text:"Greet the shopper briefly in English: Hi, I'm Monti. Welcome! Ask me a question or tell me what you would like to find. Say only this greeting."})) {
+            this.fail('Tap Play welcome to hear Monti.'); break;
+          }
+          this.patch({phase:'thinking',message:'Monti is saying hi.'});
+        } else { this.audio?.capture(true); this.patch({ phase: 'listening', message: 'Say hello, ask a question, or find an item.' }); }
+        break;
       case 'input_transcript': this.patch({ input: mergeTranscriptChunk(this.state.input, event.text).slice(-8000), phase: event.final ? 'thinking' : 'listening' }); break;
       case 'output_transcript': this.patch({ output: mergeTranscriptChunk(this.state.output, event.text).slice(-8000) }); break;
       case 'audio_start': this.audioFinished = false; break;
@@ -197,8 +212,11 @@ export class VoiceClient {
         this.patch(decision.newTurn
           ? { phase: 'listening', message: 'Listening to you…' }
           : { phase: 'interrupted', message: 'Response stopped. Listening to you…' }); break;
-      case 'turn_complete': this.audioFinished = true; this.finishPlayout(); if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
+      case 'turn_complete':
+        if (this.greeting) { this.greetingComplete = true; this.audioFinished = true; this.finishPlayout(); break; }
+        this.audioFinished = true; this.finishPlayout(); if (this.audioDrained || this.state.phase !== 'speaking') this.patch({ phase: 'listening', message: 'You can ask another question.' }); break;
       case 'error':
+        if (this.greeting) { this.fail('Tap Play welcome to hear Monti.'); break; }
         if (event.code === 'TURN_TIMEOUT') {
           this.flushAudio(); this.gate.anticipateTurn(); this.callbacks.turn();
           this.audioFinished = true; this.audioDrained = true;

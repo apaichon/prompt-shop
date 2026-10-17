@@ -64,7 +64,11 @@ Backoffice setup and verification: [internal/backoffice/README.md](internal/back
 
 Local MVP startup generates ten demo accounts once in private `tmp/auth/credentials.txt`.
 Use `demo01` for shopper + backoffice access, or `demo02`–`demo10` for shopping/voice.
-Both pages require sign-in. In Monti's panel, open **Audio settings** to select a
+Both pages require sign-in. After a fresh shopper sign-in, Monti speaks a short
+welcome using the configured Gemini voice, with the microphone off. Use Skip welcome
+or Play welcome if needed; Start voice deliberately opens the microphone for a
+fresh ten-minute session. Refresh/focus checks and backoffice login do not replay
+the welcome. In Monti's panel, open **Audio settings** to select a
 microphone/speaker and test output before starting voice. Unsupported browsers use
 the system output. See [manual authentication/device checks](docs/sdlc/09-operations/READINESS.md#task-0016-shared-sign-in-and-audio-devices-local-mvp).
 

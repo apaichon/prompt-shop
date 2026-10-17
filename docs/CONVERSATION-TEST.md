@@ -13,13 +13,20 @@ except in the explicit interruption tests.
    <http://localhost:8080>.
 2. Sign in with a shopper account, demo02–demo10. Read its password privately from
    `tmp/auth/credentials.txt`; do not copy passwords into this document.
-3. Open **Audio settings**, enable device names, choose your microphone and output,
+3. After a fresh shopper sign-in, listen to Monti's automatic welcome. Expect
+   “Hi, I'm Monti” or equivalent, a complete audible greeting and **Microphone off**.
+   Confirm the welcome finishes and the microphone permission prompt has not opened.
+   Refreshing or returning focus must not greet again. **Skip welcome** stops it;
+   **Play welcome** retries only when explicitly clicked after a playback failure.
+   If you choose **Start voice** during the greeting, it must stop before normal
+   microphone capture starts.
+4. Open **Audio settings**, enable device names, choose your microphone and output,
    then click **Test speaker**. End voice before changing devices.
-4. For computer speakers, keep the default **Speaker mode on**. During Monti's reply, the mic
+5. For computer speakers, keep the default **Speaker mode on**. During Monti's reply, the mic
    is deliberately held; use **Interrupt** before speaking over a reply.
    With headphones, test **Speaker mode off** for automatic spoken interruption.
-5. Click **Start voice**, grant permission, and wait for **Listening**.
-6. Record the browser, device, source commit, configured Gemini model/voice and
+6. Click **Start voice**, grant permission, and wait for **Listening**.
+7. Record the browser, device, source commit, configured Gemini model/voice and
    speaker-mode choice in the results sheet below. Do not record secrets.
 
 Each voice session has a ten-minute limit and a one-minute idle limit. Start a

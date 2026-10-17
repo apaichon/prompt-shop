@@ -176,7 +176,7 @@ def start():
         "--host", "127.0.0.1", "--port", "8001", "--no-access-log", "--ws-max-size", "65536",
         "--ws-max-queue", "1", "--timeout-graceful-shutdown", "7"], agent, ROOT / "agent")
     launch("go", [binary], values)
-    print("Open http://localhost:8080 and choose Start voice. Logs: tmp/run/. No provider call occurs until voice starts.")
+    print("Open http://localhost:8080. Sign in for Monti’s welcome; choose Start voice to use your microphone. Logs: tmp/run/.")
 
 
 def main():
