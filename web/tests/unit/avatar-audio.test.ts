@@ -4,7 +4,7 @@ import { avatarPose } from '../../src/lib/ui-config';
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
-function playbackFixture(selection = {microphoneId:"",speakerId:""}, sinkFails = false) {
+function playbackFixture(selection = {microphoneId:"",speakerId:""}, sinkFails = false, outputOnly = false) {
   let amplitude = 0, reduced = false, next = 0;
   const frames = new Map<number, FrameRequestCallback>();
   const track = { enabled: true, onended: null, stop: vi.fn() };
@@ -33,7 +33,7 @@ function playbackFixture(selection = {microphoneId:"",speakerId:""}, sinkFails =
   vi.stubGlobal('requestAnimationFrame',(callback:FrameRequestCallback)=>{frames.set(++next,callback);return next;});
   vi.stubGlobal('cancelAnimationFrame',(id:number)=>frames.delete(id));
   const step = () => { const [id, callback]=[...frames.entries()][0]; frames.delete(id); callback(0); };
-  return {audio:new BrowserAudio(selection),media,sink,worklets,frames,sources,analyser,track,step,setAmplitude:(value:number)=>amplitude=value,setReduced:()=>reduced=true};
+  return {audio:new BrowserAudio(selection,outputOnly),media,sink,worklets,frames,sources,analyser,track,step,setAmplitude:(value:number)=>amplitude=value,setReduced:()=>reduced=true};
 }
 
 describe('avatar output follows playback lifecycle',()=>{
@@ -105,5 +105,24 @@ describe('selected audio devices',()=>{
   const f=playbackFixture({microphoneId:'',speakerId:'removed'},true);
   await expect(f.audio.open(vi.fn(),vi.fn(),vi.fn())).rejects.toThrow(/speaker/i);
   expect(f.track.stop).toHaveBeenCalledOnce();expect(f.worklets).toHaveLength(0);
+ });
+});
+
+
+describe('login welcome uses output only',()=>{
+ it('prepares on the gesture and plays/drains without microphone or worklet access',async()=>{
+  const f=playbackFixture({microphoneId:'',speakerId:''},false,true),drain=vi.fn();
+  await f.audio.prepareOutput();await f.audio.open(vi.fn(),drain,vi.fn());
+  expect(f.media).not.toHaveBeenCalled();expect(f.worklets).toHaveLength(0);
+  f.audio.play(new ArrayBuffer(3200));f.sources[0].onended();expect(drain).toHaveBeenCalledOnce();
+  f.audio.close();expect(f.track.stop).not.toHaveBeenCalled();
+ });
+ it('handles blocked output without requesting microphone access',async()=>{
+  const f=playbackFixture({microphoneId:'',speakerId:''},false,true),close=vi.fn(async()=>{});
+  class Blocked {state='suspended';resume=async()=>{throw new DOMException('blocked','NotAllowedError')};close=close;}
+  vi.stubGlobal('AudioContext',Blocked);vi.stubGlobal('window',{AudioContext:Blocked});
+  expect(await f.audio.prepareOutput()).toBe(false);
+  await expect(f.audio.open(vi.fn(),vi.fn(),vi.fn())).rejects.toThrow(/click/);
+  expect(f.media).not.toHaveBeenCalled();expect(close).toHaveBeenCalledOnce();
  });
 });

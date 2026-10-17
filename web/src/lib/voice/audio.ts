@@ -11,7 +11,8 @@ export interface AudioEngine {
   close(): void;
 }
 export class BrowserAudio implements AudioEngine {
-  constructor(private selection: AudioSelection = {microphoneId:'',speakerId:''}) {}
+  constructor(private selection: AudioSelection = {microphoneId:'',speakerId:''}, private outputOnly = false) {}
+  private outputResume?: Promise<boolean>;
   private context?: AudioContext;
   private stream?: MediaStream;
   private node?: AudioWorkletNode;
@@ -27,17 +28,36 @@ export class BrowserAudio implements AudioEngine {
   private onLevel = (_level: number) => {};
   private lastLevel = 0;
 
+  private createOutput() {
+    const context = new AudioContext(); this.context = context;
+    this.analyser = context.createAnalyser?.();
+    if (this.analyser) { this.analyser.fftSize = 256; this.analyser.connect(context.destination); }
+    return context;
+  }
+  // Called synchronously inside Sign in/Play welcome, before any network awaits.
+  // Resolve failure rather than leaving an unhandled resume rejection at login.
+  prepareOutput(): Promise<boolean> {
+    if (this.outputResume) return this.outputResume;
+    try {
+      if (this.closed || !window.AudioContext) return Promise.resolve(false);
+      const context = this.createOutput();
+      this.outputResume = context.resume().then(() => !this.closed && context.state === 'running', () => false);
+    } catch { this.outputResume = Promise.resolve(false); }
+    return this.outputResume;
+  }
   async open(onFrame: (frame: ArrayBuffer, voiced: boolean) => void, onDrain: () => void, onFailure: () => void, onLevel = (_level: number) => {}) {
+    this.onDrain = onDrain; this.onLevel = onLevel;
+    if (this.outputOnly) {
+      const allowed = await this.prepareOutput();
+      if (this.closed) return;
+      if (!allowed) { this.close(); throw new Error('Welcome playback needs a click.'); }
+      return; // No microphone permission, worklet or capture graph.
+    }
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia || !window.AudioContext || !window.AudioWorkletNode) {
       throw new Error('Microphone needs a supported browser on HTTPS or localhost. You can still type an item.');
     }
-    this.onDrain = onDrain;
-    this.onLevel = onLevel;
     // Resume during the explicit click gesture; never defer until the provider is ready.
-    const context = new AudioContext(); this.context = context;
-    // The analyser observes only speaker playback, never microphone capture.
-    this.analyser = context.createAnalyser?.();
-    if (this.analyser) { this.analyser.fftSize = 256; this.analyser.connect(context.destination); }
+    const context = this.createOutput();
     const resumed = context.resume();
     const permission = navigator.mediaDevices.getUserMedia({ audio: { ...(this.selection.microphoneId ? {deviceId:{exact:this.selection.microphoneId}} : {}), channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
     // Attach both handlers immediately, including the permission result after Stop.

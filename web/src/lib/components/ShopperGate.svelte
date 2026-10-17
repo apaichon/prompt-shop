@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
   import { z } from 'zod';
+  import { prepareWelcome, queueWelcome, cancelWelcome } from '../voice/welcome';
   export let children: Snippet;
   export let adminOnly = false;
   const sessionSchema = z.discriminatedUnion('enabled', [z.object({enabled:z.literal(false)}), z.object({enabled:z.literal(true),username:z.string(),role:z.enum(['admin','shopper']),expires_at:z.string().datetime({offset:true}),csrf_token:z.string()})]);
@@ -10,7 +11,7 @@
   let logoutCSRF = '';
   let expiry: ReturnType<typeof setTimeout> | undefined;
   let generation = 0;
-  function clearSession(note = '') { generation++; session = null; loading = false; message = note; if (expiry) clearTimeout(expiry); }
+  function clearSession(note = '') { cancelWelcome(); generation++; session = null; loading = false; message = note; if (expiry) clearTimeout(expiry); }
   function apply(value: Session) {
     session = value; loading = false; message = ''; logoutCSRF = '';
     if (expiry) clearTimeout(expiry);
@@ -30,13 +31,18 @@
   async function login(event: SubmitEvent) {
     event.preventDefault(); if (busy) return; busy = true; message = '';
     const key = ++generation;
+    let welcome = !adminOnly ? prepareWelcome() : undefined;
     try {
       const response = await fetch('/api/auth/session', {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password}),signal:AbortSignal.timeout(10000)});
       if (key !== generation) return;
       if (!response.ok) { message = response.status === 429 ? 'Too many attempts. Wait a minute and try again.' : response.status === 401 ? 'Username or password is incorrect.' : 'Sign-in is temporarily unavailable. Try again.'; return; }
-      const value = sessionSchema.parse(await response.json()); if (key === generation) apply(value);
+      const value = sessionSchema.parse(await response.json());
+      if (key === generation) {
+        if (value.enabled && welcome && !adminOnly) { queueWelcome(welcome); welcome = undefined; }
+        apply(value);
+      }
     } catch { if (key === generation) message = 'Sign-in is temporarily unavailable. Try again.'; }
-    finally { password = ''; busy = false; }
+    finally { welcome?.close(); password = ''; busy = false; }
   }
   async function logout() {
     if (busy) return;
@@ -57,13 +63,13 @@
     const lost = () => { if(session?.enabled)clearSession('Please sign in again.'); };
     const focus = () => { if (!busy && session?.enabled) void check(); };
     window.addEventListener('shop-auth-required',lost); window.addEventListener('focus',focus);
-    return () => { generation++; if(expiry)clearTimeout(expiry); window.removeEventListener('shop-auth-required',lost);window.removeEventListener('focus',focus); };
+    return () => { cancelWelcome(); generation++; if(expiry)clearTimeout(expiry); window.removeEventListener('shop-auth-required',lost);window.removeEventListener('focus',focus); };
   });
 </script>
 <svelte:head>{#if !session || (adminOnly && session.enabled && session.role !== "admin")}<title>Sign in · Monti Store</title>{/if}</svelte:head>
 {#if loading}<main id="main" class="signin-shell"><p role="status">Checking sign-in…</p></main>
 {:else if session}
-  {#if session.enabled}<div class="account-bar" aria-label="Shopper account"><span>Signed in as <strong>{session.username}</strong></span><button onclick={logout} disabled={busy}>Sign out</button></div>{/if}
+  {#if session.enabled}<section class="account-bar" aria-label="Shopper account"><span>Signed in as <strong>{session.username}</strong></span><button onclick={logout} disabled={busy}>Sign out</button></section>{/if}
   {#if adminOnly && session.enabled && session.role !== 'admin'}<main id="main" class="signin-shell"><section class="signin-card"><h1>Administrator access required</h1><p>This account can use the shopper page. Sign in with an administrator account to edit the catalog.</p><a href="/">Return to the store</a></section></main>{:else}{@render children()}{/if}
 {:else}
   <main id="main" class="signin-shell"><section class="signin-card" aria-labelledby="signin-title"><span class="signin-brand">Monti Store</span><h1 id="signin-title">Welcome back</h1><p>Sign in to talk to Monti and find your way around the store.</p>

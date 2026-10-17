@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import { Api, ApiError, errorMessage } from './api';
 import { routeMatchesMap, type StoreMap, type Product, type Route, type VoiceEvent } from './contracts';
 import { VoiceClient } from './voice/client';
+import { cancelWelcome } from './voice/welcome';
 
 export interface PortalState {
   map: StoreMap | null; mapError: string; mapLoading: boolean; candidates: Product[];
@@ -128,7 +129,7 @@ export class Portal {
       catch (error) { this.routeError(error, key, route.product); }
     }
   }
-  startVoice() { this.invalidate(); this.clicked = null; return this.voice.start(); }
-  stopVoice() { this.invalidate(); this.voice.stop(); }
+  startVoice() { cancelWelcome(); this.invalidate(); this.clicked = null; return this.voice.start(); }
+  stopVoice() { cancelWelcome(); this.invalidate(); this.voice.stop(); }
   destroy() { this.alive = false; this.stopVoice(); this.mapEpoch++; this.mapRequest?.abort(); this.unsubscribe(); this.voice.devices.destroy(); }
 }
