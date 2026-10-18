@@ -1,0 +1,17 @@
+{
+  "agent-go/go.mod": "182661aa2d037d5b152d73fab9a2ebef5b415570c1be655359edaf34d4b5642a",
+  "agent-go/Makefile": "a9d7ad2948bdb9774eab12cf36812974adc35dc39e13e174edf891d3eee4fddb",
+  "agent-go/go.sum": "c7fbd95670fba17d712a3ddd721c0fd316893b7ce8527d9133faac535524c10a",
+  "agent-go/README.md": "5f8d1121b1e0371e841c8aae00925eeb25f3cf58541c99e2e61b2004e840e059",
+  "agent-go/.gitignore": "bd6a14e2c3bc84c0494cc9bd21e42a59ba4b48275f23e4799ac8e329a8dd0777",
+  "agent-go/.gitattributes": "83c011b3c7f6dcfa44c0961856fb97b7215e0bab08c70a95b5307650f553f978",
+  "agent-go/compat/adk-v2.6.0-gemini3-live-input.patch": "82ecdfb15282ce63f6839a74da1a5ab0c7f167db1984582ac8599ca0a7e83bab",
+  "agent-go/compat/adk-v2.6.0-realtime-input.patch": "4dd31c451fd7b91216579b33fc84f2ed0059086a49cb60634d18b2a6f755f84f",
+  "agent-go/compat/genai-v1.74.0-live-write-lock.patch": "32570beedbf0ec50038b322f16157054d68553eb3e7e97744b4e28a73eef91bc",
+  "agent-go/internal/liveprobe/compat_patched.go": "2a13212994a12eefb98538b789da2b15063924acd3364241827f740a408230c0",
+  "agent-go/internal/liveprobe/probe_test.go": "d579a6dffa8fba080bca68a676b46e8428db407aad2239db4e31a7eeeaede2e5",
+  "agent-go/internal/liveprobe/compat_default.go": "6e3d2c6310c4b7993d8039dac9004fa45a76a584f2c75db465e1843a77a33ac0",
+  "agent-go/internal/liveprobe/probe.go": "d3f0941ba8496f4a2a0dbf508109109dc8046bad388550230c324888a51cfdde",
+  "agent-go/cmd/live-probe/main.go": "53ded12e548dbf190aa22ae8c511e336ce2edc093d23114955831a6f77511c0b",
+  "agent-go/cmd/prepare-sdk/main.go": "99f8524284bd8f177357ec4088ad36b5435e6dee138c9d4e29ed2eb1bd2a3926"
+}

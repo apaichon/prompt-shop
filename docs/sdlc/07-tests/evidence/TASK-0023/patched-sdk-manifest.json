@@ -1,0 +1,24 @@
+[
+  {
+    "module": "google.golang.org/adk/v2",
+    "original_extra_source_sha256": "5ccd141cc9f068ee76f29ba8be0c36c82a535113487457843217dc7044751a15",
+    "original_source_sha256": "7834d5f978837bfebba0751e0afba637fccbd95217824eb1c7539e9a30949934",
+    "patch_sha256": "0738a584248b09ea24df1c74b30af98cf1b9aa5b429abb18374b614a3a3c28a6",
+    "patched_extra_source_sha256": "df20f87cf3b28e2640047caf43950d325abe152d702bf35bdc877d7dccc57452",
+    "patched_source_sha256": "5b4829aada21559bdfbecce1ca749a2853e8b89905c6393ad38d9a5a0c2ea200",
+    "patched_tree_sha256": "0454126f6285e0b5ce9f99bf626be28edbf0ce7cf61e4ae928a23cbaaa93f448",
+    "patches": "adk-v2.6.0-realtime-input.patch,adk-v2.6.0-gemini3-live-input.patch",
+    "sum": "h1:ZgMfKWzzB1H3qQ/6JV3pGkm7rcfNZFRMkgvOLBtmJTk=",
+    "version": "v2.6.0"
+  },
+  {
+    "module": "google.golang.org/genai",
+    "original_source_sha256": "8a493f6fddf3ec17a9ec1503da2873925d4f4080dd0c2fdb4f51211efd17f6a6",
+    "patch_sha256": "cb185c32931f89ca130619b2bb2bd8661b57027f3690878c9ee8c7fcc448f847",
+    "patched_source_sha256": "4e173f5d0532e12cca7ff80c4cd4a7d232f7fe45cf0eee776d601ccbe103a0fa",
+    "patched_tree_sha256": "a429fc5a9ac7d6feb30d0111bd94d6191fe679b19b71ba790a1f760dc8e0e0cc",
+    "patches": "genai-v1.74.0-live-write-lock.patch",
+    "sum": "h1:n7lBIax9PkdrmfxsNilfFPOwo1ahelozeZj2Ady0lgw=",
+    "version": "v1.74.0"
+  }
+]

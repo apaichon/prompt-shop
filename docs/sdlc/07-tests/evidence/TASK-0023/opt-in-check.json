@@ -1,0 +1,7 @@
+{
+  "exit_code": 2,
+  "report": {
+    "status": "opt_in_required"
+  },
+  "provider_opt_in_rejected": true
+}

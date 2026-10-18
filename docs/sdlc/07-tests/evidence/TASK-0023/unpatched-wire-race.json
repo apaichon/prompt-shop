@@ -1,0 +1,9 @@
+{
+  "adk": "v2.6.0",
+  "genai": "v1.74.0",
+  "command": "go test -race ./internal/liveprobe -run TestPinnedSDKWireCharacterization -count=1 -v",
+  "exit_code": 1,
+  "race_detected": true,
+  "site": "GenAI Session.send concurrent ADK input and tool response writers",
+  "manual_activity_setting_forwarded": false
+}

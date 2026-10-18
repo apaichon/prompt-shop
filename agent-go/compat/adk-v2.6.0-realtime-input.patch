@@ -1,0 +1,10 @@
+--- a/internal/llminternal/base_flow.go
++++ b/internal/llminternal/base_flow.go
+@@ -426,6 +426,7 @@
+ 			SessionResumption:        runCfg.Live.SessionResumption,
+ 			InputAudioTranscription:  runCfg.Live.InputAudioTranscription,
+ 			OutputAudioTranscription: runCfg.Live.OutputAudioTranscription,
++			RealtimeInputConfig:      runCfg.Live.RealtimeInputConfig,
+ 		}
+ 
+ 		iCtx, isIContext := ctx.(*icontext.InvocationContext)

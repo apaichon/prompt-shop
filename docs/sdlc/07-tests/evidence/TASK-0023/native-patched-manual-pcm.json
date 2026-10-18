@@ -1,0 +1,19 @@
+{
+  "compatibility_patches": "adk-realtime-input-v1,genai-live-write-lock-v1",
+  "adk": "v2.6.0",
+  "genai": "v1.74.0",
+  "model": "gemini-3.8-live",
+  "voice": "Aoede",
+  "input": "synthetic PCM with manual activity",
+  "status": "stream_failed",
+  "tool_calls": 0,
+  "input_transcript": false,
+  "output_transcript": false,
+  "audio_bytes": 0,
+  "nonzero_pcm_samples": 0,
+  "interrupted": false,
+  "turn_complete": false,
+  "iterator_cleanup": true,
+  "elapsed_ms": 3407,
+  "exit_code": 1
+}
