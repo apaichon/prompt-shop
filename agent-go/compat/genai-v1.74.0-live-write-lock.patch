@@ -1,0 +1,43 @@
+--- a/live.go
++++ b/live.go
+@@ -23,6 +23,7 @@
+ 	"net/url"
+ 	"path"
+ 	"strings"
++	"sync"
+ 
+ 	"github.com/gorilla/websocket"
+ )
+@@ -44,6 +45,7 @@
+ // Generative AI API. It provides methods for sending client messages and
+ // receiving server messages over the established connection.
+ type Session struct {
++	writeMu sync.Mutex
+ 	conn            *websocket.Conn
+ 	apiClient       *apiClient
+ 	SetupComplete   *LiveServerSetupComplete
+@@ -253,7 +255,7 @@
+ 	if err != nil {
+ 		return fmt.Errorf("marshal client message error: %w", err)
+ 	}
+-	return s.conn.WriteMessage(websocket.TextMessage, []byte(data))
++	return s.writeMessage(data)
+ }
+ 
+ // Preview. LiveToolResponseInput is the input for [SendToolResponse].
+@@ -297,7 +299,14 @@
+ 	if err != nil {
+ 		return fmt.Errorf("marshal client message error: %w", err)
+ 	}
+-	return s.conn.WriteMessage(websocket.TextMessage, []byte(data))
++	return s.writeMessage(data)
++}
++
++// writeMessage serializes audio, content and function-response writes.
++func (s *Session) writeMessage(data []byte) error {
++	s.writeMu.Lock()
++	defer s.writeMu.Unlock()
++	return s.conn.WriteMessage(websocket.TextMessage, data)
+ }
+ 
+ // Preview. Receive reads a LiveServerMessage from the connection.

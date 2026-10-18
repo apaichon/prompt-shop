@@ -1,0 +1,41 @@
+{
+  "adk": "v2.6.0",
+  "genai": "v1.74.0",
+  "patches": "adk-realtime-input-v1,adk-gemini3-live-input-v1,genai-live-write-lock-v1",
+  "exit_code": 0,
+  "race_detected": false,
+  "wire_cases": [
+    {
+      "model": "models/gemini-3.8-live",
+      "voice": "Aoede",
+      "audio_requested": true,
+      "input_transcription_requested": true,
+      "output_transcription_requested": true,
+      "manual_activity_setting_forwarded": true,
+      "blocking_ack_tool_declared": true,
+      "activity_start_sent": false,
+      "activity_end_sent": false,
+      "input_pcm_bytes": 0,
+      "function_response_received": true,
+      "modern_audio_field": false,
+      "legacy_media_chunks": false,
+      "modern_text_field": true
+    },
+    {
+      "model": "models/gemini-3.8-live",
+      "voice": "Aoede",
+      "audio_requested": true,
+      "input_transcription_requested": true,
+      "output_transcription_requested": true,
+      "manual_activity_setting_forwarded": true,
+      "blocking_ack_tool_declared": true,
+      "activity_start_sent": true,
+      "activity_end_sent": true,
+      "input_pcm_bytes": 8,
+      "function_response_received": true,
+      "modern_audio_field": true,
+      "legacy_media_chunks": false,
+      "modern_text_field": false
+    }
+  ]
+}

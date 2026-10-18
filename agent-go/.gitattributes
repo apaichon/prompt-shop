@@ -1,0 +1,2 @@
+# Unified-diff context markers intentionally precede tabs and blank lines.
+compat/*.patch -whitespace

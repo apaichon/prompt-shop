@@ -1,0 +1,18 @@
+{
+  "adk": "v2.6.0",
+  "genai": "v1.74.0",
+  "model": "gemini-3.8-live",
+  "voice": "Aoede",
+  "input": "text control",
+  "status": "pass",
+  "tool_calls": 1,
+  "input_transcript": false,
+  "output_transcript": true,
+  "audio_bytes": 161760,
+  "nonzero_pcm_samples": 79813,
+  "interrupted": false,
+  "turn_complete": true,
+  "iterator_cleanup": true,
+  "elapsed_ms": 4896,
+  "exit_code": 0
+}
